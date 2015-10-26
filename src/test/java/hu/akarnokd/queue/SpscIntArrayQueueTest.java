@@ -13,6 +13,39 @@
 
 package hu.akarnokd.queue;
 
-public class SpscIntArrayQueueTest {
+import org.junit.*;
 
+public class SpscIntArrayQueueTest {
+    @Test
+    public void simpleUse() {
+        boolean[] hasValue = new boolean[1];
+        
+        SpscIntArrayQueue q = new SpscIntArrayQueue(32);
+        
+        for (int i = 1; i <= 32; i++) {
+            Assert.assertTrue("" + i + ": ", q.offer(i));
+        }
+        
+        Assert.assertFalse(q.offer(33));
+        
+        for (int i = 1; i <= 32; i++) {
+            Assert.assertFalse(q.isEmpty());
+            Assert.assertTrue(q.hasValue());
+            Assert.assertEquals(i, q.peek());
+            Assert.assertEquals(i, q.peek(hasValue));
+            Assert.assertTrue(hasValue[0]);
+            Assert.assertEquals(i, q.poll());
+        }
+        
+        Assert.assertTrue(q.isEmpty());
+        Assert.assertFalse(q.hasValue());
+        Assert.assertEquals(0, q.peek());
+        Assert.assertEquals(0, q.poll());
+        
+        Assert.assertEquals(0, q.peek(hasValue));
+        Assert.assertFalse(hasValue[0]);
+        
+        Assert.assertEquals(0, q.poll(hasValue));
+        Assert.assertFalse(hasValue[0]);
+    }
 }

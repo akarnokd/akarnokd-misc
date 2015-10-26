@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.*;
 
 import rx.internal.util.unsafe.Pow2;
 
-public final class SpscIntArrayQueue {
+public final class SpscIntArrayQueueAtomic {
     final int mask;
-    final int[] array;
+    final long[] array;
     final AtomicLong producerIndex = new AtomicLong();
     final AtomicLong consumerIndex = new AtomicLong();
     
@@ -27,11 +27,11 @@ public final class SpscIntArrayQueue {
         return (int)index & m;
     }
     
-    int lvElement(int[] a, int offset) {
+    long lvElement(long[] a, int offset) {
         return a[offset];
     }
     
-    void soElement(int[] a, int offset, int value) {
+    void soElement(long[] a, int offset, long value) {
         a[offset] = value;
     }
     
@@ -39,7 +39,7 @@ public final class SpscIntArrayQueue {
         producerIndex.lazySet(value);
     }
     
-    long lvProducerIndex() {
+    long lpProducerIndex() {
         return producerIndex.get();
     }
 
@@ -47,106 +47,94 @@ public final class SpscIntArrayQueue {
         consumerIndex.lazySet(value);
     }
     
-    long lvConsumerIndex() {
+    long lpConsumerIndex() {
         return consumerIndex.get();
     }
-    public SpscIntArrayQueue(int capacity) {
+    public SpscIntArrayQueueAtomic(int capacity) {
         int c = Pow2.roundToPowerOfTwo(capacity);
-        array = new int[c];
+        array = new long[c];
         mask = c - 1;
     }
 
     public boolean offer(int value) {
-        final long pi = lvProducerIndex();
-        final long ci = lvConsumerIndex();
         final int m = mask;
-        
-        if (pi == ci + m + 1) {
+        final long[] a = array;
+        final long pi = lpProducerIndex();
+
+        final int offset = calcOffset(pi, m);
+        final long v = lvElement(a, offset);
+        if (v != 0L) {
             return false;
         }
-        
-        final int[] a = array;
-        
-        final int offset = calcOffset(pi, m);
-        soElement(a, offset, value);
+        soElement(a, offset, value | 0x1_0000_0000L);
         soProducerIndex(pi + 1);
         
         return true;
     }
     
     public int peek(boolean[] hasValue) {
-        final long pi = lvProducerIndex();
-        final long ci = lvConsumerIndex();
-        
-        if (pi == ci) {
-            hasValue[0] = false;
-            return 0;
-        }
-        
         final int m = mask;
-        final int[] a = array;
+        final long[] a = array;
+        final long ci = lpConsumerIndex();
 
         final int offset = calcOffset(ci, m);
-        hasValue[0] = true;
-        return lvElement(a, offset);
+        final long v = lvElement(a, offset);
+        if (v != 0L) {
+            hasValue[0] = true;
+            return (int)v;
+        }
+        hasValue[0] = false;
+        return 0;
     }
 
     public int peek() {
-        final long pi = lvProducerIndex();
-        final long ci = lvConsumerIndex();
-        
-        if (pi == ci) {
-            return 0;
-        }
-        
         final int m = mask;
-        final int[] a = array;
+        final long[] a = array;
+        final long ci = lpConsumerIndex();
 
         final int offset = calcOffset(ci, m);
-        return lvElement(a, offset);
+        final long v = lvElement(a, offset);
+        if (v != 0L) {
+            return (int)v;
+        }
+        return 0;
     }
     
     
     public int poll(boolean[] hasValue) {
-        final long pi = lvProducerIndex();
-        final long ci = lvConsumerIndex();
-        
-        if (pi == ci) {
-            hasValue[0] = false;
-            return 0;
-        }
-        
         final int m = mask;
-        final int[] a = array;
+        final long[] a = array;
+        final long ci = lpConsumerIndex();
 
         final int offset = calcOffset(ci, m);
-        int lvElement = lvElement(a, offset);
-        soConsumerIndex(ci + 1);
-
-        hasValue[0] = true;
-        return lvElement;
+        final long v = lvElement(a, offset);
+        if (v != 0L) {
+            soElement(a, offset, 0L);
+            soConsumerIndex(ci + 1);
+            hasValue[0] = true;
+            return (int)v;
+        }
+        hasValue[0] = false;
+        return 0;
     }
 
     public int poll() {
-        final long pi = lvProducerIndex();
-        final long ci = lvConsumerIndex();
-        
-        if (pi == ci) {
-            return 0;
-        }
-        
         final int m = mask;
-        final int[] a = array;
+        final long[] a = array;
+        final long ci = lpConsumerIndex();
 
         final int offset = calcOffset(ci, m);
-        int lvElement = lvElement(a, offset);
-        soConsumerIndex(ci + 1);
-
-        return lvElement;
+        final long v = lvElement(a, offset);
+        if (v != 0L) {
+            soElement(a, offset, 0L);
+            soConsumerIndex(ci + 1);
+            return (int)v;
+        }
+        return 0;
     }
     
     public boolean isEmpty() {
-        return lvProducerIndex() == lvConsumerIndex();
+        return lpProducerIndex() == lpConsumerIndex();
     }
     
     public boolean hasValue() {
@@ -160,11 +148,11 @@ public final class SpscIntArrayQueue {
     }
     
     public int size() {
-        long ci = lvConsumerIndex();
+        long ci = lpConsumerIndex();
         
         for (;;) {
-            long pi = lvProducerIndex();
-            long ci2 = lvConsumerIndex();
+            long pi = lpProducerIndex();
+            long ci2 = lpConsumerIndex();
             if (ci2 == ci) {
                 return (int)((pi - ci) >> 1);
             }

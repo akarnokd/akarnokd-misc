@@ -23,7 +23,7 @@ import org.openjdk.jmh.annotations.*;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Fork(value = 1)
 @State(Scope.Thread)
-public class RangePerf {
+public class ExamplePerf {
     @Param({ "1", "1000", "1000000" })
     public int times;
 
