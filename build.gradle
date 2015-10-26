@@ -43,12 +43,23 @@ repositories {
 apply plugin: 'maven'
 apply plugin: 'osgi'
 
+configurations {
+  compile1
+  compile2
+}
+
 dependencies {
     compile 'org.reactivestreams:reactive-streams:1.0.0'
-    // compile 'io.reactivex:rxjava:2.0.0-DP0-SNAPSHOT'
-    compile 'io.reactivex:rxjava:1.0.14'
+    compile1 'io.reactivex:rxjava:2.0.0-DP0-SNAPSHOT'
+    compile2 'io.reactivex:rxjava:1.0.14'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
+}
+
+task libs(type: Sync) {
+  from configurations.compile1
+  from configurations.compile2
+  into "$buildDir/libs"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -93,6 +104,8 @@ jmh {
 
 plugins.withType(EclipsePlugin) {
     project.eclipse.classpath.plusConfigurations += [ configurations.jmh ]
+    project.eclipse.classpath.plusConfigurations += [ configurations.compile1 ]
+    project.eclipse.classpath.plusConfigurations += [ configurations.compile2 ]
 }
 
 javadoc {
