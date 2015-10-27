@@ -13,6 +13,7 @@
 
 package hu.akarnokd.comparison;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -28,6 +29,7 @@ import akka.stream.javadsl.*;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
+import hu.akarnokd.rxjava2.subscribers.Subscribers;
 import reactor.Processors;
 import reactor.core.processor.ProcessorGroup;
 import reactor.rx.*;
@@ -82,7 +84,7 @@ public class ReactiveStreamsImpls {
     ProcessorGroup<Object> g2;
     
     @Setup
-    public void setup() {
+    public void setup() throws Exception {
         exec1 = Executors.newSingleThreadScheduledExecutor();
         exec2 = Executors.newSingleThreadScheduledExecutor();
         
@@ -112,29 +114,40 @@ public class ReactiveStreamsImpls {
         raRangeAsync = raRange.dispatchOn(g1);
         raRangePipeline = raRange.publishOn(g1).dispatchOn(g2);
         
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImpls.class, "akka-streams.conf");
+        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImpls.class, "/akka-streams.conf");
         actorSystem = ActorSystem.create("sys", cfg);
 
         ActorMaterializer materializer = ActorMaterializer.create(actorSystem);
         
         List<Integer> values = rx2Range.toList().toBlocking().first();
         
-        akRange = Source.from(values)
-                .toMat(Sink.<Integer>fanoutPublisher(16, 16), Keep.<BoxedUnit, Publisher<Integer>>right())
-                .run(materializer);
+        akRange = s -> {
+            Source.from(values)
+            .runWith(Sink.publisher(), materializer)
+            .subscribe(s);
+        };
         
-        FlattenStrategy<Source<Integer, BoxedUnit>, Integer> flatten = akka.stream.javadsl.FlattenStrategy.concat();
-        akRangeFlatMapJust = Source.from(values)
+        Method m = akka.stream.javadsl.FlattenStrategy.class.getMethod("concat");
+        
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        FlattenStrategy<Source<Integer, BoxedUnit>, Integer> flatten = (FlattenStrategy)m.invoke(null);
+        akRangeFlatMapJust = s -> {
+                Source.from(values)
                 .map(v -> Source.single(v))
                 .flatten(flatten)
-                .toMat(Sink.<Integer>fanoutPublisher(16, 16), Keep.<BoxedUnit, Publisher<Integer>>right())
-                .run(materializer);
+                .runWith(Sink.publisher(), materializer)
+                .subscribe(s)
+                ;
+        };
 
-        akRangeFlatMapJust = Source.from(values)
-                .map(v -> Source.from(Arrays.asList(v, v + 1)))
-                .flatten(flatten)
-                .toMat(Sink.<Integer>fanoutPublisher(16, 16), Keep.<BoxedUnit, Publisher<Integer>>right())
-                .run(materializer);
+        akRangeFlatMapRange = s -> {
+            Source.from(values)
+            .map(v -> Source.from(Arrays.asList(v, v + 1)))
+            .flatten(flatten)
+            .runWith(Sink.publisher(), materializer)
+            .subscribe(s)
+            ;
+        };
 
         akRangeAsync = akRange;
         akRangePipeline = akRange;
@@ -335,5 +348,20 @@ public class ReactiveStreamsImpls {
         }
     }
 
-
+    public static void main(String[] args) throws Exception {
+        ReactiveStreamsImpls o = new ReactiveStreamsImpls();
+        
+        o.setup();
+        o.times = 1000;
+        
+        try {
+            o.akRange.subscribe(Subscribers.create(System.out::println, Throwable::printStackTrace, () -> { }, s -> s.request(Long.MAX_VALUE)));
+    
+            o.akRange.subscribe(Subscribers.create(v -> {}, Throwable::printStackTrace, () -> { }, s -> s.request(Long.MAX_VALUE)));
+            
+            Thread.sleep(1000);
+        } finally {
+            o.teardown();
+        }
+    }
 }
