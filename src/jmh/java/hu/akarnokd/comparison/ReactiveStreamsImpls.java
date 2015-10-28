@@ -115,8 +115,8 @@ public class ReactiveStreamsImpls {
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 
-        g1 = Processors.asyncGroup("reactor1", Observable.bufferSize(), 1);
-        g2 = Processors.asyncGroup("reactor2", Observable.bufferSize(), 1);
+        g1 = Processors.asyncGroup("processor", 128, 1, null, null, false);
+        g2 = Processors.asyncGroup("processor", 128, 1, null, null, false);
         
         raRange = Streams.range(1, times);
         raRangeFlatMapJust = raRange.flatMap(Streams::just);
@@ -270,7 +270,7 @@ public class ReactiveStreamsImpls {
         raRangeFlatMapRange.subscribe(new LatchedRSObserver<>(bh));
     }
     
-//    @Benchmark
+    @Benchmark
     public void raRangeAsync(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Object> lo = new LatchedRSObserver<>(bh);
         raRangeAsync.subscribe(lo);
@@ -282,7 +282,7 @@ public class ReactiveStreamsImpls {
         }
     }
 
-//    @Benchmark
+    @Benchmark
     public void raRangePipeline(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Object> lo = new LatchedRSObserver<>(bh);
         raRangePipeline.subscribe(lo);
@@ -382,7 +382,7 @@ public class ReactiveStreamsImpls {
     }
     
     // -------------------------------------------------------------------------
-@Benchmark
+//@Benchmark
 public void javaRange(Blackhole bh) {
     int n = times;
     for (int i = 0; i < n; i++) {
@@ -390,7 +390,7 @@ public void javaRange(Blackhole bh) {
     }
 }
 
-@Benchmark
+//@Benchmark
 public void javaRangeFlatMapJust(Blackhole bh) {
     int n = times;
     for (int i = 0; i < n; i++) {
@@ -400,7 +400,7 @@ public void javaRangeFlatMapJust(Blackhole bh) {
     }
 }
 
-@Benchmark
+//@Benchmark
 public void javaRangeFlatMapRange(Blackhole bh) {
     int n = times;
     for (int i = 0; i < n; i++) {
@@ -410,38 +410,38 @@ public void javaRangeFlatMapRange(Blackhole bh) {
     }
 }
 
-@Benchmark
+//@Benchmark
 public void streamRange(Blackhole bh) {
     values.stream().forEach(bh::consume);
 }
 
-@Benchmark
+//@Benchmark
 public void streamRangeFlatMapJust(Blackhole bh) {
     values.stream()
     .flatMap(v -> Collections.singletonList(v).stream())
     .forEach(bh::consume);
 }
 
-@Benchmark
+//@Benchmark
 public void streamRangeFlatMapRange(Blackhole bh) {
     values.stream()
     .flatMap(v -> Arrays.asList(v, v + 1).stream())
     .forEach(bh::consume);
 }
 
-@Benchmark
+//@Benchmark
 public void pstreamRange(Blackhole bh) {
     values.parallelStream().forEach(bh::consume);
 }
 
-@Benchmark
+//@Benchmark
 public void pstreamRangeFlatMapJust(Blackhole bh) {
     values.parallelStream()
     .flatMap(v -> Collections.singletonList(v).stream())
     .forEach(bh::consume);
 }
 
-@Benchmark
+//@Benchmark
 public void pstreamRangeFlatMapRange(Blackhole bh) {
     values.parallelStream()
     .flatMap(v -> Arrays.asList(v, v + 1).stream())
