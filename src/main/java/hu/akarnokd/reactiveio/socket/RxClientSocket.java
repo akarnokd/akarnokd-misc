@@ -15,6 +15,7 @@ package hu.akarnokd.reactiveio.socket;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import javax.xml.stream.*;
@@ -22,6 +23,7 @@ import javax.xml.stream.*;
 import org.reactivestreams.Subscription;
 
 import hu.akarnokd.rxjava2.Observable;
+import hu.akarnokd.rxjava2.internal.queue.MpscLinkedQueue;
 import hu.akarnokd.rxjava2.internal.subscriptions.EmptySubscription;
 import hu.akarnokd.rxjava2.plugins.RxJavaPlugins;
 import hu.akarnokd.rxjava2.subscribers.SerializedSubscriber;
@@ -53,22 +55,60 @@ public final class RxClientSocket {
                 out = socket.getOutputStream();
     
                 Subscription conn = new Subscription() {
-    
+                    final MpscLinkedQueue<String> queue = new MpscLinkedQueue<>();
+                    final AtomicInteger wip = new AtomicInteger();
+                    
+                    volatile boolean cancelled;
                     @Override
                     public void request(long n) {
-                        try {
-                            out.write("<request n='".getBytes("UTF-8"));
-                            out.write(Long.toString(n).getBytes("UTF-8"));
-                            out.write("'/>".getBytes("UTF-8"));
-                            out.flush();
-                        } catch (IOException ex) {
-                            cancel();
-                            s.onError(ex);
+                        if (cancelled) {
+                            return;
+                        }
+                        queue.offer("<request n='" + n + "'/>");
+                        if (wip.getAndIncrement() == 0) {
+                            int missed = 1;
+                            for (;;) {
+                                for (;;) {
+                                    if (cancelled) {
+                                        queue.clear();
+                                        return;
+                                    }
+                                    String str = queue.poll();
+                                    
+                                    if (str == null) {
+                                        break;
+                                    }
+                                    try {
+                                        out.write(str.getBytes());
+                                    } catch (IOException ex) {
+                                        cancel();
+                                        queue.clear();
+                                        s.onError(ex);
+                                        return;
+                                    }
+                                }
+                                
+                                try {
+                                    out.flush();
+                                } catch (IOException ex) {
+                                    cancel();
+                                    queue.clear();
+                                    s.onError(ex);
+                                    return;
+                                }
+
+                                missed = wip.addAndGet(-missed);
+                                if (missed == 0) {
+                                    break;
+                                }
+                            }
+                            
                         }
                     }
     
                     @Override
                     public void cancel() {
+                        cancelled = true;
                         try {
                             socket.close();
                         } catch (IOException e) {
