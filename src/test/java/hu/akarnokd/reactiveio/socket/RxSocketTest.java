@@ -54,14 +54,12 @@ public class RxSocketTest {
             
             Observable<Integer> retrieve = client.retrieve(x -> Integer.parseInt(x.content));
             
-            Iterable<Integer> blocking = retrieve
+            retrieve
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.computation())
             .take(10)
-            .toBlocking();
-            
-            blocking
-            .forEach(System.out::println);
+            .toBlocking()
+            .subscribe(System.out::println, Throwable::printStackTrace);
         }
     }
 

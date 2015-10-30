@@ -14,7 +14,8 @@
 package hu.akarnokd.reactiveio.socket;
 
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import javax.xml.stream.*;
@@ -81,13 +82,17 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
                 responseStream.subscribe(observer);
                 
                 parseXMLRequest(in, out, observer, requestElements);
-            
             } catch (IOException ex) {
                 throw ex;
             } catch (Throwable ex) {
                 observer.onError(ex);
             }
         } catch (Throwable ex) {
+            if (ex instanceof SocketException) {
+                if ("Socket closed".equals(ex.getMessage())) {
+                    return;
+                }
+            }
             RxJavaPlugins.onError(ex);
         }
     }
@@ -144,14 +149,26 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
             }
             
             requestElements.onComplete();
+        } catch (XMLStreamException ex) {
+            Throwable nestedException = ex.getNestedException();
+            if (nestedException instanceof IOException) {
+                if (observer.completing.get() 
+                        || "Socket closed".equals(nestedException.getMessage())
+                        || "Software caused connection abort: recv failed".equals(nestedException.getMessage())) {
+                    return;
+                }
+            }
+            throw ex;
         }
     }
     
     static final class XElementWriterObserver extends AsyncObserver<XElement> {
         final OutputStream out;
+        final AtomicBoolean completing;
         
         public XElementWriterObserver(OutputStream out) {
             this.out = out;
+            this.completing = new AtomicBoolean();
         }
         
         @Override
@@ -187,11 +204,17 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
         
         @Override
         public void onComplete() {
-            try {
-                out.write(String.format("</response>%n").getBytes("UTF-8"));
-                out.flush();
-            } catch (IOException ex) {
-                RxJavaPlugins.onError(ex);
+            if (completing.compareAndSet(false, true)) {
+                try {
+                    out.write(String.format("</response>%n").getBytes("UTF-8"));
+                } catch (IOException ex) {
+                    RxJavaPlugins.onError(ex);
+                }
+                try {
+                    out.flush();
+                } catch (IOException ex) {
+                    // ignoring flush-termination races
+                }
             }
         }
         

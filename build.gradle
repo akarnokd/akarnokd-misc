@@ -49,7 +49,7 @@ dependencies {
     //compile1 'io.reactivex:rxjava:2.0.0-DP0-SNAPSHOT'
     
     compile 'io.reactivex:rxjava:1.0.14'
-    compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC1'
+    compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC2'
     compile 'io.projectreactor:reactor-stream:2.1.0.BUILD-SNAPSHOT'
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     compile 'com.typesafe.akka:akka-stream-experimental_2.11:1.0'
