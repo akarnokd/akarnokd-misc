@@ -63,4 +63,29 @@ public class RxSocketTest {
         }
     }
 
+    @Test
+    public void testSendRemote() throws Exception {
+        
+        try (RxServerSocket server = new RxServerSocket()) {
+            server.bind(8989);
+            
+            RxSocketDispatcher sd = new RxSocketDispatcher(o -> {
+                return o.doOnNext(System.out::println).ignoreElements();
+            });
+            
+            server.accept().subscribe(sd);
+            
+            RxClientSocket client = new RxClientSocket("localhost", 8989);
+            
+            Observable<Void> retrieve = client.send(Observable.range(1, 10), v -> new XElement("integer", v));
+            
+            retrieve
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .take(10)
+            .toBlocking()
+            .subscribe(System.out::println, Throwable::printStackTrace, () -> System.out.println("Done"));
+        }
+    }
+
 }
