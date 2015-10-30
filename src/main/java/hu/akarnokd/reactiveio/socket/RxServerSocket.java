@@ -28,6 +28,7 @@ public final class RxServerSocket implements Closeable {
     final Scheduler waiter;
     
     final AtomicBoolean acceptOnce;
+    final AtomicBoolean closeOnce;
     
     final UnicastSubject<Socket> incomingSockets;
     
@@ -39,11 +40,14 @@ public final class RxServerSocket implements Closeable {
         this.socket = new ServerSocket();
         this.waiter = waiter;
         this.acceptOnce = new AtomicBoolean();
+        this.closeOnce = new AtomicBoolean();
         this.incomingSockets = UnicastSubject.create(Observable.bufferSize(), () -> {
-            try {
-                socket.close();
-            } catch (IOException ex) {
-                RxJavaPlugins.onError(ex);
+            if (closeOnce.compareAndSet(false, true)) {
+                try {
+                    socket.close();
+                } catch (IOException ex) {
+                    RxJavaPlugins.onError(ex);
+                }
             }
         });
     }
@@ -66,12 +70,16 @@ public final class RxServerSocket implements Closeable {
                 subject.onNext(socket.accept());
             }
         } catch (IOException ex) {
-            subject.onError(ex);
+            if (!closeOnce.get()) {
+                subject.onError(ex);
+            }
         }
     }
     
     @Override
     public void close() throws IOException {
-        socket.close();
+        if (closeOnce.compareAndSet(false, true)) {
+            socket.close();
+        }
     }
 }

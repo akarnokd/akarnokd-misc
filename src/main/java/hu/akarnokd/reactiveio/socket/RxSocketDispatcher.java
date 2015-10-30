@@ -1,8 +1,20 @@
+/*
+ * Copyright 2015 David Karnok
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
+ * the License for the specific language governing permissions and limitations under the License.
+ */
+
 package hu.akarnokd.reactiveio.socket;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.Charset;
 import java.util.function.Function;
 
 import javax.xml.stream.*;
@@ -73,9 +85,7 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
             } catch (IOException ex) {
                 throw ex;
             } catch (Throwable ex) {
-                out.write(("<response error='Exception: " 
-                        + XElement.sanitize(ex.toString())
-                        + "'/>").getBytes(Charset.forName("UTF-8")));
+                observer.onError(ex);
             }
         } catch (Throwable ex) {
             RxJavaPlugins.onError(ex);
@@ -88,54 +98,52 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
                     throws FactoryConfigurationError, XMLStreamException, IOException {
         XMLInputFactory xf = XMLInputFactory.newFactory();
 
-        for (;;) {
-            // check if we reached the end of stream
-            in.mark(1);
+        try (ConcatInputStream cin = new ConcatInputStream(
+                new ByteArrayInputStream("<requests>\n".getBytes()), 
+                in, 
+                new ByteArrayInputStream("\n</requests>".getBytes()));) {
+        
+            XMLStreamReader xr = xf.createXMLStreamReader(cin);
+    
+            xr.nextTag(); // get into requests
             
-            if (in.read() < 0) {
-                break;
-            }
-            
-            in.reset();
-            
-            // since we expect multiple <request> elements, we have to read them by fragment 
-            XMLStreamReader xr = xf.createXMLStreamReader(in);
-            
-            int e = -1;
-            while (xr.hasNext()) {
-                e = xr.next();
+            for (;;) {
+                // should be a request node
+                int e = xr.nextTag();
                 
-                if (e == XMLStreamReader.START_ELEMENT) { 
+                if (e == XMLStreamReader.END_ELEMENT) {
                     break;
                 }
-                if (e == XMLStreamReader.END_ELEMENT
-                        || e == XMLStreamReader.END_DOCUMENT) {
+
+                if (!xr.getLocalName().equals("request")) {
+                    requestElements.onError(new XMLStreamException("Wrong element, request expected but got " + xr.getLocalName()));
                     return;
                 }
-            }
-     
-            if (e == -1) {
-                break;
-            }
-            
-            if (!"request".equals(xr.getLocalName())) {
-                out.write("<response error='Protocol error'/>".getBytes(Charset.forName("ISO-8859-1")));
-                return;
-            }
 
-            long n = Long.parseLong(xr.getAttributeValue(null, "n"));
-            
-            observer.requestMore(n);
-            
-            if (xr.getAttributeValue(null, "hasBody") != null) {
-                // keep processing the internals of "request"
-                while (xr.hasNext()) {
-                    XElement xe = XElement.parseXMLFragment(xr);
-                    requestElements.onNext(xe);
+                String nstr = xr.getAttributeValue(null, "n");
+                if (nstr != null) {
+                    long n = Long.parseLong(nstr);
+                    
+                    observer.requestMore(n);
                 }
-            } else {
-                while (xr.hasNext() && xr.next() != XMLStreamReader.END_DOCUMENT);
+                
+                e = xr.nextTag();
+                
+                if (e == XMLStreamReader.START_ELEMENT) {
+                    for (;;) {
+                        XElement xe = XElement.parseXMLActiveFragment(xr);
+                        
+                        requestElements.onNext(xe);
+                        
+                        e = xr.nextTag();
+                        if (e == XMLStreamReader.END_ELEMENT) {
+                            break;
+                        }
+                    }
+                }
             }
+            
+            requestElements.onComplete();
         }
     }
     
@@ -160,7 +168,7 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
         @Override
         public void onNext(XElement t) {
             try {
-                t.save(out);
+                t.save(out, false, true);
             } catch (IOException ex) {
                 RxJavaPlugins.onError(ex);
                 cancel();
@@ -181,7 +189,7 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
         public void onComplete() {
             try {
                 out.write(String.format("</response>%n").getBytes("UTF-8"));
-                out.close();
+                out.flush();
             } catch (IOException ex) {
                 RxJavaPlugins.onError(ex);
             }
