@@ -173,17 +173,17 @@ public class ReactiveStreamsImpls {
         g2.shutdown();
     }
 
-//    @Benchmark
+    @Benchmark
     public void rxRange(Blackhole bh) {
         rxRange.subscribe(new LatchedObserver<Integer>(bh));
     }
 
-//    @Benchmark
+    @Benchmark
     public void rxRangeFlatMapJust(Blackhole bh) {
         rxRangeFlatMapJust.subscribe(new LatchedObserver<Integer>(bh));
     }
     
-//    @Benchmark
+    @Benchmark
     public void rxRangeFlatMapRange(Blackhole bh) {
         rxRangeFlatMapRange.subscribe(new LatchedObserver<Integer>(bh));
     }
@@ -270,7 +270,7 @@ public class ReactiveStreamsImpls {
         raRangeFlatMapRange.subscribe(new LatchedRSObserver<>(bh));
     }
     
-    @Benchmark
+//    @Benchmark
     public void raRangeAsync(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Object> lo = new LatchedRSObserver<>(bh);
         raRangeAsync.subscribe(lo);
@@ -282,7 +282,7 @@ public class ReactiveStreamsImpls {
         }
     }
 
-    @Benchmark
+//    @Benchmark
     public void raRangePipeline(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Object> lo = new LatchedRSObserver<>(bh);
         raRangePipeline.subscribe(lo);
