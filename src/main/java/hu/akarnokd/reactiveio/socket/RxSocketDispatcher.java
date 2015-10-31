@@ -128,8 +128,11 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
                 String nstr = xr.getAttributeValue(null, "n");
                 if (nstr != null) {
                     long n = Long.parseLong(nstr);
-                    
-                    observer.requestMore(n);
+                    if (n < 0) {
+                        requestElements.onComplete();
+                    } else {
+                        observer.requestMore(n);
+                    }
                 }
                 
                 e = xr.nextTag();
@@ -147,8 +150,6 @@ public final class RxSocketDispatcher implements Subscriber<Socket> {
                     }
                 }
             }
-            
-            requestElements.onComplete();
         } catch (XMLStreamException ex) {
             Throwable nestedException = ex.getNestedException();
             if (nestedException instanceof IOException) {

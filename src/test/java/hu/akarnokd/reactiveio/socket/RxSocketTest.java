@@ -99,7 +99,7 @@ public class RxSocketTest {
             Function<Integer, XElement> marshall = v -> new XElement("integer", v);
 
             RxSocketDispatcher sd = new RxSocketDispatcher(o -> {
-                return o.doOnNext(System.out::println)
+                return o
                         .map(unmarshall).map(v -> v * 2).map(marshall);
             });
             

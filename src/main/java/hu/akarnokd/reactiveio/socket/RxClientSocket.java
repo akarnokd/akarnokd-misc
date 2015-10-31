@@ -24,7 +24,7 @@ import org.reactivestreams.*;
 
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.functions.Function;
-import hu.akarnokd.rxjava2.internal.queue.MpscLinkedQueue;
+import hu.akarnokd.rxjava2.internal.queue.SpscLinkedArrayQueue;
 import hu.akarnokd.rxjava2.internal.subscriptions.EmptySubscription;
 import hu.akarnokd.rxjava2.internal.util.BackpressureHelper;
 import hu.akarnokd.rxjava2.plugins.RxJavaPlugins;
@@ -116,6 +116,9 @@ public final class RxClientSocket {
                     }
                     
                 };
+                
+                // indicate end of input data
+                out.write("<request n='-1'/>".getBytes());
                 
                 s.onSubscribe(conn);
                 subscriptionSet = true;
@@ -243,7 +246,7 @@ public final class RxClientSocket {
                     @Override
                     public void onComplete() {
                         try {
-                            out.write("</request>".getBytes());
+                            out.write("</request><request n='-1'/>".getBytes());
                         } catch (IOException ex) {
                             s.onError(ex);
                         }
@@ -260,15 +263,37 @@ public final class RxClientSocket {
                     
                 });
                 
+                XMLInputFactory xf = XMLInputFactory.newFactory();
                 
-                byte[] buffer = new byte[4096];
-                
-                for (;;) {
-                    int r = in.read(buffer);
-                    if (r < 0) {
-                        break;
+                try {
+                    XMLStreamReader xr = xf.createXMLStreamReader(in);
+                    
+                    xr.nextTag(); // get into response
+                    
+                    int depth = 0;
+                    for (;;) {
+                        if (!xr.hasNext()) {
+                            break;
+                        }
+                        
+                        int e = xr.next();
+                        
+                        if (e == XMLStreamReader.START_ELEMENT) {
+                            depth++;
+                        } else
+                        if (e == XMLStreamReader.END_ELEMENT) {
+                            depth--;
+                            if (depth < 0) {
+                                break;
+                            }
+                        }
                     }
+                } catch (XMLStreamException ex) {
+                    s.onError(ex);
+                    socket.close();
+                    return;
                 }
+                
                 s.onComplete();
                 if (wip.decrementAndGet() == 0) {
                     socket.close();
@@ -369,7 +394,7 @@ public final class RxClientSocket {
             this.s = s;
             this.socket = socket;
             this.out = out;
-            this.queue = new MpscLinkedQueue<>();
+            this.queue = new SpscLinkedArrayQueue<>(Observable.bufferSize());
             this.queue.offer("<request>");
             drain();
         }
@@ -416,7 +441,7 @@ public final class RxClientSocket {
 
         @Override
         public void onComplete() {
-            queue.offer("</request>");
+            queue.offer("</request><request n='-1'/>");
             done = true;
             drain();
         }
@@ -468,7 +493,7 @@ public final class RxClientSocket {
                         
                         if (o instanceof XElement) {
                             XElement xe = (XElement) o;
-                            xe.save(out, false, false);
+                            xe.save(out, false, true);
                         } else
                         if (o instanceof String) {
                             out.write(((String)o).getBytes("UTF-8"));
