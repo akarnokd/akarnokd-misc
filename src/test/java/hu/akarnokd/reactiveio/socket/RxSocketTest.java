@@ -16,6 +16,7 @@ package hu.akarnokd.reactiveio.socket;
 import org.junit.Test;
 
 import hu.akarnokd.rxjava2.Observable;
+import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.xml.XElement;
 
@@ -78,6 +79,35 @@ public class RxSocketTest {
             RxClientSocket client = new RxClientSocket("localhost", 8989);
             
             Observable<Void> retrieve = client.send(Observable.range(1, 10), v -> new XElement("integer", v));
+            
+            retrieve
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.computation())
+            .take(10)
+            .toBlocking()
+            .subscribe(System.out::println, Throwable::printStackTrace, () -> System.out.println("Done"));
+        }
+    }
+
+    @Test
+    public void testMapRemote() throws Exception {
+        
+        try (RxServerSocket server = new RxServerSocket()) {
+            server.bind(8989);
+
+            Function<XElement, Integer> unmarshall = v -> Integer.parseInt(v.content);
+            Function<Integer, XElement> marshall = v -> new XElement("integer", v);
+
+            RxSocketDispatcher sd = new RxSocketDispatcher(o -> {
+                return o.doOnNext(System.out::println)
+                        .map(unmarshall).map(v -> v * 2).map(marshall);
+            });
+            
+            server.accept().subscribe(sd);
+            
+            RxClientSocket client = new RxClientSocket("localhost", 8989);
+            
+            Observable<Integer> retrieve = client.map(Observable.range(1, 10), marshall, unmarshall);
             
             retrieve
             .subscribeOn(Schedulers.io())
