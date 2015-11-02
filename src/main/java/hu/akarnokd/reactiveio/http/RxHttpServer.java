@@ -48,6 +48,7 @@ public class RxHttpServer implements Closeable {
         server.start();
     }
     
+    @Override
     public void close() {
         server.stop(2);
     }
