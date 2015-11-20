@@ -41,7 +41,7 @@ public final class MpscLinkedArrayQueue<T> {
         long idx = PRODUCER_INDEX.getAndIncrement(this);
         
         long st = a.start;
-        if (st <= idx && idx < a.end) {
+        if (st <= idx && idx < st + c) {
             a.lazySet((int)(idx - st), value);
             return true;
         }
@@ -49,8 +49,9 @@ public final class MpscLinkedArrayQueue<T> {
             ARA b = (ARA)a.get(c);
             if (b == null) {
                 if (a.compareAndSet(c, b, ALLOCATING)) {
-                    b = new ARA(c, st + c);
-                    b.lazySet(0, value);
+                    st += c;
+                    b = new ARA(c, st);
+                    b.lazySet((int)(idx - st), value);
                     a.lazySet(c, b);
                     return true;
                 } else {
@@ -64,7 +65,7 @@ public final class MpscLinkedArrayQueue<T> {
                 PRODUCER_BUFFER.compareAndSet(this, a, b);
             }
             st += c;
-            if (st <= idx && idx < b.end) {
+            if (st <= idx && idx < st + c) {
                 b.lazySet((int)(idx - st), value);
                 return true;
             }
@@ -92,6 +93,9 @@ public final class MpscLinkedArrayQueue<T> {
         }
         ARA b;
         while ((b = (ARA)a.get(c)) == ALLOCATING);
+        if (b == null) {
+            return null;
+        }
         consumerBuffer = b;
         int offset = (int)(ci - en);
         @SuppressWarnings("unchecked")
@@ -119,6 +123,10 @@ public final class MpscLinkedArrayQueue<T> {
         }
         ARA b;
         while ((b = (ARA)a.get(c)) == ALLOCATING);
+        if (b == null) {
+            return null;
+        }
+
         int offset = (int)(ci - en);
         @SuppressWarnings("unchecked")
         T v = (T)b.get(offset);
