@@ -49,6 +49,7 @@ import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
 import reactivestreams.commons.publisher.PublisherBase;
+import reactor.core.publisher.SchedulerGroup;
 import reactor.rx.Stream;
 
 @BenchmarkMode(Mode.Throughput)
@@ -109,6 +110,9 @@ public class ReactiveStreamsImpls {
     private ActorMaterializer materializer;
 
     private List<Integer> values;
+
+    SchedulerGroup singleRa1;
+    SchedulerGroup singleRa2;
     
     @Setup
     public void setup() throws Exception {
@@ -119,7 +123,10 @@ public class ReactiveStreamsImpls {
         single2 = rx.schedulers.Schedulers.from(exec2);
         Scheduler single3 = Schedulers.single();
         Scheduler single4 = Schedulers.from(exec2);
-        
+
+        singleRa1 = SchedulerGroup.single();
+        singleRa2 = SchedulerGroup.single();
+
         rxRange = rx.Observable.range(1, times);
         rxRangeFlatMapJust = rxRange.flatMap(rx.Observable::just);
         rxRangeFlatMapRange = rxRange.flatMap(v -> rx.Observable.range(v, 2));
@@ -135,8 +142,8 @@ public class ReactiveStreamsImpls {
         raRange = Stream.range(1, times);
         raRangeFlatMapJust = raRange.flatMap(Stream::just);
         raRangeFlatMapRange = raRange.flatMap(v -> Stream.range(v, 2));
-        raRangeAsync = raRange.dispatchOn(exec1);
-        raRangePipeline = raRange.publishOn(exec1).dispatchOn(exec2);
+        raRangeAsync = raRange.dispatchOn(singleRa1);
+        raRangePipeline = raRange.publishOn(singleRa1).dispatchOn(singleRa2);
 
         rscRange = PublisherBase.range(1, times);
         rscRangeFlatMapJust = rscRange.flatMap(PublisherBase::just);
@@ -209,7 +216,10 @@ public class ReactiveStreamsImpls {
     @TearDown
     public void teardown() {
         actorSystem.shutdown();
-        
+
+        singleRa1.shutdown();
+        singleRa2.shutdown();
+
         exec1.shutdownNow();
         exec2.shutdownNow();
     }
