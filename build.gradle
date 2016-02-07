@@ -54,7 +54,7 @@ dependencies {
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.0.1'
 
-    compile 'io.projectreactor:reactive-streams-commons:0.1.0.BUILD-SNAPSHOT'
+    compile 'io.projectreactor:reactive-streams-commons:0.2.0.BUILD-SNAPSHOT'
     
     compile 'com.github.akarnokd:akarnokd-xml:0.9.1'
     compile 'javax.servlet:javax.servlet-api:3.1.0'
