@@ -40,12 +40,15 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
+import akka.stream.Graph;
+import akka.stream.impl.fusing.Fusing;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
+import reactivestreams.commons.publisher.PublisherBase;
 import reactor.rx.Stream;
 
 @BenchmarkMode(Mode.Throughput)
@@ -77,11 +80,11 @@ public class ReactiveStreamsImpls {
     Stream<Integer> raRangeAsync;
     Stream<Integer> raRangePipeline;
 
-//    Stream<Long> raRange;
-//    Stream<Long> raRangeFlatMapJust;
-//    Stream<Long> raRangeFlatMapRange;
-//    Stream<Long> raRangeAsync;
-//    Stream<Long> raRangePipeline;
+    PublisherBase<Integer> rscRange;
+    PublisherBase<Integer> rscRangeFlatMapJust;
+    PublisherBase<Integer> rscRangeFlatMapRange;
+    PublisherBase<Integer> rscRangeAsync;
+    PublisherBase<Integer> rscRangePipeline;
 
     Publisher<Integer> akRange;
     Publisher<Integer> akRangeFlatMapJust;
@@ -89,6 +92,11 @@ public class ReactiveStreamsImpls {
     Publisher<Integer> akRangeAsync;
     Publisher<Integer> akRangePipeline;
     
+    Publisher<Integer> ak2Range;
+    Publisher<Integer> ak2RangeFlatMapJust;
+    Publisher<Integer> ak2RangeFlatMapRange;
+    Publisher<Integer> ak2RangeAsync;
+    Publisher<Integer> ak2RangePipeline;
     
     rx.Scheduler single1;
     rx.Scheduler single2;
@@ -97,10 +105,6 @@ public class ReactiveStreamsImpls {
     ScheduledExecutorService exec2;
     
     ActorSystem actorSystem;
-
-//    ProcessorGroup g1;
-
-//    ProcessorGroup g2;
 
     private ActorMaterializer materializer;
 
@@ -128,15 +132,18 @@ public class ReactiveStreamsImpls {
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 
-//        g1 = ProcessorGroup.single();
-//        g2 = ProcessorGroup.single();
-        
         raRange = Stream.range(1, times);
         raRangeFlatMapJust = raRange.flatMap(Stream::just);
         raRangeFlatMapRange = raRange.flatMap(v -> Stream.range(v, 2));
-//        raRangeAsync = raRange.dispatchOn(g1);
-//        raRangePipeline = raRange.publishOn(g1).dispatchOn(g2);
-        
+        raRangeAsync = raRange.dispatchOn(exec1);
+        raRangePipeline = raRange.publishOn(exec1).dispatchOn(exec2);
+
+        rscRange = PublisherBase.range(1, times);
+        rscRangeFlatMapJust = rscRange.flatMap(PublisherBase::just);
+        rscRangeFlatMapRange = rscRange.flatMap(v -> PublisherBase.range(v, 2));
+        rscRangeAsync = PublisherBase.wrap(Stream.from(rscRange).dispatchOn(exec1));
+        rscRangePipeline = PublisherBase.wrap(Stream.from(rscRange).publishOn(exec1).dispatchOn(exec2));
+
         values = rx2Range.toList().toBlocking().first();
         
 
@@ -147,14 +154,14 @@ public class ReactiveStreamsImpls {
         
         akRange = s -> {
             Source.range(1, times)
-            .runWith(Sink.asPublisher(true), materializer)
+            .runWith(Sink.asPublisher(false), materializer)
             .subscribe(s);
         };
         
         akRangeFlatMapJust = s -> 
                 Source.range(1, times)
                 .flatMapMerge(128, v -> Source.single(v))
-                .runWith(Sink.asPublisher(true), materializer)
+                .runWith(Sink.asPublisher(false), materializer)
                 .subscribe(s)
                 ;
 
@@ -168,6 +175,35 @@ public class ReactiveStreamsImpls {
 
         akRangeAsync = akRange;
         akRangePipeline = akRange;
+
+        ak2Range = s -> {
+            optimize(Source.range(1, times))
+            .runWith(Sink.asPublisher(false), materializer)
+            .subscribe(s);
+        };
+        
+        ak2RangeFlatMapJust = s -> 
+                optimize(Source.range(1, times)
+                .flatMapMerge(128, v -> Source.single(v)))
+                .runWith(Sink.asPublisher(false), materializer)
+                .subscribe(s)
+                ;
+
+        ak2RangeFlatMapRange = s -> {
+            optimize(Source.from(values)
+            .flatMapMerge(128, v -> Source.range(v, v + 1)))
+            .runWith(Sink.asPublisher(true), materializer)
+            .subscribe(s)
+            ;
+        };
+
+        ak2RangeAsync = akRange;
+        ak2RangePipeline = akRange;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    static <V> Source<Integer, V> optimize(Graph g) {
+        return Source.fromGraph(Fusing.aggressive(g));
     }
     
     @TearDown
@@ -176,28 +212,25 @@ public class ReactiveStreamsImpls {
         
         exec1.shutdownNow();
         exec2.shutdownNow();
-        
-//        g1.shutdown();
-//        g2.shutdown();
     }
 
     @Benchmark
-    public void rxRange(Blackhole bh) {
+    public void range_rx(Blackhole bh) {
         rxRange.subscribe(new LatchedObserver<Integer>(bh));
     }
 
     @Benchmark
-    public void rxRangeFlatMapJust(Blackhole bh) {
+    public void rangeFlatMapJust_rx(Blackhole bh) {
         rxRangeFlatMapJust.subscribe(new LatchedObserver<Integer>(bh));
     }
     
     @Benchmark
-    public void rxRangeFlatMapRange(Blackhole bh) {
+    public void rangeFlatMapRange_rx(Blackhole bh) {
         rxRangeFlatMapRange.subscribe(new LatchedObserver<Integer>(bh));
     }
     
     @Benchmark
-    public void rxRangeAsync(Blackhole bh) throws InterruptedException {
+    public void rangeAsync_rx(Blackhole bh) throws InterruptedException {
         LatchedObserver<Integer> lo = new LatchedObserver<>(bh);
         rxRangeAsync.subscribe(lo);
         
@@ -209,7 +242,7 @@ public class ReactiveStreamsImpls {
     }
 
     @Benchmark
-    public void rxRangePipeline(Blackhole bh) throws InterruptedException {
+    public void rangePipeline_rx(Blackhole bh) throws InterruptedException {
         LatchedObserver<Integer> lo = new LatchedObserver<>(bh);
         rxRangePipeline.subscribe(lo);
         
@@ -223,22 +256,22 @@ public class ReactiveStreamsImpls {
     // -------------------------------------------------------------------------
     
     @Benchmark
-    public void rx2Range(Blackhole bh) {
+    public void range_rx2(Blackhole bh) {
         rx2Range.subscribe(new LatchedRSObserver<Integer>(bh));
     }
 
     @Benchmark
-    public void rx2RangeFlatMapJust(Blackhole bh) {
+    public void rangeFlatMapJust_rx2(Blackhole bh) {
         rx2RangeFlatMapJust.subscribe(new LatchedRSObserver<Integer>(bh));
     }
     
     @Benchmark
-    public void rx2RangeFlatMapRange(Blackhole bh) {
+    public void rangeFlatMapRange_rx2(Blackhole bh) {
         rx2RangeFlatMapRange.subscribe(new LatchedRSObserver<Integer>(bh));
     }
     
     @Benchmark
-    public void rx2RangeAsync(Blackhole bh) throws InterruptedException {
+    public void rangeAsync_rx2(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         rx2RangeAsync.subscribe(lo);
         
@@ -250,7 +283,7 @@ public class ReactiveStreamsImpls {
     }
 
     @Benchmark
-    public void rx2RangePipeline(Blackhole bh) throws InterruptedException {
+    public void rangePipeline_rx2(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         rx2RangePipeline.subscribe(lo);
         
@@ -264,22 +297,22 @@ public class ReactiveStreamsImpls {
     // -------------------------------------------------------------------------
     
     @Benchmark
-    public void raRange(Blackhole bh) {
+    public void range_reactor(Blackhole bh) {
         raRange.subscribe(new LatchedRSObserver<>(bh));
     }
 
     @Benchmark
-    public void raRangeFlatMapJust(Blackhole bh) {
+    public void rangeFlatMapJust_reactor(Blackhole bh) {
         raRangeFlatMapJust.subscribe(new LatchedRSObserver<>(bh));
     }
     
     @Benchmark
-    public void raRangeFlatMapRange(Blackhole bh) {
+    public void rangeFlatMapRange_reactor(Blackhole bh) {
         raRangeFlatMapRange.subscribe(new LatchedRSObserver<>(bh));
     }
     
     @Benchmark
-    public void raRangeAsync(Blackhole bh) throws InterruptedException {
+    public void rangeAsync_reactor(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Object> lo = new LatchedRSObserver<>(bh);
         raRangeAsync.subscribe(lo);
         
@@ -291,7 +324,7 @@ public class ReactiveStreamsImpls {
     }
 
     @Benchmark
-    public void raRangePipeline(Blackhole bh) throws InterruptedException {
+    public void rangePipeline_reactor(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Object> lo = new LatchedRSObserver<>(bh);
         raRangePipeline.subscribe(lo);
         
@@ -304,8 +337,8 @@ public class ReactiveStreamsImpls {
 
     // -------------------------------------------------------------------------
 
-//    @Benchmark
-    public void akRange(Blackhole bh) throws InterruptedException {
+    @Benchmark
+    public void range_akka(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         akRange.subscribe(lo);
         
@@ -316,8 +349,8 @@ public class ReactiveStreamsImpls {
         }
     }
 
-//    @Benchmark
-    public void akRangeFlatMapJust(Blackhole bh) throws InterruptedException {
+    @Benchmark
+    public void rangeFlatMapJust_akka(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         akRangeFlatMapJust.subscribe(lo);
         
@@ -328,8 +361,8 @@ public class ReactiveStreamsImpls {
         }
     }
 
-//    @Benchmark
-    public void akRangeFlatMapRange(Blackhole bh) throws InterruptedException {
+    @Benchmark
+    public void rangeFlatMapRange_akka(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         akRangeFlatMapRange.subscribe(lo);
         
@@ -341,8 +374,8 @@ public class ReactiveStreamsImpls {
     }
 
     
-//    @Benchmark
-    public void akRangeAsync(Blackhole bh) throws InterruptedException {
+    @Benchmark
+    public void rangeAsync_akka(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         akRangeAsync.subscribe(lo);
         
@@ -353,8 +386,8 @@ public class ReactiveStreamsImpls {
         }
     }
     
-//    @Benchmark
-    public void akRangePipeline(Blackhole bh) throws InterruptedException {
+    @Benchmark
+    public void rangePipeline_akka(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
         akRangePipeline.subscribe(lo);
         
@@ -374,7 +407,7 @@ public class ReactiveStreamsImpls {
         List<Integer> values = Observable.range(1, 1000).toList().toBlocking().first();
         System.out.println(values.size());
         try {
-            o.akRange
+            o.ak2Range
             .subscribe(Subscribers.create(System.out::println, 
                     Throwable::printStackTrace, 
                     () -> System.out.println("Done"), 
@@ -388,7 +421,70 @@ public class ReactiveStreamsImpls {
             o.teardown();
         }
     }
+
+    // -------------------------------------------------------------------------
+
+    @Benchmark
+    public void range_akka2(Blackhole bh) throws InterruptedException {
+        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
+        ak2Range.subscribe(lo);
+        
+        if (times == 1) {
+            while (lo.latch.getCount() != 0);
+        } else {
+            lo.latch.await();
+        }
+    }
+
+    @Benchmark
+    public void rangeFlatMapJust_akka2(Blackhole bh) throws InterruptedException {
+        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
+        ak2RangeFlatMapJust.subscribe(lo);
+        
+        if (times == 1) {
+            while (lo.latch.getCount() != 0);
+        } else {
+            lo.latch.await();
+        }
+    }
+
+    @Benchmark
+    public void rangeFlatMapRange_akka2(Blackhole bh) throws InterruptedException {
+        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
+        ak2RangeFlatMapRange.subscribe(lo);
+        
+        if (times == 1) {
+            while (lo.latch.getCount() != 0);
+        } else {
+            lo.latch.await();
+        }
+    }
+
     
+    @Benchmark
+    public void rangeAsync_akka2(Blackhole bh) throws InterruptedException {
+        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
+        ak2RangeAsync.subscribe(lo);
+        
+        if (times == 1) {
+            while (lo.latch.getCount() != 0);
+        } else {
+            lo.latch.await();
+        }
+    }
+    
+    @Benchmark
+    public void rangePipeline_akka2(Blackhole bh) throws InterruptedException {
+        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
+        ak2RangePipeline.subscribe(lo);
+        
+        if (times == 1) {
+            while (lo.latch.getCount() != 0);
+        } else {
+            lo.latch.await();
+        }
+    }
+
     // -------------------------------------------------------------------------
 //@Benchmark
 public void javaRange(Blackhole bh) {

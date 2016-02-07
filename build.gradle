@@ -52,7 +52,7 @@ dependencies {
     compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC2'
     compile 'io.projectreactor:reactor-stream:2.5.0.BUILD-SNAPSHOT'
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
-    compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.0.1'
+    compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
 
     compile 'io.projectreactor:reactive-streams-commons:0.2.0.BUILD-SNAPSHOT'
     
