@@ -13,23 +13,39 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 
-import com.typesafe.config.*;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
-import akka.stream.javadsl.*;
+import akka.stream.javadsl.Sink;
+import akka.stream.javadsl.Source;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
-import reactor.core.publisher.*;
 import reactor.rx.Stream;
 
 @BenchmarkMode(Mode.Throughput)
@@ -82,9 +98,9 @@ public class ReactiveStreamsImpls {
     
     ActorSystem actorSystem;
 
-    ProcessorGroup g1;
+//    ProcessorGroup g1;
 
-    ProcessorGroup g2;
+//    ProcessorGroup g2;
 
     private ActorMaterializer materializer;
 
@@ -112,14 +128,14 @@ public class ReactiveStreamsImpls {
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 
-        g1 = ProcessorGroup.single();
-        g2 = ProcessorGroup.single();
+//        g1 = ProcessorGroup.single();
+//        g2 = ProcessorGroup.single();
         
         raRange = Stream.range(1, times);
         raRangeFlatMapJust = raRange.flatMap(Stream::just);
         raRangeFlatMapRange = raRange.flatMap(v -> Stream.range(v, 2));
-        raRangeAsync = raRange.dispatchOn(g1);
-        raRangePipeline = raRange.publishOn(g1).dispatchOn(g2);
+//        raRangeAsync = raRange.dispatchOn(g1);
+//        raRangePipeline = raRange.publishOn(g1).dispatchOn(g2);
         
         values = rx2Range.toList().toBlocking().first();
         
@@ -161,8 +177,8 @@ public class ReactiveStreamsImpls {
         exec1.shutdownNow();
         exec2.shutdownNow();
         
-        g1.shutdown();
-        g2.shutdown();
+//        g1.shutdown();
+//        g2.shutdown();
     }
 
     @Benchmark
