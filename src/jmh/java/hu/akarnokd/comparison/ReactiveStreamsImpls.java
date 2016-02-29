@@ -50,7 +50,7 @@ import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
 import reactivestreams.commons.publisher.PublisherBase;
 import reactor.core.publisher.SchedulerGroup;
-import reactor.rx.Stream;
+import reactor.rx.Fluxion;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -75,11 +75,11 @@ public class ReactiveStreamsImpls {
     hu.akarnokd.rxjava2.Observable<Integer> rx2RangeAsync;
     hu.akarnokd.rxjava2.Observable<Integer> rx2RangePipeline;
 
-    Stream<Integer> raRange;
-    Stream<Integer> raRangeFlatMapJust;
-    Stream<Integer> raRangeFlatMapRange;
-    Stream<Integer> raRangeAsync;
-    Stream<Integer> raRangePipeline;
+    Fluxion<Integer> raRange;
+    Fluxion<Integer> raRangeFlatMapJust;
+    Fluxion<Integer> raRangeFlatMapRange;
+    Fluxion<Integer> raRangeAsync;
+    Fluxion<Integer> raRangePipeline;
 
     PublisherBase<Integer> rscRange;
     PublisherBase<Integer> rscRangeFlatMapJust;
@@ -139,9 +139,9 @@ public class ReactiveStreamsImpls {
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 
-        raRange = Stream.range(1, times);
-        raRangeFlatMapJust = raRange.flatMap(Stream::just);
-        raRangeFlatMapRange = raRange.flatMap(v -> Stream.range(v, 2));
+        raRange = Fluxion.range(1, times);
+        raRangeFlatMapJust = raRange.flatMap(Fluxion::just);
+        raRangeFlatMapRange = raRange.flatMap(v -> Fluxion.range(v, 2));
         raRangeAsync = raRange.dispatchOn(singleRa1);
         raRangePipeline = raRange.publishOn(singleRa1).dispatchOn(singleRa2);
 
