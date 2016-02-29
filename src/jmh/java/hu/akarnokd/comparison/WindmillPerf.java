@@ -72,13 +72,6 @@ public class WindmillPerf {
         exec2.shutdown();
         cs.halt();
     }
-    
-    @Benchmark
-    public void rsc(Blackhole bh) throws Exception {
-        LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
-        rsc.subscribe(o);
-        await(count, o.latch);
-    }
 
     static void await(int count, CountDownLatch latch) throws Exception {
         if (count < 1000) {
@@ -88,6 +81,14 @@ public class WindmillPerf {
         }
     }
     
+
+    @Benchmark
+    public void rsc(Blackhole bh) throws Exception {
+        LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
+        rsc.subscribe(o);
+        await(count, o.latch);
+    }
+
     @Benchmark
     public void rscWindmill(Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
@@ -96,13 +97,47 @@ public class WindmillPerf {
         await(count, o.latch);
     }
 
+    @Benchmark
+    public void executor(Blackhole bh) throws Exception {
+        
+        CountDownLatch cdl = new CountDownLatch(1);
+        
+        int c = count;
+        for (int i = 0; i < c; i++) {
+            int j = i;
+            exec1.submit(() -> {
+                if (j == c - 1) {
+                    cdl.countDown();
+                }
+            });
+        }
+        
+        await(c, cdl);
+    }
+
+    @Benchmark
+    public void forkjoin(Blackhole bh) throws Exception {
+        
+        CountDownLatch cdl = new CountDownLatch(1);
+        
+        ForkJoinPool fj = ForkJoinPool.commonPool();
+        
+        int c = count;
+        for (int i = 0; i < c; i++) {
+            int j = i;
+            fj.submit(() -> {
+                if (j == c - 1) {
+                    cdl.countDown();
+                }
+            });
+        }
+        
+        await(c, cdl);
+    }
+
     
     @Benchmark
     public void windmill(Blackhole bh) throws Exception {
-        if (count >= 1_000_000) {
-            throw new RuntimeException("Slow!");
-        }
-        
         CountDownLatch cdl = new CountDownLatch(1);
         
         int c = count;
