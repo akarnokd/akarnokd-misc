@@ -54,6 +54,7 @@ dependencies {
     compile 'io.projectreactor:reactor-stream:2.5.0.BUILD-SNAPSHOT'
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
+    compile 'org.jctools:jctools-core:1.+'
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
