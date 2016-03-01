@@ -39,6 +39,7 @@ repositories {
 	
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'http://repo.spring.io/libs-snapshot' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 apply plugin: 'maven'
@@ -54,7 +55,7 @@ dependencies {
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
 
-    compile 'com.github.xedin:windmill-core:0.+'
+    compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
     compile 'io.projectreactor:reactive-streams-commons:0.2.0.BUILD-SNAPSHOT'
     
