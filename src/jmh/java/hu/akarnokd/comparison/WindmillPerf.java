@@ -72,7 +72,7 @@ public class WindmillPerf {
         rx2 = Observable.range(1, count).subscribeOn(new SingleScheduler()).observeOn(Schedulers.single());
         
         Scheduler s1 = Schedulers.from(r -> cpu1.schedule(r::run));
-        Scheduler s2 = Schedulers.from(r -> cpu1.schedule(r::run));
+        Scheduler s2 = Schedulers.from(r -> cpu2.schedule(r::run));
         
         rx2Windmill = Observable.range(1, count).subscribeOn(s1).observeOn(s2);
 
