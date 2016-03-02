@@ -1,5 +1,6 @@
 package hu.akarnokd.comparison;
 
+import java.util.Arrays;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
@@ -26,93 +27,134 @@ import reactor.rx.Fluxion;
 @Fork(value = 1)
 @State(Scope.Thread)
 public class WindmillPerf {
-    CPU cpu1;
     
-    CPU cpu2;
-    
-    @Param({"1", "1000", "1000000"})
-    public int count;
-    
-    Publisher<Integer> rsc;
+    @State(Scope.Thread)
+    public static class WindmillState {
+        @Param({"1", "1000", "1000000"})
+        public int count;
 
-    Publisher<Integer> rscWindmill;
+        private CPUSet cs;
 
-    Publisher<Integer> rx2;
-
-    Publisher<Integer> rx2Windmill;
-
-    rx.Observable<Integer> rx1;
-
-    rx.Observable<Integer> rx1Windmill;
-
-    private ExecutorService exec1;
-
-    private ExecutorService exec2;
-
-    private CPUSet cs;
-    
-    Fluxion<Integer> flx;
-
-    private SchedulerGroup sg1;
-
-    private SchedulerGroup sg2;
-    
-    @Setup
-    public void setup() {
-        cs = CPUSet.builder().addSocket(0, 1).build();
+        CPU cpu1;
         
-        cs.start();
+        CPU cpu2;
         
-        cpu1 = cs.get(0);
-        cpu2 = cs.get(1);
-        
-        exec1 = Executors.newSingleThreadExecutor();
-        exec2 = Executors.newSingleThreadExecutor();
-        
-        rx2 = Observable.range(1, count).subscribeOn(new SingleScheduler()).observeOn(Schedulers.single());
-        
-        Scheduler s1 = Schedulers.from(r -> cpu1.schedule(r::run));
-        Scheduler s2 = Schedulers.from(r -> cpu2.schedule(r::run));
-        
-        rx2Windmill = Observable.range(1, count).subscribeOn(s1).observeOn(s2);
+        Publisher<Integer> rscWindmill;
 
-        rx1 = rx.Observable.range(1, count).subscribeOn(rx.schedulers.Schedulers.computation()).observeOn(rx.schedulers.Schedulers.computation());
-        
-        rx.Scheduler s3 = rx.schedulers.Schedulers.from(r -> cpu1.schedule(r::run));
-        rx.Scheduler s4 = rx.schedulers.Schedulers.from(r -> cpu2.schedule(r::run));
-        
-        rx1Windmill = rx.Observable.range(1, count).subscribeOn(s3).observeOn(s4);
+        rx.Observable<Integer> rx1Windmill;
 
-        rsc = PublisherBase.range(1, count).subscribeOn(exec1).observeOn(exec2);
+        Publisher<Integer> rx2Windmill;
+        
+        @Setup
+        public void setup() {
+            cs = CPUSet.builder().addSocket(0, 1).build();
+            
+            cs.start();
+            
+            cpu1 = cs.get(0);
+            cpu2 = cs.get(1);
+            
+            Scheduler s1 = Schedulers.from(r -> cpu1.schedule(r::run));
+            Scheduler s2 = Schedulers.from(r -> cpu2.schedule(r::run));
+            
+            Integer[] arr = new Integer[count];
+            Arrays.fill(arr, 777);
+            
+            rx2Windmill = Observable.fromArray(arr).subscribeOn(s1).observeOn(s2);
 
-        Callable<Consumer<Runnable>> scheduler1 = () -> r -> {
-            if (r != null) {
-                cpu1.schedule(r::run);
-            }
-        };
+            rx.Scheduler s3 = rx.schedulers.Schedulers.from(r -> cpu1.schedule(r::run));
+            rx.Scheduler s4 = rx.schedulers.Schedulers.from(r -> cpu2.schedule(r::run));
+            
+            rx1Windmill = rx.Observable.from(arr).subscribeOn(s3).observeOn(s4);
 
-        Callable<Consumer<Runnable>> scheduler2 = () -> r -> {
-            if (r != null) {
-                cpu2.schedule(r::run);
-            }
-        };
-        
-        rscWindmill = PublisherBase.range(1, count).subscribeOn(scheduler1).observeOn(scheduler2);
-        
-        sg1 = SchedulerGroup.single("A", 1024, WaitStrategy.busySpin());
-        sg2 = SchedulerGroup.single("B", 1024, WaitStrategy.busySpin());
-        
-        flx = Fluxion.range(1, count).publishOn(sg1).dispatchOn(sg2);
+            Callable<Consumer<Runnable>> scheduler1 = () -> r -> {
+                if (r != null) {
+                    cpu1.schedule(r::run);
+                }
+            };
+
+            Callable<Consumer<Runnable>> scheduler2 = () -> r -> {
+                if (r != null) {
+                    cpu2.schedule(r::run);
+                }
+            };
+            
+            rscWindmill = PublisherBase.fromArray(arr).subscribeOn(scheduler1).observeOn(scheduler2);
+        }
+        @TearDown
+        public void teardown() {
+            cs.halt();
+        }
     }
     
-    @TearDown
-    public void teardown() {
-        exec1.shutdown();
-        exec2.shutdown();
-        cs.halt();
-        sg1.shutdown();
-        sg2.shutdown();
+    @State(Scope.Thread)
+    public static class ExecutorState {
+        @Param({"1", "1000", "1000000"})
+        public int count;
+
+        Publisher<Integer> rsc;
+
+
+        Publisher<Integer> rx2;
+
+
+        rx.Observable<Integer> rx1;
+
+        private ExecutorService exec1;
+
+        private ExecutorService exec2;
+
+        @Setup
+        public void setup() {
+            exec1 = Executors.newSingleThreadExecutor();
+            exec2 = Executors.newSingleThreadExecutor();
+
+            Integer[] arr = new Integer[count];
+            Arrays.fill(arr, 777);
+
+            rx2 = Observable.fromArray(arr).subscribeOn(new SingleScheduler()).observeOn(Schedulers.single());
+
+            rx1 = rx.Observable.from(arr).subscribeOn(rx.schedulers.Schedulers.computation()).observeOn(rx.schedulers.Schedulers.computation());
+
+            rsc = PublisherBase.fromArray(arr).subscribeOn(exec1).observeOn(exec2);
+            
+        }
+        @TearDown
+        public void teardown() {
+            exec1.shutdown();
+            exec2.shutdown();
+        }
     }
+    
+    @State(Scope.Thread)
+    public static class ReactorState {
+        @Param({"1", "1000", "1000000"})
+        public int count;
+        
+        Fluxion<Integer> flx;
+
+        private SchedulerGroup sg1;
+
+        private SchedulerGroup sg2;
+
+        @Setup
+        public void setup() {
+            sg1 = SchedulerGroup.single("A", 1024, WaitStrategy.busySpin());
+            sg2 = SchedulerGroup.single("B", 1024, WaitStrategy.busySpin());
+
+            Integer[] arr = new Integer[count];
+            Arrays.fill(arr, 777);
+            
+            flx = Fluxion.fromArray(arr).publishOn(sg1).dispatchOn(sg2);
+        }
+
+        @TearDown
+        public void teardown() {
+            sg1.shutdown();
+            sg2.shutdown();
+        }
+    }
+    
 
     static void await(int count, CountDownLatch latch) throws Exception {
         if (count < 1000) {
@@ -124,68 +166,68 @@ public class WindmillPerf {
     
 
     @Benchmark
-    public void rsc(Blackhole bh) throws Exception {
+    public void rsc(ExecutorState state, Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
-        rsc.subscribe(o);
-        await(count, o.latch);
+        state.rsc.subscribe(o);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void fluxion(Blackhole bh) throws Exception {
+    public void fluxion(ReactorState state, Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
-        flx.subscribe(o);
-        await(count, o.latch);
+        state.flx.subscribe(o);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void rscWindmill(Blackhole bh) throws Exception {
+    public void rscWindmill(WindmillState state, Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
-        rscWindmill.subscribe(o);
+        state.rscWindmill.subscribe(o);
         
-        await(count, o.latch);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void rx2(Blackhole bh) throws Exception {
+    public void rx2(ExecutorState state, Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
-        rx2.subscribe(o);
+        state.rx2.subscribe(o);
         
-        await(count, o.latch);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void rx2Windmill(Blackhole bh) throws Exception {
+    public void rx2Windmill(WindmillState state, Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
-        rx2Windmill.subscribe(o);
+        state.rx2Windmill.subscribe(o);
         
-        await(count, o.latch);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void rx1(Blackhole bh) throws Exception {
+    public void rx1(ExecutorState state, Blackhole bh) throws Exception {
         LatchedObserver<Integer> o = new LatchedObserver<>(bh);
-        rx1.subscribe(o);
+        state.rx1.subscribe(o);
         
-        await(count, o.latch);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void rx1Windmill(Blackhole bh) throws Exception {
+    public void rx1Windmill(WindmillState state, Blackhole bh) throws Exception {
         LatchedObserver<Integer> o = new LatchedObserver<>(bh);
-        rx1Windmill.subscribe(o);
+        state.rx1Windmill.subscribe(o);
         
-        await(count, o.latch);
+        await(state.count, o.latch);
     }
 
     @Benchmark
-    public void executor(Blackhole bh) throws Exception {
+    public void executor(ExecutorState state, Blackhole bh) throws Exception {
         
         CountDownLatch cdl = new CountDownLatch(1);
         
-        int c = count;
+        int c = state.count;
         for (int i = 0; i < c; i++) {
             int j = i;
-            exec1.submit(() -> {
+            state.exec1.submit(() -> {
                 if (j == c - 1) {
                     cdl.countDown();
                 }
@@ -196,13 +238,13 @@ public class WindmillPerf {
     }
 
     @Benchmark
-    public void forkjoin(Blackhole bh) throws Exception {
+    public void forkjoin(ExecutorState state, Blackhole bh) throws Exception {
         
         CountDownLatch cdl = new CountDownLatch(1);
         
         ForkJoinPool fj = ForkJoinPool.commonPool();
         
-        int c = count;
+        int c = state.count;
         for (int i = 0; i < c; i++) {
             int j = i;
             fj.submit(() -> {
@@ -217,13 +259,13 @@ public class WindmillPerf {
 
     
     @Benchmark
-    public void windmill(Blackhole bh) throws Exception {
+    public void windmill(WindmillState state, Blackhole bh) throws Exception {
         CountDownLatch cdl = new CountDownLatch(1);
         
-        int c = count;
+        int c = state.count;
         for (int i = 0; i < c; i++) {
             int j = i;
-            cpu1.schedule(() -> {
+            state.cpu1.schedule(() -> {
                 if (j == c - 1) {
                     cdl.countDown();
                 }
@@ -234,13 +276,13 @@ public class WindmillPerf {
     }
     
     @Benchmark
-    public void reactor(Blackhole bh) throws Exception {
+    public void reactor(ReactorState state, Blackhole bh) throws Exception {
         CountDownLatch cdl = new CountDownLatch(1);
 
-        int c = count;
+        int c = state.count;
         for (int i = 0; i < c; i++) {
             int j = i;
-            sg1.accept(() -> {
+            state.sg1.accept(() -> {
                 if (j == c - 1) {
                     cdl.countDown();
                 }
