@@ -78,11 +78,11 @@ public class IxPerf {
         rangeIx = Ix.from(array);
         rangeGx = FluentIterable.of(array);
         
-        int half = Math.min(1, count >> 1);
+        int half = Math.max(1, count >> 1);
         takeRx = rangeRx.take(half);
-        takeRsc = takeRsc.take(half);
+        takeRsc = rangeRsc.take(half);
         takeFx = rangeFx.take(half);
-        takeRx = rangeRx.take(half);
+        takeIx = rangeIx.take(half);
         takeGx = rangeGx.limit(half);
         
         flatMapRx = rangeRx.flatMap(Observable::just);
