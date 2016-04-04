@@ -53,7 +53,10 @@ dependencies {
     compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC2'
     compile 'io.projectreactor:reactor-stream:2.5.0.BUILD-SNAPSHOT'
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
-    compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
+    //compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
+    //compile 'com.typesafe.akka:akka-actor_2.11:2.4.3'
+    compile 'com.typesafe.akka:akka-stream_2.11:2.4.3'
+    
     compile 'org.jctools:jctools-core:1.1'
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
