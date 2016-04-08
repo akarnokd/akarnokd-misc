@@ -13,34 +13,17 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.*;
 
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
-import akka.stream.Graph;
+import akka.stream.*;
 import akka.stream.impl.fusing.Fusing;
 import akka.stream.javadsl.*;
 import hu.akarnokd.rxjava2.Observable;
@@ -48,8 +31,7 @@ import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
 import reactivestreams.commons.publisher.PublisherBase;
-import reactor.core.publisher.SchedulerGroup;
-import reactor.rx.Fluxion;
+import reactor.core.publisher.*;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -74,11 +56,11 @@ public class ReactiveStreamsImpls {
     hu.akarnokd.rxjava2.Observable<Integer> rx2RangeAsync;
     hu.akarnokd.rxjava2.Observable<Integer> rx2RangePipeline;
 
-    Fluxion<Integer> raRange;
-    Fluxion<Integer> raRangeFlatMapJust;
-    Fluxion<Integer> raRangeFlatMapRange;
-    Fluxion<Integer> raRangeAsync;
-    Fluxion<Integer> raRangePipeline;
+    Flux<Integer> raRange;
+    Flux<Integer> raRangeFlatMapJust;
+    Flux<Integer> raRangeFlatMapRange;
+    Flux<Integer> raRangeAsync;
+    Flux<Integer> raRangePipeline;
 
     PublisherBase<Integer> rscRange;
     PublisherBase<Integer> rscRangeFlatMapJust;
@@ -138,9 +120,9 @@ public class ReactiveStreamsImpls {
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 
-        raRange = Fluxion.range(1, times);
-        raRangeFlatMapJust = raRange.flatMap(Fluxion::just);
-        raRangeFlatMapRange = raRange.flatMap(v -> Fluxion.range(v, 2));
+        raRange = Flux.range(1, times);
+        raRangeFlatMapJust = raRange.flatMap(Flux::just);
+        raRangeFlatMapRange = raRange.flatMap(v -> Flux.range(v, 2));
         raRangeAsync = raRange.dispatchOn(singleRa1);
         raRangePipeline = raRange.publishOn(singleRa1).dispatchOn(singleRa2);
 

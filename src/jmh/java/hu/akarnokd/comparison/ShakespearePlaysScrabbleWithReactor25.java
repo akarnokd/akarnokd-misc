@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
-import reactor.rx.Fluxion;
+import reactor.core.publisher.*;
 
 /**
  *
@@ -121,12 +121,12 @@ public class ShakespearePlaysScrabbleWithReactor25 extends ShakespearePlaysScrab
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         // Function to compute the score of a given word
-    	Function<Integer, Fluxion<Integer>> scoreOfALetter = letter -> Fluxion.just(letterScores[letter - 'a']) ;
+    	Function<Integer, Flux<Integer>> scoreOfALetter = letter -> Flux.just(letterScores[letter - 'a']) ;
             
         // score of the same letters in a word
-        Function<Entry<Integer, LongWrapper>, Fluxion<Integer>> letterScore =
+        Function<Entry<Integer, LongWrapper>, Flux<Integer>> letterScore =
         		entry -> 
-                    Fluxion.just(
+                    Flux.just(
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
@@ -134,12 +134,12 @@ public class ShakespearePlaysScrabbleWithReactor25 extends ShakespearePlaysScrab
     	                    )
         	        ) ;
         
-        Function<String, Fluxion<Integer>> toIntegerStream = 
-        		string -> Fluxion.fromIterable(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
+        Function<String, Flux<Integer>> toIntegerStream = 
+        		string -> Flux.fromIterable(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        Function<String, Fluxion<HashMap<Integer, LongWrapper>>> histoOfLetters =
-        		word -> Fluxion.from(toIntegerStream.apply(word)
+        Function<String, Flux<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        		word -> Flux.from(toIntegerStream.apply(word)
         					.collect(
     							() -> new HashMap<Integer, LongWrapper>(), 
     							(HashMap<Integer, LongWrapper> map, Integer value) -> 
@@ -154,9 +154,9 @@ public class ShakespearePlaysScrabbleWithReactor25 extends ShakespearePlaysScrab
         					)) ;
                 
         // number of blanks for a given letter
-        Function<Entry<Integer, LongWrapper>, Fluxion<Long>> blank =
+        Function<Entry<Integer, LongWrapper>, Flux<Long>> blank =
         		entry ->
-        Fluxion.just(
+        Flux.just(
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
@@ -165,59 +165,59 @@ public class ShakespearePlaysScrabbleWithReactor25 extends ShakespearePlaysScrab
         			) ;
 
         // number of blanks for a given word
-        Function<String, Fluxion<Long>> nBlanks = 
-        		word -> Fluxion.from(histoOfLetters.apply(word)
-        					.flatMap(map -> Fluxion.fromIterable(() -> map.entrySet().iterator()))
+        Function<String, Flux<Long>> nBlanks = 
+        		word -> Flux.from(histoOfLetters.apply(word)
+        					.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
         					.flatMap(blank)
         					.reduce(Long::sum)) ;
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Fluxion<Boolean>> checkBlanks = 
+        Function<String, Flux<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.flatMap(l -> Fluxion.just(l <= 2L)) ;
+        					.flatMap(l -> Flux.just(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Fluxion<Integer>> score2 = 
-        		word -> Fluxion.from(histoOfLetters.apply(word)
-        					.flatMap(map -> Fluxion.fromIterable(() -> map.entrySet().iterator()))
+        Function<String, Flux<Integer>> score2 = 
+        		word -> Flux.from(histoOfLetters.apply(word)
+        					.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
         					.flatMap(letterScore)
         					.reduce(Integer::sum));
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        Function<String, Fluxion<Integer>> first3 = 
-        		word -> Fluxion.fromIterable(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
-        Function<String, Fluxion<Integer>> last3 = 
-        		word -> Fluxion.fromIterable(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
+        Function<String, Flux<Integer>> first3 = 
+        		word -> Flux.fromIterable(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
+        Function<String, Flux<Integer>> last3 = 
+        		word -> Flux.fromIterable(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
         		
         
         // Stream to be maxed
-        Function<String, Fluxion<Integer>> toBeMaxed = 
-        	word -> Fluxion.just(first3.apply(word), last3.apply(word))
+        Function<String, Flux<Integer>> toBeMaxed = 
+        	word -> Flux.just(first3.apply(word), last3.apply(word))
         				.flatMap(Stream -> Stream) ;
             
         // Bonus for double letter
-        Function<String, Fluxion<Integer>> bonusForDoubleLetter = 
-        	word -> Fluxion.from(toBeMaxed.apply(word)
+        Function<String, Flux<Integer>> bonusForDoubleLetter = 
+        	word -> Flux.from(toBeMaxed.apply(word)
         				.flatMap(scoreOfALetter)
         				.reduce(Integer::max));
             
         // score of the word put on the board
-        Function<String, Fluxion<Integer>> score3 = 
+        Function<String, Flux<Integer>> score3 = 
         	word ->
-                Fluxion.from(Fluxion.just(
+                Flux.from(Flux.just(
         				score2.apply(word), 
         				score2.apply(word), 
         				bonusForDoubleLetter.apply(word), 
         				bonusForDoubleLetter.apply(word), 
-        				Fluxion.just(word.length() == 7 ? 50 : 0)
+        				Flux.just(word.length() == 7 ? 50 : 0)
         		)
         		.flatMap(Stream -> Stream)
         		.reduce(Integer::sum)) ;
 
-        Function<Function<String, Fluxion<Integer>>, Fluxion<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Fluxion.from(Fluxion.fromIterable(() -> shakespeareWords.iterator())
+        Function<Function<String, Flux<Integer>>, Flux<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> Flux.from(Flux.fromIterable(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
         						.filter(word -> checkBlanks.apply(word).toIterable().iterator().next())
         						.collect(
@@ -235,8 +235,8 @@ public class ShakespearePlaysScrabbleWithReactor25 extends ShakespearePlaysScrab
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                Fluxion.from(buildHistoOnScore.apply(score3)
-        			.flatMap(map -> Fluxion.fromIterable(() -> map.entrySet().iterator()))
+                Flux.from(buildHistoOnScore.apply(score3)
+        			.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 

@@ -13,9 +13,8 @@ import hu.akarnokd.rxjava2.internal.schedulers.SingleScheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import io.windmill.core.*;
 import reactivestreams.commons.publisher.PublisherBase;
-import reactor.core.publisher.SchedulerGroup;
+import reactor.core.publisher.*;
 import reactor.core.util.WaitStrategy;
-import reactor.rx.Fluxion;
 
 /**
  * Benchmark the Windmill library.
@@ -131,7 +130,7 @@ public class WindmillPerf {
         @Param({"1", "1000", "1000000"})
         public int count;
         
-        Fluxion<Integer> flx;
+        Flux<Integer> flx;
 
         private SchedulerGroup sg1;
 
@@ -145,7 +144,7 @@ public class WindmillPerf {
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
             
-            flx = Fluxion.fromArray(arr).publishOn(sg1).dispatchOn(sg2);
+            flx = Flux.fromArray(arr).publishOn(sg1).dispatchOn(sg2);
         }
 
         @TearDown
@@ -173,7 +172,7 @@ public class WindmillPerf {
     }
 
     @Benchmark
-    public void fluxion(ReactorState state, Blackhole bh) throws Exception {
+    public void Flux(ReactorState state, Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
         state.flx.subscribe(o);
         await(state.count, o.latch);
