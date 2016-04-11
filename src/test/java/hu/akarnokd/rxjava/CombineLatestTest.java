@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.concurrent.*;
 
 import hu.akarnokd.rxjava2.internal.subscribers.LambdaSubscriber;
-import reactivestreams.commons.publisher.PublisherBase;
+import reactivestreams.commons.publisher.Px;
 
 public class CombineLatestTest {
     static class Iter implements Iterator<Long> {
@@ -18,10 +18,10 @@ public class CombineLatestTest {
         ExecutorService exec2 = Executors.newSingleThreadExecutor();
         
         try {
-            PublisherBase<Long> source1 = PublisherBase.fromIterable(Iter::new).subscribeOn(exec1);
-            PublisherBase<Long> source2 = PublisherBase.fromIterable(Iter::new).subscribeOn(exec2);
+            Px<Long> source1 = Px.fromIterable(Iter::new).subscribeOn(exec1);
+            Px<Long> source2 = Px.fromIterable(Iter::new).subscribeOn(exec2);
             
-            PublisherBase.combineLatest(source1, source2, (a, b) -> a + ", " + b)
+            Px.combineLatest(source1, source2, (a, b) -> a + ", " + b)
             .subscribe(new LambdaSubscriber<>(System.out::println, e -> { }, () -> { }, s -> s.request(Long.MAX_VALUE)));
             
             Thread.sleep(2000);

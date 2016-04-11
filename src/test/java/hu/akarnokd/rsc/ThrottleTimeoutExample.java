@@ -4,7 +4,7 @@ import java.util.concurrent.*;
 
 import org.junit.Test;
 
-import reactivestreams.commons.publisher.PublisherBase;
+import reactivestreams.commons.publisher.Px;
 
 public class ThrottleTimeoutExample {
     @Test
@@ -12,9 +12,9 @@ public class ThrottleTimeoutExample {
         ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
         
         try {
-            PublisherBase.fromArray(0, 50, 90, 120)
-            .concatMap(v -> PublisherBase.timer(v, TimeUnit.MILLISECONDS, exec))
-            .throttleTimeout(v -> PublisherBase.timer(100, TimeUnit.MILLISECONDS, exec))
+            Px.fromArray(0, 50, 90, 120)
+            .concatMap(v -> Px.timer(v, TimeUnit.MILLISECONDS, exec))
+            .throttleTimeout(v -> Px.timer(100, TimeUnit.MILLISECONDS, exec))
             .doOnNext(System.out::println)
             .subscribe();
             

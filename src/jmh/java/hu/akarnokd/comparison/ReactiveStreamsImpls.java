@@ -30,7 +30,7 @@ import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
-import reactivestreams.commons.publisher.PublisherBase;
+import reactivestreams.commons.publisher.Px;
 import reactor.core.publisher.*;
 
 @BenchmarkMode(Mode.Throughput)
@@ -62,11 +62,11 @@ public class ReactiveStreamsImpls {
     Flux<Integer> raRangeAsync;
     Flux<Integer> raRangePipeline;
 
-    PublisherBase<Integer> rscRange;
-    PublisherBase<Integer> rscRangeFlatMapJust;
-    PublisherBase<Integer> rscRangeFlatMapRange;
-    PublisherBase<Integer> rscRangeAsync;
-    PublisherBase<Integer> rscRangePipeline;
+    Px<Integer> rscRange;
+    Px<Integer> rscRangeFlatMapJust;
+    Px<Integer> rscRangeFlatMapRange;
+    Px<Integer> rscRangeAsync;
+    Px<Integer> rscRangePipeline;
 
     Publisher<Integer> akRange;
     Publisher<Integer> akRangeFlatMapJust;
@@ -126,9 +126,9 @@ public class ReactiveStreamsImpls {
         raRangeAsync = raRange.dispatchOn(singleRa1);
         raRangePipeline = raRange.publishOn(singleRa1).dispatchOn(singleRa2);
 
-        rscRange = PublisherBase.range(1, times);
-        rscRangeFlatMapJust = rscRange.flatMap(PublisherBase::just);
-        rscRangeFlatMapRange = rscRange.flatMap(v -> PublisherBase.range(v, 2));
+        rscRange = Px.range(1, times);
+        rscRangeFlatMapJust = rscRange.flatMap(Px::just);
+        rscRangeFlatMapRange = rscRange.flatMap(v -> Px.range(v, 2));
         rscRangeAsync = rscRange.observeOn(exec1);
         rscRangePipeline = rscRange.subscribeOn(exec1).observeOn(exec2);
 

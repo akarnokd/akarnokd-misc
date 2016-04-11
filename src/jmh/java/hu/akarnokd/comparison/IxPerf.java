@@ -9,7 +9,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import com.google.common.collect.FluentIterable;
 
 import ix.Ix;
-import reactivestreams.commons.publisher.PublisherBase;
+import reactivestreams.commons.publisher.Px;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 import rx.functions.Action1;
@@ -31,37 +31,37 @@ public class IxPerf {
     public int count;
     
     Observable<Integer> rangeRx;
-    PublisherBase<Integer> rangeRsc;
+    Px<Integer> rangeRsc;
     Flux<Integer> rangeFx;
     Ix<Integer> rangeIx;
     FluentIterable<Integer> rangeGx;
 
     Observable<Integer> takeRx;
-    PublisherBase<Integer> takeRsc;
+    Px<Integer> takeRsc;
     Flux<Integer> takeFx;
     Ix<Integer> takeIx;
     FluentIterable<Integer> takeGx;
 
     Observable<Integer> flatMapRx;
-    PublisherBase<Integer> flatMapRsc;
+    Px<Integer> flatMapRsc;
     Flux<Integer> flatMapFx;
     Ix<Integer> flatMapIx;
     FluentIterable<Integer> flatMapGx;
 
     Observable<Integer> concatMapRx;
-    PublisherBase<Integer> concatMapRsc;
+    Px<Integer> concatMapRsc;
     Flux<Integer> concatMapFx;
     Ix<Integer> concatMapIx;
     FluentIterable<Integer> concatMapGx;
 
     Observable<Integer> flatMapXRangeRx;
-    PublisherBase<Integer> flatMapXRangeRsc;
+    Px<Integer> flatMapXRangeRsc;
     Flux<Integer> flatMapXRangeFx;
     Ix<Integer> flatMapXRangeIx;
     FluentIterable<Integer> flatMapXRangeGx;
 
     Observable<Integer> concatMapXRangeRx;
-    PublisherBase<Integer> concatMapXRangeRsc;
+    Px<Integer> concatMapXRangeRsc;
     Flux<Integer> concatMapXRangeFx;
     Ix<Integer> concatMapXRangeIx;
     FluentIterable<Integer> concatMapXRangeGx;
@@ -73,7 +73,7 @@ public class IxPerf {
         Arrays.fill(array, 777);
         
         rangeRx = Observable.from(array);
-        rangeRsc = PublisherBase.fromArray(array);
+        rangeRsc = Px.fromArray(array);
         rangeFx = Flux.fromArray(array);
         rangeIx = Ix.from(array);
         rangeGx = FluentIterable.of(array);
@@ -86,13 +86,13 @@ public class IxPerf {
         takeGx = rangeGx.limit(half);
         
         flatMapRx = rangeRx.flatMap(Observable::just);
-        flatMapRsc = rangeRsc.flatMap(PublisherBase::just);
+        flatMapRsc = rangeRsc.flatMap(Px::just);
         flatMapFx = rangeFx.flatMap(Flux::just);
         flatMapIx = rangeIx.flatMap(Ix::just);
         flatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.of(new Integer[] { v }));  // no flatMap and just in Guava...
 
         concatMapRx = rangeRx.concatMap(Observable::just);
-        concatMapRsc = rangeRsc.concatMap(PublisherBase::just);
+        concatMapRsc = rangeRsc.concatMap(Px::just);
         concatMapFx = rangeFx.concatMap(Flux::just);
         concatMapIx = Ix.concat(rangeIx.map(Ix::just)); // Ix doesn't have concatMap...
         concatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.of(new Integer[] { v }));  // no just() in Guava...
@@ -103,13 +103,13 @@ public class IxPerf {
         Arrays.fill(array2, 888);
         
         flatMapXRangeRx = rangeRx.flatMap(v -> Observable.from(array2));
-        flatMapXRangeRsc = rangeRsc.flatMap(v -> PublisherBase.fromArray(array2));
+        flatMapXRangeRsc = rangeRsc.flatMap(v -> Px.fromArray(array2));
         flatMapXRangeFx = rangeFx.flatMap(v -> Flux.fromArray(array2));
         flatMapXRangeIx = rangeIx.flatMap(v -> Ix.from(array2));
         flatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.of(array2)); // no flatMap in Guava...
 
         concatMapXRangeRx = rangeRx.concatMap(v -> Observable.from(array2));
-        concatMapXRangeRsc = rangeRsc.concatMap(v -> PublisherBase.fromArray(array2));
+        concatMapXRangeRsc = rangeRsc.concatMap(v -> Px.fromArray(array2));
         concatMapXRangeFx = rangeFx.concatMap(v -> Flux.fromArray(array2));
         concatMapXRangeIx = Ix.concat(rangeIx.map(v -> Ix.from(array2)));  // Ix doesn't have concatMap...
         concatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.of(array2));

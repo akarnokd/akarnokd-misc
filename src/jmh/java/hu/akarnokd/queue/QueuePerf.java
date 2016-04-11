@@ -39,17 +39,17 @@ public class QueuePerf {
     ExecutorService exec1;
     ExecutorService exec2;
 
-    PublisherBase<Integer> rsc;
-    PublisherBase<Integer> rscLinked;
+    Px<Integer> rsc;
+    Px<Integer> rscLinked;
     
-    PublisherBase<Integer> jctUnsafe;
-    PublisherBase<Integer> jctSafe;
+    Px<Integer> jctUnsafe;
+    Px<Integer> jctSafe;
     
-    PublisherBase<Integer> jctUnsafeGrow;
-//    PublisherBase<Integer> jctSafeGrow;
+    Px<Integer> jctUnsafeGrow;
+//    Px<Integer> jctSafeGrow;
 
-    PublisherBase<Integer> jctUnsafeUnb;
-    PublisherBase<Integer> jctSafeUnb;
+    Px<Integer> jctUnsafeUnb;
+    Px<Integer> jctSafeUnb;
 
     
     @Setup
@@ -62,7 +62,7 @@ public class QueuePerf {
             arr[i] = 777;
         }
         
-        PublisherBase<Integer> source = PublisherBase.fromArray(arr).subscribeOn(exec1);
+        Px<Integer> source = Px.fromArray(arr).subscribeOn(exec1);
         
         ExecutorServiceScheduler s2 = new ExecutorServiceScheduler(exec2);
         

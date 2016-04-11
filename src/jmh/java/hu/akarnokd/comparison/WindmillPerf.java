@@ -12,7 +12,8 @@ import hu.akarnokd.rxjava2.*;
 import hu.akarnokd.rxjava2.internal.schedulers.SingleScheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import io.windmill.core.*;
-import reactivestreams.commons.publisher.PublisherBase;
+import reactivestreams.commons.publisher.Px;
+import reactivestreams.commons.util.ExecutorScheduler;
 import reactor.core.publisher.*;
 import reactor.core.util.WaitStrategy;
 
@@ -66,19 +67,11 @@ public class WindmillPerf {
             
             rx1Windmill = rx.Observable.from(arr).subscribeOn(s3).observeOn(s4);
 
-            Callable<Consumer<Runnable>> scheduler1 = () -> r -> {
-                if (r != null) {
-                    cpu1.schedule(r::run);
-                }
-            };
+            reactivestreams.commons.scheduler.Scheduler scheduler1 = new ExecutorScheduler(r -> cpu1.schedule(r::run), false);
 
-            Callable<Consumer<Runnable>> scheduler2 = () -> r -> {
-                if (r != null) {
-                    cpu2.schedule(r::run);
-                }
-            };
-            
-            rscWindmill = PublisherBase.fromArray(arr).subscribeOn(scheduler1).observeOn(scheduler2);
+            reactivestreams.commons.scheduler.Scheduler scheduler2 = new ExecutorScheduler(r -> cpu2.schedule(r::run), false);
+
+            rscWindmill = Px.fromArray(arr).subscribeOn(scheduler1).observeOn(scheduler2);
         }
         @TearDown
         public void teardown() {
@@ -115,7 +108,7 @@ public class WindmillPerf {
 
             rx1 = rx.Observable.from(arr).subscribeOn(rx.schedulers.Schedulers.computation()).observeOn(rx.schedulers.Schedulers.computation());
 
-            rsc = PublisherBase.fromArray(arr).subscribeOn(exec1).observeOn(exec2);
+            rsc = Px.fromArray(arr).subscribeOn(exec1).observeOn(exec2);
             
         }
         @TearDown
@@ -281,7 +274,7 @@ public class WindmillPerf {
         int c = state.count;
         for (int i = 0; i < c; i++) {
             int j = i;
-            state.sg1.accept(() -> {
+            state.sg1.schedule(() -> {
                 if (j == c - 1) {
                     cdl.countDown();
                 }
