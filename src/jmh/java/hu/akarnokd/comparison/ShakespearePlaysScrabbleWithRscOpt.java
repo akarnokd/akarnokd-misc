@@ -160,7 +160,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         // number of blanks for a given word
         Function<String, Px<Long>> nBlanks = 
         		word -> histoOfLetters.apply(word)
-        					.flatMap(map -> Px.fromIterable(() -> map.entrySet().iterator()))
+        					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
         					.reduce(Long::sum) ;
         					
@@ -173,7 +173,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         // score taking blanks into account letterScore1
         Function<String, Px<Integer>> score2 = 
         		word -> histoOfLetters.apply(word)
-        					.flatMap(map -> Px.fromIterable(map.entrySet()))
+        					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
         					.reduce(Integer::sum) ;
         					
@@ -236,7 +236,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
         		buildHistoOnScore.apply(score3)
-        			.flatMap(map -> Px.fromIterable(map.entrySet()))
+        			.flatMapIterable(map -> map.entrySet())
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
