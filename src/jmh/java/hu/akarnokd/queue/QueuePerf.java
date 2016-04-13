@@ -20,8 +20,9 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 
 import hu.akarnokd.comparison.LatchedRSObserver;
-import reactivestreams.commons.publisher.*;
-import reactivestreams.commons.util.*;
+import rsc.publisher.*;
+import rsc.scheduler.ExecutorServiceScheduler;
+import rsc.util.*;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)

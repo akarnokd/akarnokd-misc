@@ -5,8 +5,8 @@ import java.util.*;
 import org.junit.Test;
 
 import hu.akarnokd.rxjava2.Observable;
-import reactivestreams.commons.test.TestSubscriber;
 import reactor.core.publisher.*;
+import reactor.core.test.TestSubscriber;
 
 public class StockTest {
     @Test

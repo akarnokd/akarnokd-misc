@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 import reactor.core.publisher.*;
-import reactor.core.util.Exceptions;
 
 public class ReactorPublish {
     static class Iter implements Iterator<Long> {
@@ -21,7 +20,7 @@ public class ReactorPublish {
     }
 
     public static <T> Function<Flux<T>, Flux<T>> DropOld() {
-        return (flux) -> flux.onBackpressureLatest().dispatchOn(SchedulerGroup.single(), 1);
+        return (flux) -> flux.onBackpressureLatest().publishOn(SchedulerGroup.single(), 1);
     }
 
     public static <T> Function<Flux<T>, Flux<T>> Shared() {

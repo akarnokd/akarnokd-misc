@@ -35,7 +35,7 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
-import reactivestreams.commons.publisher.Px;
+import rsc.publisher.Px;
 
 
 /**

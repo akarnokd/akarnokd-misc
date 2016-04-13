@@ -1,15 +1,16 @@
 package hu.akarnokd.rsc;
 
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import reactivestreams.commons.publisher.Px;
+import rsc.publisher.Px;
+import rsc.scheduler.SingleTimedScheduler;
 
 public class ThrottleTimeoutExample {
     @Test
     public void throttleTimeout() throws Exception {
-        ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+        SingleTimedScheduler exec = new SingleTimedScheduler();
         
         try {
             Px.fromArray(0, 50, 90, 120)

@@ -2,6 +2,7 @@ package hu.akarnokd.reactor;
 
 import java.util.Iterator;
 
+import reactor.core.flow.Cancellation;
 import reactor.core.publisher.*;
 import reactor.core.tuple.Tuple;
 
@@ -18,12 +19,12 @@ public class CombineLatestFluxTest {
             final Flux<Long> s2 = Flux.fromIterable(Iter::new).publishOn(SchedulerGroup.single("B"));
 
 
-            Runnable r = Flux.combineLatest(
+            Cancellation r = Flux.combineLatest(
                     v-> Tuple.of((long)v[0],(long)v[1]), 1,
                     s1, s2 //, (l,r) -> Tuple.of(l,r)
             ).consume(t -> System.out.printf("(%d,%d)\n", t.getT1(),t.getT2()));
             
             Thread.sleep(2000);
-            r.run();
+            r.dispose();
     }
 }

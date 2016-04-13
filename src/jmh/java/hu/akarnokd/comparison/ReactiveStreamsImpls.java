@@ -30,8 +30,8 @@ import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.Scheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import hu.akarnokd.rxjava2.subscribers.Subscribers;
-import reactivestreams.commons.publisher.Px;
 import reactor.core.publisher.*;
+import rsc.publisher.Px;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -123,8 +123,8 @@ public class ReactiveStreamsImpls {
         raRange = Flux.range(1, times);
         raRangeFlatMapJust = raRange.flatMap(Flux::just);
         raRangeFlatMapRange = raRange.flatMap(v -> Flux.range(v, 2));
-        raRangeAsync = raRange.dispatchOn(singleRa1);
-        raRangePipeline = raRange.publishOn(singleRa1).dispatchOn(singleRa2);
+        raRangeAsync = raRange.publishOn(singleRa1);
+        raRangePipeline = raRange.subscribeOn(singleRa1).publishOn(singleRa2);
 
         rscRange = Px.range(1, times);
         rscRangeFlatMapJust = rscRange.flatMap(Px::just);

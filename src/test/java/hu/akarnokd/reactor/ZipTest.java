@@ -2,8 +2,8 @@ package hu.akarnokd.reactor;
 
 import org.reactivestreams.Publisher;
 
-import reactivestreams.commons.publisher.Px;
 import reactor.core.publisher.Flux;
+import rsc.publisher.Px;
 
 public class ZipTest {
     public static void main(String[] args) {

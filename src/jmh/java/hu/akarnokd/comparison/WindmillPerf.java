@@ -2,7 +2,6 @@ package hu.akarnokd.comparison;
 
 import java.util.Arrays;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -12,10 +11,10 @@ import hu.akarnokd.rxjava2.*;
 import hu.akarnokd.rxjava2.internal.schedulers.SingleScheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import io.windmill.core.*;
-import reactivestreams.commons.publisher.Px;
-import reactivestreams.commons.util.ExecutorScheduler;
 import reactor.core.publisher.*;
 import reactor.core.util.WaitStrategy;
+import rsc.publisher.Px;
+import rsc.scheduler.ExecutorScheduler;
 
 /**
  * Benchmark the Windmill library.
@@ -67,9 +66,9 @@ public class WindmillPerf {
             
             rx1Windmill = rx.Observable.from(arr).subscribeOn(s3).observeOn(s4);
 
-            reactivestreams.commons.scheduler.Scheduler scheduler1 = new ExecutorScheduler(r -> cpu1.schedule(r::run), false);
+            rsc.scheduler.Scheduler scheduler1 = new ExecutorScheduler(r -> cpu1.schedule(r::run), false);
 
-            reactivestreams.commons.scheduler.Scheduler scheduler2 = new ExecutorScheduler(r -> cpu2.schedule(r::run), false);
+            rsc.scheduler.Scheduler scheduler2 = new ExecutorScheduler(r -> cpu2.schedule(r::run), false);
 
             rscWindmill = Px.fromArray(arr).subscribeOn(scheduler1).observeOn(scheduler2);
         }
@@ -137,7 +136,7 @@ public class WindmillPerf {
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
             
-            flx = Flux.fromArray(arr).publishOn(sg1).dispatchOn(sg2);
+            flx = Flux.fromArray(arr).subscribeOn(sg1).publishOn(sg2);
         }
 
         @TearDown

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.concurrent.*;
 
 import hu.akarnokd.rxjava2.internal.subscribers.LambdaSubscriber;
-import reactivestreams.commons.publisher.Px;
+import rsc.publisher.Px;
 
 public class CombineLatestTest {
     static class Iter implements Iterator<Long> {

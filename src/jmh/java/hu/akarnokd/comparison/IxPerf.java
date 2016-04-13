@@ -9,8 +9,8 @@ import org.openjdk.jmh.infra.Blackhole;
 import com.google.common.collect.FluentIterable;
 
 import ix.Ix;
-import reactivestreams.commons.publisher.Px;
 import reactor.core.publisher.Flux;
+import rsc.publisher.Px;
 import rx.Observable;
 import rx.functions.Action1;
 
