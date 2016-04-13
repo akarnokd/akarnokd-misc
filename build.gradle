@@ -40,6 +40,7 @@ repositories {
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'http://repo.spring.io/libs-snapshot' }
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://oss.sonatype.org/content/groups/public' }
 }
 
 apply plugin: 'maven'
@@ -63,7 +64,7 @@ dependencies {
 
     compile 'io.projectreactor:reactive-streams-commons:0.3.0.BUILD-SNAPSHOT'
 
-    compile('com.github.akarnokd:ixjava:0.91.3') {
+    compile('com.github.akarnokd:ixjava:0.92.3') {
     	exclude group: "io.reactivex", module: "rxjava"
     }
     
