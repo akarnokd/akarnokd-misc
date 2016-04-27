@@ -15,8 +15,8 @@ public class CombineLatestFluxTest {
     public static void main(String[] args) throws Exception {
 
 
-            final Flux<Long> s1 = Flux.fromIterable(Iter::new).publishOn(SchedulerGroup.single("A"));
-            final Flux<Long> s2 = Flux.fromIterable(Iter::new).publishOn(SchedulerGroup.single("B"));
+            final Flux<Long> s1 = Flux.fromIterable(Iter::new).publishOn(Computations.single("A"));
+            final Flux<Long> s2 = Flux.fromIterable(Iter::new).publishOn(Computations.single("B"));
 
 
             Cancellation r = Flux.combineLatest(

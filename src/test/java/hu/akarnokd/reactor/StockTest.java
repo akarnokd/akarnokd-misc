@@ -16,7 +16,7 @@ public class StockTest {
         
         Flux.interval(3_000).flatMap(v -> 
                 Flux.fromIterable(Arrays.asList("A", "B", "C", "D", "E"))
-                .flatMap(w -> Mono.fromCallable(() -> list).publishOn(SchedulerGroup.async()).flatMap(Flux::fromIterable)))
+                .flatMap(w -> Mono.fromCallable(() -> list).publishOn(Computations.concurrent()).flatMap(Flux::fromIterable)))
         .subscribe(ts);
         
         Thread.sleep(50000);

@@ -124,14 +124,14 @@ public class WindmillPerf {
         
         Flux<Integer> flx;
 
-        private SchedulerGroup sg1;
+        private reactor.core.scheduler.Scheduler sg1;
 
-        private SchedulerGroup sg2;
+        private reactor.core.scheduler.Scheduler sg2;
 
         @Setup
         public void setup() {
-            sg1 = SchedulerGroup.single("A", 1024, WaitStrategy.busySpin());
-            sg2 = SchedulerGroup.single("B", 1024, WaitStrategy.busySpin());
+            sg1 = Computations.single("A", 1024, WaitStrategy.busySpin());
+            sg2 = Computations.single("B", 1024, WaitStrategy.busySpin());
 
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);

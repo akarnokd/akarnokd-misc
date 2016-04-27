@@ -20,11 +20,11 @@ public class ReactorPublish {
     }
 
     public static <T> Function<Flux<T>, Flux<T>> DropOld() {
-        return (flux) -> flux.onBackpressureLatest().publishOn(SchedulerGroup.single(), 1);
+        return (flux) -> flux.onBackpressureLatest().publishOn(Computations.single(), 1);
     }
 
     public static <T> Function<Flux<T>, Flux<T>> Shared() {
-        return (flux) -> flux.publishOn(SchedulerGroup.single()).publish().refCount();
+        return (flux) -> flux.publishOn(Computations.single()).publish().refCount();
     }
 
 

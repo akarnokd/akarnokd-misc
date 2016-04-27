@@ -92,8 +92,8 @@ public class ReactiveStreamsImpls {
 
     private List<Integer> values;
 
-    SchedulerGroup singleRa1;
-    SchedulerGroup singleRa2;
+    reactor.core.scheduler.Scheduler singleRa1;
+    reactor.core.scheduler.Scheduler singleRa2;
     
     @Setup
     public void setup() throws Exception {
@@ -105,8 +105,8 @@ public class ReactiveStreamsImpls {
         Scheduler single3 = Schedulers.single();
         Scheduler single4 = Schedulers.from(exec2);
 
-        singleRa1 = SchedulerGroup.single("A");
-        singleRa2 = SchedulerGroup.single("B");
+        singleRa1 = Computations.single("A");
+        singleRa2 = Computations.single("B");
 
         rxRange = rx.Observable.range(1, times);
         rxRangeFlatMapJust = rxRange.flatMap(rx.Observable::just);
