@@ -36,6 +36,10 @@ public final class AxRange extends Ax<Integer> {
         final long end;
         long index;
         
+        static final CompletionStage<Boolean> TRUE = CompletableFuture.completedFuture(true);
+
+        static final CompletionStage<Boolean> FALSE = CompletableFuture.completedFuture(false);
+
         public AxRangeEnumerator(int start, int count) {
             this.index = start - 1;
             this.end = (long)start + count;
@@ -45,10 +49,10 @@ public final class AxRange extends Ax<Integer> {
         public CompletionStage<Boolean> moveNext(CompositeSubscription token) {
             long i = index + 1;
             if (i == end) {
-                return CompletableFuture.completedFuture(false);
+                return FALSE;
             }
             index = i;
-            return CompletableFuture.completedFuture(true);
+            return TRUE;
         }
         
         @Override
