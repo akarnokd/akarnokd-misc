@@ -91,12 +91,12 @@ public class IAsyncEnumerablePerf {
         psc.consume(count);
     }
 
-//    @Benchmark
+    @Benchmark
     public void range_px(Blackhole bh) {
         pxRange.subscribe(new LatchedRSObserver<>(bh));
     }
     
-//    @Benchmark
+    @Benchmark
     public void rangePipeline_px(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> s = new LatchedRSObserver<>(bh);
         
@@ -109,7 +109,7 @@ public class IAsyncEnumerablePerf {
         }
     }
 
-//    @Benchmark
+    @Benchmark
     public void rangeAsync_px(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> s = new LatchedRSObserver<>(bh);
         
@@ -122,7 +122,7 @@ public class IAsyncEnumerablePerf {
         }
     }
 
-//    @Benchmark
+    @Benchmark
     public void rangeAsyncClassic_px(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> s = new LatchedRSObserver<>(bh);
         
