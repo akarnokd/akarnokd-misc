@@ -13,6 +13,8 @@
 
 package hu.akarnokd.asyncenum;
 
+import java.util.concurrent.Executor;
+
 /**
  * Asynchronous Enumerable Extensions.
  *
@@ -22,5 +24,13 @@ public abstract class Ax<T> implements IAsyncEnumerable<T> {
 
     public static Ax<Integer> range(int start, int count) {
         return new AxRange(start, count);
+    }
+    
+    public final Ax<T> observeOn(Executor executor) {
+        return new AxObserveOn<>(this, executor);
+    }
+    
+    public final Ax<T> subscribeOn(Executor executor) {
+        return new AxSubscribeOn<>(this, executor);
     }
 }
