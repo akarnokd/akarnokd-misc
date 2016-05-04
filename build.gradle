@@ -61,7 +61,7 @@ dependencies {
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
-    compile 'io.projectreactor:reactive-streams-commons:0.3.0.BUILD-SNAPSHOT'
+    compile 'io.projectreactor:reactive-streams-commons:0.4.0.BUILD-SNAPSHOT'
 
     compile('com.github.akarnokd:ixjava:0.92.3') {
     	exclude group: "io.reactivex", module: "rxjava"
