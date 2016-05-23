@@ -70,15 +70,17 @@ public final class RpcClient<T> {
         });
         
         
-        RpcIOManager manager = new RpcIOManager(reader, in, writer, out, (a, b) -> null, false);
         
         if (remoteAPI == null) {
             return null;
         }
+
+        Map<String, Object> clientMap = RpcServiceMapper.clientServiceMap(remoteAPI);
+        Map<String, Object> serverMap = RpcServiceMapper.serverServiceMap(localAPI);
         
-        Map<String, Object> map = RpcServiceMapper.serviceMap(remoteAPI);
+        RpcIOManager[] io = { null };
         
-        return remoteAPI.cast(Proxy.newProxyInstance(remoteAPI.getClassLoader(), new Class[] { remoteAPI }, 
+        T api = remoteAPI.cast(Proxy.newProxyInstance(remoteAPI.getClassLoader(), new Class[] { remoteAPI }, 
         (o, m, args) -> {
             String name = m.getName();
             RsRpc a = m.getAnnotation(RsRpc.class);
@@ -90,11 +92,20 @@ public final class RpcClient<T> {
                 name = aname;
             }
             
-            Object action = map.get(name);
+            Object action = clientMap.get(name);
             if (action == null) {
                 throw new IllegalArgumentException("The method " + m.getName() + " is not a proper RsRpc method");
             }
-            return RpcServiceMapper.dispatch(name, action, args, manager);
+            return RpcServiceMapper.dispatchClient(name, action, args, io[0]);
         }));
+
+        RpcStreamContextImpl<T> ctx = new RpcStreamContextImpl<>(endpoint, port, api);
+        
+        io[0] = new RpcIOManager(reader, in, writer, out, (streamId, function, iom) -> {
+            Object action = serverMap.get(function);
+            return RpcServiceMapper.dispatchServer(streamId, action, iom, ctx);
+        }, false);
+
+        return api;
     }
 }

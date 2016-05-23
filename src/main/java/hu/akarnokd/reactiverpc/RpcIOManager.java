@@ -3,7 +3,6 @@ package hu.akarnokd.reactiverpc;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiFunction;
 
 import org.reactivestreams.*;
 
@@ -11,6 +10,11 @@ import rx.Scheduler.Worker;
 import rx.internal.util.RxJavaPluginUtils;
 
 public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
+    
+    @FunctionalInterface
+    public interface OnNewStream {
+        boolean onNew(long streamId, String function, RpcIOManager manager);
+    }
     
     final Worker reader;
     
@@ -22,13 +26,13 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
     
     final OutputStream out;
     
-    final BiFunction<Long, String, Subscriber<?>> onNew;
+    final OnNewStream onNew;
     
     final AtomicLong streamIds;
     
     public RpcIOManager(Worker reader, InputStream in, 
             Worker writer, OutputStream out,
-            BiFunction<Long, String, Subscriber<?>> onNew,
+            OnNewStream onNew,
             boolean server) {
         this.reader = reader;
         this.writer = writer;
@@ -67,12 +71,7 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
     
     @Override
     public void onNew(long streamId, String function) {
-        Subscriber<?> s = onNew.apply(streamId, function);
-        if (s != null) {
-            if (streams.putIfAbsent(streamId, s) != null) {
-                RxJavaPluginUtils.handleException(new IllegalStateException("Stream ID in use: " + streamId));
-            }
-        } else {
+        if (!onNew.onNew(streamId, function, this)) {
             writer.schedule(() -> {
                 RsRpcProtocol.cancel(out, streamId, "New stream(" + function + ") rejected");
             });
@@ -81,7 +80,7 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
 
     @Override
     public void onCancel(long streamId, String reason) {
-        Object remove = streams.remove(streamId);
+        Object remove = streams.get(streamId);
         if (remove != null) {
             // TODO log reason?
             if (remove instanceof Subscription) {
@@ -102,7 +101,6 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
             Subscriber<Object> s = (Subscriber<Object>)local;
             
             if (payload.length != read) {
-                streams.remove(streamId);
                 s.onError(new IOException("Partial value received: expected = " + payload.length + ", actual = " + read));
             } else {
                 Object o;
@@ -112,7 +110,6 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
                     ObjectInputStream oin = new ObjectInputStream(bin);
                     o = oin.readObject();
                 } catch (IOException | ClassNotFoundException ex) {
-                    streams.remove(streamId);
                     writer.schedule(() -> {
                         RsRpcProtocol.cancel(out, streamId, ex.toString());
                     });
@@ -127,7 +124,7 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
 
     @Override
     public void onError(long streamId, String reason) {
-        Object local = streams.remove(streamId);
+        Object local = streams.get(streamId);
         if (local instanceof Subscriber) {
             Subscriber<?> s = (Subscriber<?>) local;
             
@@ -140,7 +137,7 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
 
     @Override
     public void onComplete(long streamId) {
-        Object local = streams.remove(streamId);
+        Object local = streams.get(streamId);
         if (local instanceof Subscriber) {
             Subscriber<?> s = (Subscriber<?>) local;
             
@@ -188,26 +185,29 @@ public class RpcIOManager implements RsRpcProtocol.RsRpcReceive {
     }
 
     public void sendError(long streamId, Throwable e) {
-        streams.remove(streamId);
         writer.schedule(() -> {
             RsRpcProtocol.error(out, streamId, e);
         });
     }
     
     public void sendComplete(long streamId) {
-        streams.remove(streamId);
         writer.schedule(() -> {
             RsRpcProtocol.complete(out, streamId);
         });
     }
     
+    public void deregister(long streamId) {
+        if (streams.remove(streamId) == null) {
+            // TODO
+        }
+    }
+    
     public void sendCancel(long streamId, String reason) {
-        streams.remove(streamId);
         writer.schedule(() -> {
             RsRpcProtocol.cancel(out, streamId, reason);
         });
     }
-    
+
     public void sendRequested(long streamId, long requested) {
         writer.schedule(() -> {
             RsRpcProtocol.request(out, streamId, requested);
