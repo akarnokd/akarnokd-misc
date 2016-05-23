@@ -4,7 +4,8 @@ import java.net.InetAddress;
 
 import rx.Scheduler;
 
-public interface RpcStreamContext {
+public interface RpcStreamContext<T> {
+
     long streamId();
     
     InetAddress clientAddress();
@@ -13,13 +14,15 @@ public interface RpcStreamContext {
     
     void set(String attribute, Object o);
     
-    <T> T get(String attribute);
+    <U> U get(String attribute);
 
-    <T> T get(String attribute, T defaultValue);
+    <U> U get(String attribute, U defaultValue);
 
     void remove(String attribute);
     
     boolean has(String attribute);
     
     Scheduler scheduler();
+    
+    T remoteAPI();
 }

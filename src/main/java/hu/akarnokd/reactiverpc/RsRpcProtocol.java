@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
  * 00-03: payload length including the header (4 bytes little endian)
  * 04-04: entry type (1 bytes)
  * 05-07: entry flags (3 bytes little endian)
- * 08-0F: stream identifier (8 bytes little endian); stream 0 is reserved
+ * 08-0F: stream identifier (8 bytes little endian); bit 63: set for server opened streams
  */
 public enum RsRpcProtocol {
     ;
