@@ -33,13 +33,15 @@ public class BasicNIOTest {
                 read = fc.read(buf);
             }
         }
+        
+        System.out.println();
     }
     
     @Test
     public void selector() throws IOException {
         
         ByteBuffer getIndex = ByteBuffer.wrap("GET / HTTP/1.0\r\n\r\n".getBytes(StandardCharsets.US_ASCII));
-        ByteBuffer result = ByteBuffer.allocate(1024);
+        ByteBuffer result = ByteBuffer.allocate(32);
         
         try (SocketChannel socket = SocketChannel.open()) {
             socket.connect(new InetSocketAddress("localhost", 8080));
