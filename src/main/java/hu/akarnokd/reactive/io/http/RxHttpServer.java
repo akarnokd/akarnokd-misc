@@ -11,7 +11,7 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package hu.akarnokd.reactiveio.http;
+package hu.akarnokd.reactive.io.http;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 import com.sun.net.httpserver.HttpServer;
 
-import hu.akarnokd.reactiveio.RxIODispatcher;
+import hu.akarnokd.reactive.io.RxIODispatcher;
 import hu.akarnokd.rxjava2.*;
 import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.xml.XElement;

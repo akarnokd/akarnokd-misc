@@ -11,14 +11,14 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package hu.akarnokd.reactiveio.socket;
+package hu.akarnokd.reactive.io.socket;
 
 import java.io.*;
 import java.net.*;
 
 import org.reactivestreams.*;
 
-import hu.akarnokd.reactiveio.RxIODispatcher;
+import hu.akarnokd.reactive.io.RxIODispatcher;
 import hu.akarnokd.rxjava2.*;
 import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.rxjava2.plugins.RxJavaPlugins;

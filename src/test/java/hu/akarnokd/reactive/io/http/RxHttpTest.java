@@ -11,13 +11,14 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package hu.akarnokd.reactiveio.http;
+package hu.akarnokd.reactive.io.http;
 
 import java.net.URL;
 import java.util.*;
 
 import org.junit.Test;
 
+import hu.akarnokd.reactive.io.http.*;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;

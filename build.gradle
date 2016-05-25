@@ -67,6 +67,10 @@ dependencies {
     	exclude group: "io.reactivex", module: "rxjava"
     }
 
+    compile('com.github.akarnokd:akarnokd-reactive-rpc:0.1.1') {
+        exclude group: "com.github.akarnokd", module: "*"
+    }
+
     compile 'com.github.akarnokd:akarnokd-xml:0.9.1'
     
     compile 'com.google.guava:guava:19.0'

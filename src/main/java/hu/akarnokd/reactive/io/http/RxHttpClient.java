@@ -11,7 +11,7 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package hu.akarnokd.reactiveio.http;
+package hu.akarnokd.reactive.io.http;
 
 import java.io.*;
 import java.net.*;
@@ -22,7 +22,7 @@ import javax.xml.stream.*;
 
 import org.reactivestreams.*;
 
-import hu.akarnokd.reactiveio.socket.RxClientSocket;
+import hu.akarnokd.reactive.io.socket.RxClientSocket;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.rxjava2.internal.queue.SpscLinkedArrayQueue;

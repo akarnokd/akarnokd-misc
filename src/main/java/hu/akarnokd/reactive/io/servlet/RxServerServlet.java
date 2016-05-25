@@ -11,7 +11,7 @@
  * the License for the specific language governing permissions and limitations under the License.
  */
 
-package hu.akarnokd.reactiveio.servlet;
+package hu.akarnokd.reactive.io.servlet;
 
 import java.io.*;
 import java.util.*;
@@ -19,7 +19,7 @@ import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 
-import hu.akarnokd.reactiveio.RxIODispatcher;
+import hu.akarnokd.reactive.io.RxIODispatcher;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.xml.XElement;
