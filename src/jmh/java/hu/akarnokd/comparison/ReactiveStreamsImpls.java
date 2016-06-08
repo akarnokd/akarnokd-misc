@@ -105,8 +105,8 @@ public class ReactiveStreamsImpls {
         Scheduler single3 = Schedulers.single();
         Scheduler single4 = Schedulers.from(exec2);
 
-        singleRa1 = Computations.single("A");
-        singleRa2 = Computations.single("B");
+        singleRa1 = reactor.core.scheduler.Schedulers.newSingle("A");
+        singleRa2 = reactor.core.scheduler.Schedulers.newSingle("B");
 
         rxRange = rx.Observable.range(1, times);
         rxRangeFlatMapJust = rxRange.flatMap(rx.Observable::just);

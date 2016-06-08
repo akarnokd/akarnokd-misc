@@ -11,8 +11,7 @@ import hu.akarnokd.rxjava2.*;
 import hu.akarnokd.rxjava2.internal.schedulers.SingleScheduler;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;
 import io.windmill.core.*;
-import reactor.core.publisher.*;
-import reactor.core.util.WaitStrategy;
+import reactor.core.publisher.Flux;
 import rsc.publisher.Px;
 import rsc.scheduler.ExecutorScheduler;
 
@@ -130,8 +129,8 @@ public class WindmillPerf {
 
         @Setup
         public void setup() {
-            sg1 = Computations.single("A", 1024, WaitStrategy.busySpin());
-            sg2 = Computations.single("B", 1024, WaitStrategy.busySpin());
+            sg1 = reactor.core.scheduler.Schedulers.newSingle("A");
+            sg2 = reactor.core.scheduler.Schedulers.newSingle("B");
 
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
