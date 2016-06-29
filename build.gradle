@@ -49,8 +49,10 @@ apply plugin: 'osgi'
 dependencies {
     compile 'org.reactivestreams:reactive-streams:1.0.0'
     
-    compile 'io.reactivex:rxjava:1.1.5'
+    compile 'io.reactivex:rxjava:1.1.6'
     compile 'io.reactivex:rxjava-string:+';
+
+    compile 'io.reactivex.rxjava2:rxjava:+'
     
     compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
     
@@ -62,9 +64,9 @@ dependencies {
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
-    compile 'io.projectreactor:reactive-streams-commons:0.4.0.BUILD-SNAPSHOT'
+    compile 'io.projectreactor:reactive-streams-commons:0.5.0.BUILD-SNAPSHOT'
 
-    compile('com.github.akarnokd:ixjava:0.92.3') {
+    compile('com.github.akarnokd:ixjava:0.92.5') {
     	exclude group: "io.reactivex", module: "rxjava"
     }
 
@@ -87,6 +89,7 @@ dependencies {
     //compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
     //compile 'com.typesafe.akka:akka-actor_2.11:2.4.3'
 
+    //compile 'io.swave:swave-core_2.11:0.5-M1'
 }
 
 processResources {
