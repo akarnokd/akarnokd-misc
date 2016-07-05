@@ -85,7 +85,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 		iterations=5
     )
     @Measurement(
-    	iterations=5, time = 60
+    	iterations=5, time = 1
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
@@ -186,10 +186,8 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 //        		)
 //        		.flatMap(Flowable -> Flowable)
                 Flowable.concat(
-                        score2.apply(word), 
-                        score2.apply(word), 
-                        bonusForDoubleLetter.apply(word), 
-                        bonusForDoubleLetter.apply(word), 
+                        score2.apply(word).map(v -> v * 2), 
+                        bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Flowable.just(word.length() == 7 ? 50 : 0)
                 )
         		.reduce(Integer::sum) ;

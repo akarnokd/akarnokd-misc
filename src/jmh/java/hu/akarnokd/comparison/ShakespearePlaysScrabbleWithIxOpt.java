@@ -181,10 +181,8 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
 //        		)
 //        		.flatMap(Ix -> Ix)
                 Ix.concat(Arrays.asList(
-                        score2.call(word), 
-                        score2.call(word), 
-                        bonusForDoubleLetter.call(word), 
-                        bonusForDoubleLetter.call(word), 
+                        score2.call(word).map(v -> v * 2), 
+                        bonusForDoubleLetter.call(word).map(v -> v * 2), 
                         Ix.just(word.length() == 7 ? 50 : 0))
                 )
         		.sumInt();

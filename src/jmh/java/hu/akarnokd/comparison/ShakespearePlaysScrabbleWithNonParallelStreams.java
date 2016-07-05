@@ -29,4 +29,10 @@ public class ShakespearePlaysScrabbleWithNonParallelStreams extends ShakespeareP
 	Stream<String> buildShakerspeareWordsStream() {
 		return shakespeareWords.stream() ;
 	}
+	
+	public static void main(String[] args) throws Exception {
+	    ShakespearePlaysScrabbleWithNonParallelStreams s = new ShakespearePlaysScrabbleWithNonParallelStreams();
+        s.init();
+        System.out.println(s.measureThroughput());
+    }
 }

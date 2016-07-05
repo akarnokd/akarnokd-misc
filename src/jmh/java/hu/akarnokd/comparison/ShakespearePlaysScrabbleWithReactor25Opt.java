@@ -43,7 +43,6 @@ import reactor.core.publisher.*;
  */
 public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysScrabble {
 
-	
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -99,7 +98,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ;
         
@@ -108,8 +107,8 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Function<String, Flux<HashMap<Integer, MutableLong>>> histoOfLetters =
-        		word -> Flux.from(toIntegerFlux.apply(word)
+        Function<String, Mono<HashMap<Integer, MutableLong>>> histoOfLetters =
+        		word -> toIntegerFlux.apply(word)
         					.collect(
     							() -> new HashMap<Integer, MutableLong>(), 
     							(HashMap<Integer, MutableLong> map, Integer value) -> 
@@ -122,7 +121,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
     									newValue.incAndSet();
     								}
     								
-        					)) ;
+        					);
                 
         // number of blanks for a given letter
         Function<Entry<Integer, MutableLong>, Long> blank =
@@ -135,24 +134,24 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         			;
 
         // number of blanks for a given word
-        Function<String, Flux<Long>> nBlanks = 
-        		word -> Flux.from(histoOfLetters.apply(word)
+        Function<String, Mono<Long>> nBlanks = 
+        		word -> histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					.reduce(Long::sum)) ;
+        					.reduce(Long::sum);
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Flux<Boolean>> checkBlanks = 
+        Function<String, Mono<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
         					.map(l -> l <= 2L) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Flux<Integer>> score2 = 
-        		word -> Flux.from(histoOfLetters.apply(word)
+        Function<String, Mono<Integer>> score2 = 
+        		word -> histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					.reduce(Integer::sum)) ;
+        					.reduce(Integer::sum);
         					
         // Placing the word on the board
         // Building the Fluxs of first and last letters
@@ -168,13 +167,13 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         	;
             
         // Bonus for double letter
-        Function<String, Flux<Integer>> bonusForDoubleLetter = 
-        	word -> Flux.from(toBeMaxed.apply(word)
+        Function<String, Mono<Integer>> bonusForDoubleLetter = 
+        	word -> toBeMaxed.apply(word)
         				.map(scoreOfALetter)
-        				.reduce(Integer::max)) ;
+        				.reduce(Integer::max);
             
         // score of the word put on the board
-        Function<String, Flux<Integer>> score3 = 
+        Function<String, Mono<Integer>> score3 = 
         	word ->
 //        		Flux.fromArray(
 //        				score2.apply(word), 
@@ -184,23 +183,21 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
 //        				Flux.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Flux -> Flux)
-        Flux.from(Flux.concat(
-                        score2.apply(word), 
-                        score2.apply(word), 
-                        bonusForDoubleLetter.apply(word), 
-                        bonusForDoubleLetter.apply(word), 
+                Flux.concat(
+                        score2.apply(word).map(v -> v * 2), 
+                        bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Flux.just(word.length() == 7 ? 50 : 0)
                 )
-        		.reduce(Integer::sum)) ;
+        		.reduce(Integer::sum);
 
-        Function<Function<String, Flux<Integer>>, Flux<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Flux.from(Flux.fromIterable(shakespeareWords)
+        Function<Function<String, Mono<Integer>>, Mono<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> Flux.fromIterable(shakespeareWords)
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).toIterable().iterator().next())
+        						.filter(word -> checkBlanks.apply(word).block())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).toIterable().iterator().next() ;
+        								Integer key = score.apply(word).block() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -208,11 +205,11 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         								}
         								list.add(word) ;
         							}
-        						)) ;
+        						);
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                Flux.from(buildHistoOnScore.apply(score3)
+                buildHistoOnScore.apply(score3)
         			.flatMapIterable(map -> map.entrySet())
         			.take(3)
         			.collect(
@@ -220,8 +217,8 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         				(list, entry) -> {
         					list.add(entry) ;
         				}
-        			))
-        			.toIterable().iterator().next() ;
+        			)
+        			.block();
         			
         
 //        System.out.println(finalList2);

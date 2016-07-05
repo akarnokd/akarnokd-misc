@@ -87,7 +87,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
 		iterations=5, time = 1
     )
     @Measurement(
-    	iterations=5, time = 60
+    	iterations=5, time = 1
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
@@ -187,10 +187,8 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
 //        		)
 //        		.flatMap(Px -> Px)
                 Px.concatArray(
-                        score2.apply(word), 
-                        score2.apply(word), 
-                        bonusForDoubleLetter.apply(word), 
-                        bonusForDoubleLetter.apply(word), 
+                        score2.apply(word).map(v -> v * 2), 
+                        bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Px.just(word.length() == 7 ? 50 : 0)
                 )
         		.reduce(Integer::sum) ;

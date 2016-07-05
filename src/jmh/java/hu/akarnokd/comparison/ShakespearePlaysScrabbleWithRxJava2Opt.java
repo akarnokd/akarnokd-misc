@@ -68,7 +68,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Opt extends ShakespearePlaysScra
         return Observable.range(0, word.length()).map(i -> (int)word.charAt(i));
     }
     
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

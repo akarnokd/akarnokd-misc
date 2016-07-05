@@ -185,10 +185,8 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
 //        		)
 //        		.flatMap(Observable -> Observable)
                 Observable.concat(
-                        score2.call(word), 
-                        score2.call(word), 
-                        bonusForDoubleLetter.call(word), 
-                        bonusForDoubleLetter.call(word), 
+                        score2.call(word).map(v -> v * 2), 
+                        bonusForDoubleLetter.call(word).map(v -> v * 2), 
                         Observable.just(word.length() == 7 ? 50 : 0)
                 )
         		.reduce(Integer::sum) ;
