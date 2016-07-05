@@ -44,42 +44,6 @@ import rsc.publisher.Px;
  */
 public class ShakespearePlaysScrabbleWithRsc extends ShakespearePlaysScrabble {
 
-	interface Wrapper<T> {
-		T get() ;
-		
-		default Wrapper<T> set(T t) {
-			return () -> t ;
-		}
-	}
-	
-	interface IntWrapper {
-		int get() ;
-		
-		default IntWrapper set(int i) {
-			return () -> i ;
-		}
-		
-		default IntWrapper incAndSet() {
-			return () -> get() + 1 ;
-		}
-	}
-	
-	interface LongWrapper {
-		long get() ;
-		
-		default LongWrapper set(long l) {
-			return () -> l ;
-		}
-		
-		default LongWrapper incAndSet() {
-			return () -> get() + 1L ;
-		}
-		
-		default LongWrapper add(LongWrapper other) {
-			return () -> get() + other.get() ;
-		}
-	}
-
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -113,10 +77,10 @@ public class ShakespearePlaysScrabbleWithRsc extends ShakespearePlaysScrabble {
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
-		iterations=50
+		iterations=5
     )
     @Measurement(
-    	iterations=50
+    	iterations=5
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {

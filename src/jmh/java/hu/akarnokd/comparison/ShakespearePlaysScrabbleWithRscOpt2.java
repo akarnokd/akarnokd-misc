@@ -35,29 +35,6 @@ import rsc.publisher.Px;
  */
 public class ShakespearePlaysScrabbleWithRscOpt2 extends ShakespearePlaysScrabble {
 
-	
-    static class LongWrapper {
-        long value;
-        long get() {
-            return value;
-        }
-        
-        LongWrapper set(long l) {
-            value = l;
-            return this;
-        }
-        
-        LongWrapper incAndSet() {
-            value++;
-            return this;
-        }
-        
-        LongWrapper add(LongWrapper other) {
-            value += other.value;
-            return this;
-        }
-    }
-    
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138

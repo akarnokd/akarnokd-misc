@@ -24,9 +24,68 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
+import hu.akarnokd.comparison.ShakespearePlaysScrabbleWithRxJava2Observable.*;
+
 @State(Scope.Benchmark)
 public class ShakespearePlaysScrabble {
 
+    static class MutableLong {
+        long value;
+        long get() {
+            return value;
+        }
+        
+        MutableLong set(long l) {
+            value = l;
+            return this;
+        }
+        
+        MutableLong incAndSet() {
+            value++;
+            return this;
+        }
+        
+        MutableLong add(MutableLong other) {
+            value += other.value;
+            return this;
+        }
+    }
+    
+    interface Wrapper<T> {
+        T get() ;
+        
+        default Wrapper<T> set(T t) {
+            return () -> t ;
+        }
+    }
+    
+    interface IntWrapper {
+        int get() ;
+        
+        default IntWrapper set(int i) {
+            return () -> i ;
+        }
+        
+        default IntWrapper incAndSet() {
+            return () -> get() + 1 ;
+        }
+    }
+    
+    interface LongWrapper {
+        long get() ;
+        
+        default LongWrapper set(long l) {
+            return () -> l ;
+        }
+        
+        default LongWrapper incAndSet() {
+            return () -> get() + 1L ;
+        }
+        
+        default LongWrapper add(LongWrapper other) {
+            return () -> get() + other.get() ;
+        }
+    }
     
     public static final int [] letterScores = {
     // a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,  q, r, s, t, u, v, w, x, y,  z

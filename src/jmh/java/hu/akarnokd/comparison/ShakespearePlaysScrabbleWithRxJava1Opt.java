@@ -44,28 +44,6 @@ import rx.functions.Func1;
 public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScrabble {
 
 	
-    static class LongWrapper {
-        long value;
-        long get() {
-            return value;
-        }
-        
-        LongWrapper set(long l) {
-            value = l;
-            return this;
-        }
-        
-        LongWrapper incAndSet() {
-            value++;
-            return this;
-        }
-        
-        LongWrapper add(LongWrapper other) {
-            value += other.value;
-            return this;
-        }
-    }
-    
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -116,7 +94,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
     	Func1<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
             
         // score of the same letters in a word
-        Func1<Entry<Integer, LongWrapper>, Integer> letterScore =
+        Func1<Entry<Integer, MutableLong>, Integer> letterScore =
         		entry -> 
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
@@ -130,15 +108,15 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Func1<String, Observable<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        Func1<String, Observable<HashMap<Integer, MutableLong>>> histoOfLetters =
         		word -> toIntegerObservable.call(word)
         					.collect(
-    							() -> new HashMap<Integer, LongWrapper>(), 
-    							(HashMap<Integer, LongWrapper> map, Integer value) -> 
+    							() -> new HashMap<Integer, MutableLong>(), 
+    							(HashMap<Integer, MutableLong> map, Integer value) -> 
     								{ 
-    									LongWrapper newValue = map.get(value) ;
+    									MutableLong newValue = map.get(value) ;
     									if (newValue == null) {
-    										newValue = new LongWrapper();
+    										newValue = new MutableLong();
     										map.put(value, newValue);
     									}
     									newValue.incAndSet();
@@ -147,7 +125,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         					) ;
                 
         // number of blanks for a given letter
-        Func1<Entry<Integer, LongWrapper>, Long> blank =
+        Func1<Entry<Integer, MutableLong>, Long> blank =
         		entry ->
 	        			Long.max(
 	        				0L, 
@@ -159,7 +137,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         // number of blanks for a given word
         Func1<String, Observable<Long>> nBlanks = 
         		word -> histoOfLetters.call(word)
-        					.flatMap(map -> Observable.from(() -> map.entrySet().iterator()))
+        					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
         					.reduce(Long::sum) ;
         					
@@ -172,7 +150,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         // score taking blanks into account letterScore1
         Func1<String, Observable<Integer>> score2 = 
         		word -> histoOfLetters.call(word)
-        					.flatMap(map -> Observable.from(map.entrySet()))
+        					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
         					.reduce(Integer::sum) ;
         					
@@ -235,7 +213,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
         		buildHistoOnScore.call(score3)
-        			.flatMap(map -> Observable.from(map.entrySet()))
+        			.flatMapIterable(map -> map.entrySet())
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 

@@ -40,28 +40,6 @@ import rx.functions.Func1;
 public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble {
 
 	
-    static class LongWrapper {
-        long value;
-        long get() {
-            return value;
-        }
-        
-        LongWrapper set(long l) {
-            value = l;
-            return this;
-        }
-        
-        LongWrapper incAndSet() {
-            value++;
-            return this;
-        }
-        
-        LongWrapper add(LongWrapper other) {
-            value += other.value;
-            return this;
-        }
-    }
-    
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -112,7 +90,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     	Func1<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
             
         // score of the same letters in a word
-        Func1<Entry<Integer, LongWrapper>, Integer> letterScore =
+        Func1<Entry<Integer, MutableLong>, Integer> letterScore =
         		entry -> 
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
@@ -126,15 +104,15 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Func1<String, Ix<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        Func1<String, Ix<HashMap<Integer, MutableLong>>> histoOfLetters =
         		word -> toIntegerIx.call(word)
         					.collect(
-    							() -> new HashMap<Integer, LongWrapper>(), 
-    							(HashMap<Integer, LongWrapper> map, Integer value) -> 
+    							() -> new HashMap<Integer, MutableLong>(), 
+    							(HashMap<Integer, MutableLong> map, Integer value) -> 
     								{ 
-    									LongWrapper newValue = map.get(value) ;
+    									MutableLong newValue = map.get(value) ;
     									if (newValue == null) {
-    										newValue = new LongWrapper();
+    										newValue = new MutableLong();
     										map.put(value, newValue);
     									}
     									newValue.incAndSet();
@@ -143,7 +121,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         					) ;
                 
         // number of blanks for a given letter
-        Func1<Entry<Integer, LongWrapper>, Long> blank =
+        Func1<Entry<Integer, MutableLong>, Long> blank =
         		entry ->
 	        			Long.max(
 	        				0L, 

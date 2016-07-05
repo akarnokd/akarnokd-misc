@@ -45,28 +45,6 @@ import rsc.publisher.Px;
 public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble {
 
 	
-    static class LongWrapper {
-        long value;
-        long get() {
-            return value;
-        }
-        
-        LongWrapper set(long l) {
-            value = l;
-            return this;
-        }
-        
-        LongWrapper incAndSet() {
-            value++;
-            return this;
-        }
-        
-        LongWrapper add(LongWrapper other) {
-            value += other.value;
-            return this;
-        }
-    }
-    
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -105,10 +83,10 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
-		iterations=5, time = 5
+		iterations=5, time = 1
     )
     @Measurement(
-    	iterations=5, time = 5
+    	iterations=5, time = 1
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
@@ -117,7 +95,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
     	Function<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
             
         // score of the same letters in a word
-        Function<Entry<Integer, LongWrapper>, Integer> letterScore =
+        Function<Entry<Integer, MutableLong>, Integer> letterScore =
         		entry -> 
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
@@ -131,15 +109,15 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Function<String, Px<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        Function<String, Px<HashMap<Integer, MutableLong>>> histoOfLetters =
         		word -> toIntegerPx.apply(word)
         					.collect(
-    							() -> new HashMap<Integer, LongWrapper>(), 
-    							(HashMap<Integer, LongWrapper> map, Integer value) -> 
+    							() -> new HashMap<Integer, MutableLong>(), 
+    							(HashMap<Integer, MutableLong> map, Integer value) -> 
     								{ 
-    									LongWrapper newValue = map.get(value) ;
+    									MutableLong newValue = map.get(value) ;
     									if (newValue == null) {
-    										newValue = new LongWrapper();
+    										newValue = new MutableLong();
     										map.put(value, newValue);
     									}
     									newValue.incAndSet();
@@ -148,7 +126,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         					) ;
                 
         // number of blanks for a given letter
-        Function<Entry<Integer, LongWrapper>, Long> blank =
+        Function<Entry<Integer, MutableLong>, Long> blank =
         		entry ->
 	        			Long.max(
 	        				0L, 

@@ -44,28 +44,6 @@ import reactor.core.publisher.*;
 public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysScrabble {
 
 	
-    static class LongWrapper {
-        long value;
-        long get() {
-            return value;
-        }
-        
-        LongWrapper set(long l) {
-            value = l;
-            return this;
-        }
-        
-        LongWrapper incAndSet() {
-            value++;
-            return this;
-        }
-        
-        LongWrapper add(LongWrapper other) {
-            value += other.value;
-            return this;
-        }
-    }
-    
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -116,7 +94,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
     	Function<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
             
         // score of the same letters in a word
-        Function<Entry<Integer, LongWrapper>, Integer> letterScore =
+        Function<Entry<Integer, MutableLong>, Integer> letterScore =
         		entry -> 
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
@@ -130,15 +108,15 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Function<String, Flux<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        Function<String, Flux<HashMap<Integer, MutableLong>>> histoOfLetters =
         		word -> Flux.from(toIntegerFlux.apply(word)
         					.collect(
-    							() -> new HashMap<Integer, LongWrapper>(), 
-    							(HashMap<Integer, LongWrapper> map, Integer value) -> 
+    							() -> new HashMap<Integer, MutableLong>(), 
+    							(HashMap<Integer, MutableLong> map, Integer value) -> 
     								{ 
-    									LongWrapper newValue = map.get(value) ;
+    									MutableLong newValue = map.get(value) ;
     									if (newValue == null) {
-    										newValue = new LongWrapper();
+    										newValue = new MutableLong();
     										map.put(value, newValue);
     									}
     									newValue.incAndSet();
@@ -147,7 +125,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         					)) ;
                 
         // number of blanks for a given letter
-        Function<Entry<Integer, LongWrapper>, Long> blank =
+        Function<Entry<Integer, MutableLong>, Long> blank =
         		entry ->
 	        			Long.max(
 	        				0L, 
@@ -159,7 +137,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         // number of blanks for a given word
         Function<String, Flux<Long>> nBlanks = 
         		word -> Flux.from(histoOfLetters.apply(word)
-        					.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
+        					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
         					.reduce(Long::sum)) ;
         					
@@ -172,7 +150,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         // score taking blanks into account letterScore1
         Function<String, Flux<Integer>> score2 = 
         		word -> Flux.from(histoOfLetters.apply(word)
-        					.flatMap(map -> Flux.fromIterable(map.entrySet()))
+        					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
         					.reduce(Integer::sum)) ;
         					
@@ -235,7 +213,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
                 Flux.from(buildHistoOnScore.apply(score3)
-        			.flatMap(map -> Flux.fromIterable(map.entrySet()))
+        			.flatMapIterable(map -> map.entrySet())
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
