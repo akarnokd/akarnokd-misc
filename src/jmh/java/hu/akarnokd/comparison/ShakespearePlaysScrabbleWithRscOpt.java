@@ -79,6 +79,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         return Px.range(0, word.length()).map(i -> (int)word.charAt(i));
     }
     
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -86,7 +87,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
 		iterations=5, time = 1
     )
     @Measurement(
-    	iterations=5, time = 1
+    	iterations=5, time = 60
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
@@ -100,7 +101,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ;
         
@@ -204,7 +205,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         								Integer key = score.apply(word).blockingFirst() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
-        									list = new ArrayList<String>() ;
+        									list = new ArrayList<>() ;
         									map.put(key, list) ;
         								}
         								list.add(word) ;

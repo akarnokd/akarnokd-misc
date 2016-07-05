@@ -36,6 +36,7 @@ apply from: file('gradle/maven.gradle')
 
 repositories {
     mavenCentral()
+	//mavenLocal();
 	
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'http://repo.spring.io/libs-snapshot' }

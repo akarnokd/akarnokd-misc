@@ -79,7 +79,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
 		iterations=5
     )
     @Measurement(
-    	iterations=5
+    	iterations=5, time = 1
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
