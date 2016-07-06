@@ -1,6 +1,7 @@
 package hu.akarnokd.rxjava2;
 
 import io.reactivex.*;
+import reactor.core.publisher.*;
 
 public enum Rx2Math {
     ;
@@ -27,6 +28,18 @@ public enum Rx2Math {
     
     public static Flowable<Integer> maxInt(Flowable<Integer> source) {
         return new MaxIntFlowable(source);
+    }
+
+    public static Mono<Integer> sumInt(Flux<Integer> source) {
+        return new SumIntMono(source);
+    }
+    
+    public static Mono<Long> sumLong(Flux<Long> source) {
+        return new SumLongMono(source);
+    }
+    
+    public static Mono<Integer> maxInt(Flux<Integer> source) {
+        return new MaxIntMono(source);
     }
 
 }

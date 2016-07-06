@@ -66,7 +66,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
     
     static Observable<Integer> chars(String word) {
 //        return Observable.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return new CharSequenceObservable(word);
+        return new ObservableCharSequence(word);
     }
     
     @SuppressWarnings("unused")

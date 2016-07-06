@@ -5,11 +5,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.reactivex.*;
 import io.reactivex.disposables.*;
 
-public final class CharSequenceObservable extends Observable<Integer> {
+public final class ObservableCharSequence extends Observable<Integer> {
 
     final CharSequence string;
     
-    public CharSequenceObservable(CharSequence string) {
+    public ObservableCharSequence(CharSequence string) {
         this.string = string;
     }
 

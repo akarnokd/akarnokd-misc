@@ -34,6 +34,8 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
+import hu.akarnokd.rxjava2.*;
+
 import java.util.function.Function;
 import reactor.core.publisher.*;
 
@@ -74,7 +76,8 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
     */ 
     
     static Flux<Integer> chars(String word) {
-        return Flux.range(0, word.length()).map(i -> (int)word.charAt(i));
+        //return Flux.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return new FluxCharSequence(word);
     }
     
     @SuppressWarnings("unused")
@@ -136,10 +139,10 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
 
         // number of blanks for a given word
         Function<String, Mono<Long>> nBlanks = 
-        		word -> histoOfLetters.apply(word)
+        		word -> Rx2Math.sumLong(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					.reduce(Long::sum);
+        					);
         					
                 
         // can a word be written with 2 blanks?
@@ -149,10 +152,10 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         
         // score taking blanks into account letterScore1
         Function<String, Mono<Integer>> score2 = 
-        		word -> histoOfLetters.apply(word)
+        		word -> Rx2Math.sumInt(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					.reduce(Integer::sum);
+        					);
         					
         // Placing the word on the board
         // Building the Fluxs of first and last letters
@@ -169,9 +172,9 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
             
         // Bonus for double letter
         Function<String, Mono<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.apply(word)
+        	word -> Rx2Math.maxInt(toBeMaxed.apply(word)
         				.map(scoreOfALetter)
-        				.reduce(Integer::max);
+        				);
             
         // score of the word put on the board
         Function<String, Mono<Integer>> score3 = 
@@ -184,12 +187,12 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
 //        				Flux.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Flux -> Flux)
-                Flux.concat(
+                Rx2Math.sumInt(Flux.concat(
                         score2.apply(word).map(v -> v * 2), 
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Flux.just(word.length() == 7 ? 50 : 0)
                 )
-        		.reduce(Integer::sum);
+        		);
 
         Function<Function<String, Mono<Integer>>, Mono<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flux.fromIterable(shakespeareWords)
