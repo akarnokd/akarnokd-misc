@@ -24,9 +24,9 @@ public class MaxIntObservable extends ObservableSource<Integer, Integer> {
         public void onNext(Integer value) {
             if (!hasValue) {
                 hasValue = true;
-                accumulator = Math.max(accumulator, value.intValue());
-            } else {
                 accumulator = value.intValue();
+            } else {
+                accumulator = Math.max(accumulator, value.intValue());
             }
         }
         

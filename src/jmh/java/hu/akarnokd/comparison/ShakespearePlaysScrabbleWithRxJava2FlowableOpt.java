@@ -18,22 +18,13 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava2.*;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 
@@ -75,7 +66,8 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
     */ 
     
     static Flowable<Integer> chars(String word) {
-        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
+//        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return new FlowableCharSequence(word);
     }
     
     @SuppressWarnings("unused")
@@ -137,10 +129,10 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 
         // number of blanks for a given word
         Function<String, Flowable<Long>> nBlanks = 
-        		word -> histoOfLetters.apply(word)
+        		word -> Rx2Math.sumLong(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					.reduce(Long::sum) 
+        					) 
         					;
         					
                 
@@ -151,10 +143,10 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         
         // score taking blanks into account letterScore1
         Function<String, Flowable<Integer>> score2 = 
-        		word -> histoOfLetters.apply(word)
+        		word -> Rx2Math.sumInt(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					.reduce(Integer::sum) ;
+        					) ;
         					
         // Placing the word on the board
         // Building the streams of first and last letters
@@ -171,9 +163,9 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
             
         // Bonus for double letter
         Function<String, Flowable<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.apply(word)
+        	word -> Rx2Math.maxInt(toBeMaxed.apply(word)
         				.map(scoreOfALetter)
-        				.reduce(Integer::max) ;
+        				) ;
             
         // score of the word put on the board
         Function<String, Flowable<Integer>> score3 = 
@@ -186,12 +178,12 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 //        				Flowable.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Flowable -> Flowable)
-                Flowable.concat(
+                Rx2Math.sumInt(Flowable.concat(
                         score2.apply(word).map(v -> v * 2), 
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Flowable.just(word.length() == 7 ? 50 : 0)
                 )
-        		.reduce(Integer::sum) ;
+        		) ;
 
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flowable.fromIterable(shakespeareWords)
