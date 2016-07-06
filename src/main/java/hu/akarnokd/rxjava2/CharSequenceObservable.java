@@ -1,7 +1,8 @@
 package hu.akarnokd.rxjava2;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.reactivex.*;
 import io.reactivex.disposables.*;
 
 public final class CharSequenceObservable extends Observable<Integer> {
@@ -14,7 +15,7 @@ public final class CharSequenceObservable extends Observable<Integer> {
 
     @Override
     protected void subscribeActual(Observer<? super Integer> observer) {
-        Disposable d = Disposables.empty();
+        Disposable d = new BooleanDisposable();
         
         observer.onSubscribe(d);
         
@@ -31,5 +32,20 @@ public final class CharSequenceObservable extends Observable<Integer> {
             return;
         }
         observer.onComplete();
+    }
+    
+    static final class BooleanDisposable extends AtomicBoolean implements Disposable {
+        /** */
+        private static final long serialVersionUID = -4762798297183704664L;
+
+        @Override
+        public void dispose() {
+            lazySet(true);
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return get();
+        }
     }
 }
