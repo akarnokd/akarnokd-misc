@@ -15,7 +15,6 @@ package hu.akarnokd.reactive.io.socket;
 
 import org.junit.Test;
 
-import hu.akarnokd.reactive.io.socket.*;
 import hu.akarnokd.rxjava2.Observable;
 import hu.akarnokd.rxjava2.functions.Function;
 import hu.akarnokd.rxjava2.schedulers.Schedulers;

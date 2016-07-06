@@ -75,7 +75,7 @@ public class IxPerf {
         rangeRx = Observable.from(array);
         rangeRsc = Px.fromArray(array);
         rangeFx = Flux.fromArray(array);
-        rangeIx = Ix.from(array);
+        rangeIx = Ix.fromArray(array);
         rangeGx = FluentIterable.of(array);
         
         int half = Math.max(1, count >> 1);
@@ -105,13 +105,13 @@ public class IxPerf {
         flatMapXRangeRx = rangeRx.flatMap(v -> Observable.from(array2));
         flatMapXRangeRsc = rangeRsc.flatMap(v -> Px.fromArray(array2));
         flatMapXRangeFx = rangeFx.flatMap(v -> Flux.fromArray(array2));
-        flatMapXRangeIx = rangeIx.flatMap(v -> Ix.from(array2));
+        flatMapXRangeIx = rangeIx.flatMap(v -> Ix.fromArray(array2));
         flatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.of(array2)); // no flatMap in Guava...
 
         concatMapXRangeRx = rangeRx.concatMap(v -> Observable.from(array2));
         concatMapXRangeRsc = rangeRsc.concatMap(v -> Px.fromArray(array2));
         concatMapXRangeFx = rangeFx.concatMap(v -> Flux.fromArray(array2));
-        concatMapXRangeIx = Ix.concat(rangeIx.map(v -> Ix.from(array2)));  // Ix doesn't have concatMap...
+        concatMapXRangeIx = Ix.concat(rangeIx.map(v -> Ix.fromArray(array2)));  // Ix doesn't have concatMap...
         concatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.of(array2));
 
     }
@@ -214,32 +214,32 @@ public class IxPerf {
 
 //    @Benchmark
     public void rangeIx(Blackhole bh) {
-        rangeIx.forEach((Action1<Integer>)bh::consume);
+        rangeIx.foreach((Action1<Integer>)bh::consume);
     }
 
     @Benchmark
     public void takeIx(Blackhole bh) {
-        takeIx.forEach((Action1<Integer>)bh::consume);
+        takeIx.foreach((Action1<Integer>)bh::consume);
     }
 
 //    @Benchmark
     public void flatMapIx(Blackhole bh) {
-        flatMapIx.forEach((Action1<Integer>)bh::consume);
+        flatMapIx.foreach((Action1<Integer>)bh::consume);
     }
     
 //    @Benchmark
     public void concatMapIx(Blackhole bh) {
-        concatMapIx.forEach((Action1<Integer>)bh::consume);
+        concatMapIx.foreach((Action1<Integer>)bh::consume);
     }
 
 //    @Benchmark
     public void flatMapXRangeIx(Blackhole bh) {
-        flatMapXRangeIx.forEach((Action1<Integer>)bh::consume);
+        flatMapXRangeIx.foreach((Action1<Integer>)bh::consume);
     }
     
 //    @Benchmark
     public void concatMapXRangeIx(Blackhole bh) {
-        concatMapXRangeIx.forEach((Action1<Integer>)bh::consume);
+        concatMapXRangeIx.foreach((Action1<Integer>)bh::consume);
     }
 
     // -----------------------------------------------------------

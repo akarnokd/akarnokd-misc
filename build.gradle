@@ -36,7 +36,8 @@ apply from: file('gradle/maven.gradle')
 
 repositories {
     mavenCentral()
-	//mavenLocal();
+	
+	mavenLocal();
 	
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'http://repo.spring.io/libs-snapshot' }
@@ -70,7 +71,7 @@ dependencies {
     compile('com.github.akarnokd:ixjava:+') {
     	exclude group: "io.reactivex", module: "rxjava"
     }
-
+    
     compile('com.github.akarnokd:akarnokd-reactive-rpc:+') {
         exclude group: "com.github.akarnokd", module: "*"
     }

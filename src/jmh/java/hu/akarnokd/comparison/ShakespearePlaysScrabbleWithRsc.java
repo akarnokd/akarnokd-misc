@@ -73,6 +73,7 @@ public class ShakespearePlaysScrabbleWithRsc extends ShakespearePlaysScrabble {
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -95,7 +96,7 @@ public class ShakespearePlaysScrabbleWithRsc extends ShakespearePlaysScrabble {
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ) ;
         

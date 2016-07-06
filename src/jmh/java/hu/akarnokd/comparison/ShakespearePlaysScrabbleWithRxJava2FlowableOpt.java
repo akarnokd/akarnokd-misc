@@ -78,6 +78,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
     }
     
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -99,7 +100,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ;
         

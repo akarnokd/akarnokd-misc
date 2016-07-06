@@ -76,7 +76,8 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
     */ 
     
     static Px<Integer> chars(String word) {
-        return Px.range(0, word.length()).map(i -> (int)word.charAt(i));
+//        return Px.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return Px.characters(word);
     }
     
     @SuppressWarnings("unused")
@@ -141,7 +142,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         		word -> histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					.reduce(Long::sum) ;
+        					.sumLong();
         					
                 
         // can a word be written with 2 blanks?
@@ -154,7 +155,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         		word -> histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					.reduce(Integer::sum) ;
+        					.sumInt() ;
         					
         // Placing the word on the board
         // Building the streams of first and last letters
@@ -173,7 +174,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         Function<String, Px<Integer>> bonusForDoubleLetter = 
         	word -> toBeMaxed.apply(word)
         				.map(scoreOfALetter)
-        				.reduce(Integer::max) ;
+        				.maxInt() ;
             
         // score of the word put on the board
         Function<String, Px<Integer>> score3 = 
@@ -191,7 +192,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Px.just(word.length() == 7 ? 50 : 0)
                 )
-        		.reduce(Integer::sum) ;
+        		.sumInt() ;
 
         Function<Function<String, Px<Integer>>, Px<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Px.fromIterable(shakespeareWords)

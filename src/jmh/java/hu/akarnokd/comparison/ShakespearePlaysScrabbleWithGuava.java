@@ -18,16 +18,16 @@
 
 package hu.akarnokd.comparison;
 
+import static hu.akarnokd.comparison.FluentIterables.*;
+
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-
-import static hu.akarnokd.comparison.FluentIterables.*;
 /**
  *
  * @author José
@@ -63,7 +63,7 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

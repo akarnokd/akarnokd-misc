@@ -77,6 +77,7 @@ public class ShakespearePlaysScrabbleWithReactor25Opt extends ShakespearePlaysSc
         return Flux.range(0, word.length()).map(i -> (int)word.charAt(i));
     }
     
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

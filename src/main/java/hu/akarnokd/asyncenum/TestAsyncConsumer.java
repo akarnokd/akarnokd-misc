@@ -134,7 +134,7 @@ public final class TestAsyncConsumer<T> {
         consumeStageAll(source.moveNext(csub));
         
         ts.awaitTerminalEvent(timeout, unit);
-        if (ts.getOnCompletedEvents().isEmpty() && ts.getOnErrorEvents().isEmpty()) {
+        if (ts.getCompletions() == 0 && ts.getOnErrorEvents().isEmpty()) {
             csub.unsubscribe();
             throw new AssertionError("TestAsyncConsumer timed out: values received: " + ts.getOnNextEvents().size());
         }

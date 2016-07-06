@@ -20,11 +20,7 @@ package hu.akarnokd.comparison;
 
 import java.util.Set;
 
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-
-import hu.akarnokd.comparison.ShakespearePlaysScrabbleWithRxJava2Observable.*;
+import org.openjdk.jmh.annotations.*;
 
 @State(Scope.Benchmark)
 public class ShakespearePlaysScrabble {

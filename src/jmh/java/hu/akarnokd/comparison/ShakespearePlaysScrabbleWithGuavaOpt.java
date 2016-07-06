@@ -76,6 +76,7 @@ public class ShakespearePlaysScrabbleWithGuavaOpt extends ShakespearePlaysScrabb
         return range(0, word.length()).transform(i -> (int)word.charAt(i));
     }
     
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

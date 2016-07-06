@@ -78,6 +78,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         return Observable.range(0, word.length()).map(i -> (int)word.charAt(i));
     }
     
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -99,7 +100,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ;
         

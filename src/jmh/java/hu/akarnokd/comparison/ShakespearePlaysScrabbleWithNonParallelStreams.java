@@ -26,7 +26,8 @@ import java.util.stream.Stream;
  */
 public class ShakespearePlaysScrabbleWithNonParallelStreams extends ShakespearePlaysScrabbleWithStreams {
 
-	Stream<String> buildShakerspeareWordsStream() {
+	@Override
+    Stream<String> buildShakerspeareWordsStream() {
 		return shakespeareWords.stream() ;
 	}
 	

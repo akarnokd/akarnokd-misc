@@ -22,13 +22,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
 import ix.Ix;
 import rx.functions.Func1;
@@ -71,9 +65,11 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     */ 
     
     static Ix<Integer> chars(String word) {
-        return Ix.range(0, word.length()).map(i -> (int)word.charAt(i));
+        //return Ix.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return Ix.characters(word);
     }
     
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -95,7 +91,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ;
         
@@ -133,7 +129,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         // number of blanks for a given word
         Func1<String, Ix<Long>> nBlanks = 
         		word -> histoOfLetters.call(word)
-        					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
+        					.flatMap(map -> map.entrySet())
         					.map(blank)
         					.sumLong();
         					
@@ -146,7 +142,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         // score taking blanks into account letterScore1
         Func1<String, Ix<Integer>> score2 = 
         		word -> histoOfLetters.call(word)
-        					.flatMap(map -> Ix.from(map.entrySet()))
+        					.flatMap(map -> map.entrySet())
         					.map(letterScore)
         					.sumInt();
         					
@@ -160,14 +156,14 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         
         // Stream to be maxed
         Func1<String, Ix<Integer>> toBeMaxed = 
-        	word -> Ix.concat(Arrays.asList(first3.call(word), last3.call(word)))
+        	word -> Ix.concatArray(first3.call(word), last3.call(word))
         	;
             
         // Bonus for double letter
         Func1<String, Ix<Integer>> bonusForDoubleLetter = 
         	word -> toBeMaxed.call(word)
         				.map(scoreOfALetter)
-        				.max();
+        				.maxInt();
             
         // score of the word put on the board
         Func1<String, Ix<Integer>> score3 = 
@@ -180,10 +176,10 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
 //        				Ix.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Ix -> Ix)
-                Ix.concat(Arrays.asList(
+                Ix.concatArray(
                         score2.call(word).map(v -> v * 2), 
                         bonusForDoubleLetter.call(word).map(v -> v * 2), 
-                        Ix.just(word.length() == 7 ? 50 : 0))
+                        Ix.just(word.length() == 7 ? 50 : 0)
                 )
         		.sumInt();
 
@@ -207,7 +203,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
         		buildHistoOnScore.call(score3)
-        			.flatMap(map -> Ix.from(map.entrySet()))
+        			.flatMap(map -> map.entrySet())
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 

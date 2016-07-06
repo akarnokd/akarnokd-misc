@@ -73,6 +73,7 @@ public class ShakespearePlaysScrabbleWithIx extends ShakespearePlaysScrabble {
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -95,7 +96,7 @@ public class ShakespearePlaysScrabbleWithIx extends ShakespearePlaysScrabble {
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ) ;
         
@@ -159,19 +160,19 @@ public class ShakespearePlaysScrabbleWithIx extends ShakespearePlaysScrabble {
         
         // Stream to be maxed
         Func1<String, Ix<Integer>> toBeMaxed = 
-        	word -> Ix.from(first3.call(word), last3.call(word))
+        	word -> Ix.fromArray(first3.call(word), last3.call(word))
         				.flatMap(observable -> observable) ;
             
         // Bonus for double letter
         Func1<String, Ix<Integer>> bonusForDoubleLetter = 
         	word -> toBeMaxed.call(word)
         				.flatMap(scoreOfALetter)
-        				.max();
+        				.maxInt();
             
         // score of the word put on the board
         Func1<String, Ix<Integer>> score3 = 
         	word ->
-        		Ix.from(
+        		Ix.fromArray(
         				score2.call(word), 
         				score2.call(word), 
         				bonusForDoubleLetter.call(word), 

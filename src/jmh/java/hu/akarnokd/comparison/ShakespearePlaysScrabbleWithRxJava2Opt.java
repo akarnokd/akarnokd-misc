@@ -69,6 +69,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Opt extends ShakespearePlaysScra
     }
     
 //    @Benchmark
+    @SuppressWarnings("unused")
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
@@ -89,7 +90,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Opt extends ShakespearePlaysScra
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
-    	                        (int)scrabbleAvailableLetters[entry.getKey() - 'a']
+    	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
         	        ;
         
