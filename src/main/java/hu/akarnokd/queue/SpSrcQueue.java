@@ -3,7 +3,7 @@ package hu.akarnokd.queue;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
-import hu.akarnokd.rxjava2.internal.util.Pow2;
+import io.reactivex.internal.util.Pow2;
 
 /**
  * Single producer, single random consumer queue.

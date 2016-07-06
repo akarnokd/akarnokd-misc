@@ -3,22 +3,12 @@ package hu.akarnokd.comparison;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import hu.akarnokd.rxjava2.Observable;
-import hu.akarnokd.rxjava2.functions.BiFunction;
-import hu.akarnokd.rxjava2.schedulers.Schedulers;
+import io.reactivex.Flowable;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Benchmark the Zip operator.
@@ -36,12 +26,12 @@ public class ZipPerf {
     @Param({"1", "1000", "1000000"})
     public int secondLen;
     
-    Observable<Integer> baseline;
+    Flowable<Integer> baseline;
     
-    Observable<Integer> bothSync;
-    Observable<Integer> firstSync;
-    Observable<Integer> secondSync;
-    Observable<Integer> bothAsync;
+    Flowable<Integer> bothSync;
+    Flowable<Integer> firstSync;
+    Flowable<Integer> secondSync;
+    Flowable<Integer> bothAsync;
     
     boolean small;
     
@@ -52,21 +42,21 @@ public class ZipPerf {
         Integer[] array2 = new Integer[secondLen];
         Arrays.fill(array2, 777);
         
-        baseline = Observable.fromArray(firstLen < secondLen? array2 : array1);
+        baseline = Flowable.fromArray(firstLen < secondLen? array2 : array1);
     
-        Observable<Integer> o1 = Observable.fromArray(array1);
+        Flowable<Integer> o1 = Flowable.fromArray(array1);
         
-        Observable<Integer> o2 = Observable.fromArray(array2);
+        Flowable<Integer> o2 = Flowable.fromArray(array2);
         
         BiFunction<Integer, Integer, Integer> plus = (a, b) -> a + b;
         
-        bothSync = Observable.zip(o1, o2, plus);
+        bothSync = Flowable.zip(o1, o2, plus);
 
-        firstSync = Observable.zip(o1, o2.subscribeOn(Schedulers.computation()), plus);
+        firstSync = Flowable.zip(o1, o2.subscribeOn(Schedulers.computation()), plus);
 
-        secondSync = Observable.zip(o1.subscribeOn(Schedulers.computation()), o2, plus);
+        secondSync = Flowable.zip(o1.subscribeOn(Schedulers.computation()), o2, plus);
 
-        bothAsync = Observable.zip(o1.subscribeOn(Schedulers.computation()), o2.subscribeOn(Schedulers.computation()), plus);
+        bothAsync = Flowable.zip(o1.subscribeOn(Schedulers.computation()), o2.subscribeOn(Schedulers.computation()), plus);
     
         small = Math.min(firstLen, secondLen) < 100;
     }

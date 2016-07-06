@@ -7,7 +7,7 @@ import java.util.concurrent.CyclicBarrier;
 
 import org.junit.Test;
 
-import hu.akarnokd.rxjava2.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class MpscLinkedArrayQueueTest {
     @Test

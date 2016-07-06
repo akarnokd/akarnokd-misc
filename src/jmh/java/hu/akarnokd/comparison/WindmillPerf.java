@@ -7,9 +7,9 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 
-import hu.akarnokd.rxjava2.*;
-import hu.akarnokd.rxjava2.internal.schedulers.SingleScheduler;
-import hu.akarnokd.rxjava2.schedulers.Schedulers;
+import io.reactivex.*;
+import io.reactivex.internal.schedulers.SingleScheduler;
+import io.reactivex.schedulers.Schedulers;
 import io.windmill.core.*;
 import reactor.core.publisher.Flux;
 import rsc.publisher.Px;
@@ -58,7 +58,7 @@ public class WindmillPerf {
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
             
-            rx2Windmill = Observable.fromArray(arr).subscribeOn(s1).observeOn(s2);
+            rx2Windmill = Flowable.fromArray(arr).subscribeOn(s1).observeOn(s2);
 
             rx.Scheduler s3 = rx.schedulers.Schedulers.from(r -> cpu1.schedule(r::run));
             rx.Scheduler s4 = rx.schedulers.Schedulers.from(r -> cpu2.schedule(r::run));
@@ -102,7 +102,7 @@ public class WindmillPerf {
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
 
-            rx2 = Observable.fromArray(arr).subscribeOn(new SingleScheduler()).observeOn(Schedulers.single());
+            rx2 = Flowable.fromArray(arr).subscribeOn(new SingleScheduler()).observeOn(Schedulers.single());
 
             rx1 = rx.Observable.from(arr).subscribeOn(rx.schedulers.Schedulers.computation()).observeOn(rx.schedulers.Schedulers.computation());
 

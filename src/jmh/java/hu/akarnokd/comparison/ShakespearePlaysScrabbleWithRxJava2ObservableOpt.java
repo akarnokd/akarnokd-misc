@@ -18,22 +18,13 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava2.*;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
@@ -74,7 +65,8 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
     */ 
     
     static Observable<Integer> chars(String word) {
-        return Observable.range(0, word.length()).map(i -> (int)word.charAt(i));
+//        return Observable.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return new CharSequenceObservable(word);
     }
     
     @SuppressWarnings("unused")
@@ -136,10 +128,10 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
 
         // number of blanks for a given word
         Function<String, Observable<Long>> nBlanks = 
-        		word -> histoOfLetters.apply(word)
+        		word -> Rx2Math.sumLong(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					.reduce(Long::sum) ;
+        					) ;
         					
                 
         // can a word be written with 2 blanks?
@@ -149,10 +141,10 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         
         // score taking blanks into account letterScore1
         Function<String, Observable<Integer>> score2 = 
-        		word -> histoOfLetters.apply(word)
+        		word -> Rx2Math.sumInt(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					.reduce(Integer::sum) ;
+        					) ;
         					
         // Placing the word on the board
         // Building the streams of first and last letters
@@ -169,9 +161,9 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
             
         // Bonus for double letter
         Function<String, Observable<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.apply(word)
+        	word -> Rx2Math.maxInt(toBeMaxed.apply(word)
         				.map(scoreOfALetter)
-        				.reduce(Integer::max) ;
+        				) ;
             
         // score of the word put on the board
         Function<String, Observable<Integer>> score3 = 
@@ -184,12 +176,12 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
 //        				Observable.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Observable -> Observable)
-                Observable.concat(
+                Rx2Math.sumInt(Observable.concat(
                         score2.apply(word).map(v -> v * 2), 
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Observable.just(word.length() == 7 ? 50 : 0)
                 )
-        		.reduce(Integer::sum) ;
+        		) ;
 
         Function<Function<String, Observable<Integer>>, Observable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Observable.fromIterable(shakespeareWords)

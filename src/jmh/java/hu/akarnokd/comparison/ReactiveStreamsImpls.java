@@ -26,11 +26,11 @@ import akka.actor.ActorSystem;
 import akka.stream.*;
 import akka.stream.impl.fusing.Fusing;
 import akka.stream.javadsl.*;
-import hu.akarnokd.rxjava2.Observable;
-import hu.akarnokd.rxjava2.Scheduler;
-import hu.akarnokd.rxjava2.schedulers.Schedulers;
-import hu.akarnokd.rxjava2.subscribers.Subscribers;
-import reactor.core.publisher.*;
+import io.reactivex.*;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.Subscribers;
+import reactor.core.publisher.Flux;
 import rsc.publisher.Px;
 
 @BenchmarkMode(Mode.Throughput)
@@ -50,11 +50,11 @@ public class ReactiveStreamsImpls {
     rx.Observable<Integer> rxRangePipeline;
 
     
-    hu.akarnokd.rxjava2.Observable<Integer> rx2Range;
-    hu.akarnokd.rxjava2.Observable<Integer> rx2RangeFlatMapJust;
-    hu.akarnokd.rxjava2.Observable<Integer> rx2RangeFlatMapRange;
-    hu.akarnokd.rxjava2.Observable<Integer> rx2RangeAsync;
-    hu.akarnokd.rxjava2.Observable<Integer> rx2RangePipeline;
+    Flowable<Integer> rx2Range;
+    Flowable<Integer> rx2RangeFlatMapJust;
+    Flowable<Integer> rx2RangeFlatMapRange;
+    Flowable<Integer> rx2RangeAsync;
+    Flowable<Integer> rx2RangePipeline;
 
     Flux<Integer> raRange;
     Flux<Integer> raRangeFlatMapJust;
@@ -114,9 +114,9 @@ public class ReactiveStreamsImpls {
         rxRangeAsync = rxRange.observeOn(single1);
         rxRangePipeline = rxRange.subscribeOn(single1).observeOn(single2);
         
-        rx2Range = hu.akarnokd.rxjava2.Observable.range(1, times);
-        rx2RangeFlatMapJust = rx2Range.flatMap(hu.akarnokd.rxjava2.Observable::just);
-        rx2RangeFlatMapRange = rx2Range.flatMap(v -> hu.akarnokd.rxjava2.Observable.range(v, 2));
+        rx2Range = Flowable.range(1, times);
+        rx2RangeFlatMapJust = rx2Range.flatMap(Flowable::just);
+        rx2RangeFlatMapRange = rx2Range.flatMap(v -> Flowable.range(v, 2));
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 

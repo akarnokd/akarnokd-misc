@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava2.NbpObservable;
-import hu.akarnokd.rxjava2.Observable;
-import hu.akarnokd.rxjava2.schedulers.Schedulers;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -90,6 +90,52 @@ public class StreamVsRxJava {
     
 //    @Benchmark
     public void rx2Serial() {
+        Flowable.fromIterable(rows)
+        .flatMap(r -> {
+            String[] ws = r.split("\\s");
+            return Flowable.fromArray(ws);
+        })
+        .filter(w -> w.length() > 4)
+        .map(w -> w.length())
+        .reduce(0, (a, b) -> a + b)
+        .subscribe()
+        ;
+    }
+    
+//    @Benchmark
+    public void rx2Parallel() {
+        Flowable.fromIterable(rows)
+        .flatMap(r -> {
+            String[] ws = r.split("\\s");
+            return Flowable.fromArray(ws)
+                    .subscribeOn(Schedulers.computation());
+        })
+        .filter(w -> w.length() > 4)
+        .map(w -> w.length())
+        .reduce(0, (a, b) -> a + b)
+        .toBlocking()
+        .last()
+        ;
+    }
+    
+//    @Benchmark
+    public void rx2Parallel2() {
+        Flowable.fromIterable(rows)
+        .flatMap(r -> {
+            return Flowable.just(r)
+                    .subscribeOn(Schedulers.computation())
+                    .flatMap(rs -> Flowable.fromArray(rs.split("\\s")));
+        })
+        .filter(w -> w.length() > 4)
+        .map(w -> w.length())
+        .reduce(0, (a, b) -> a + b)
+        .toBlocking()
+        .last()
+        ;
+    }
+    
+//    @Benchmark
+    public void rx2oSerial() {
         Observable.fromIterable(rows)
         .flatMap(r -> {
             String[] ws = r.split("\\s");
@@ -103,7 +149,7 @@ public class StreamVsRxJava {
     }
     
 //    @Benchmark
-    public void rx2Parallel() {
+    public void rx2oParallel() {
         Observable.fromIterable(rows)
         .flatMap(r -> {
             String[] ws = r.split("\\s");
@@ -119,58 +165,12 @@ public class StreamVsRxJava {
     }
     
 //    @Benchmark
-    public void rx2Parallel2() {
+    public void rx2oParallel2() {
         Observable.fromIterable(rows)
         .flatMap(r -> {
             return Observable.just(r)
                     .subscribeOn(Schedulers.computation())
                     .flatMap(rs -> Observable.fromArray(rs.split("\\s")));
-        })
-        .filter(w -> w.length() > 4)
-        .map(w -> w.length())
-        .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
-        ;
-    }
-    
-//    @Benchmark
-    public void rx2oSerial() {
-        NbpObservable.fromIterable(rows)
-        .flatMap(r -> {
-            String[] ws = r.split("\\s");
-            return NbpObservable.fromArray(ws);
-        })
-        .filter(w -> w.length() > 4)
-        .map(w -> w.length())
-        .reduce(0, (a, b) -> a + b)
-        .subscribe()
-        ;
-    }
-    
-//    @Benchmark
-    public void rx2oParallel() {
-        NbpObservable.fromIterable(rows)
-        .flatMap(r -> {
-            String[] ws = r.split("\\s");
-            return NbpObservable.fromArray(ws)
-                    .subscribeOn(Schedulers.computation());
-        })
-        .filter(w -> w.length() > 4)
-        .map(w -> w.length())
-        .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
-        ;
-    }
-    
-//    @Benchmark
-    public void rx2oParallel2() {
-        NbpObservable.fromIterable(rows)
-        .flatMap(r -> {
-            return NbpObservable.just(r)
-                    .subscribeOn(Schedulers.computation())
-                    .flatMap(rs -> NbpObservable.fromArray(rs.split("\\s")));
         })
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
@@ -249,13 +249,13 @@ public class StreamVsRxJava {
 //    @Benchmark
     public void rx2Parallel4() {
         int[] k = new int[1];
-        Observable.fromIterable(rows)
+        Flowable.fromIterable(rows)
         .buffer(batch)
         .groupBy(v -> k[0] & 7)
         .flatMap(g -> {
             return g.observeOn(Schedulers.computation())
             .flatMapIterable(v -> v)
-            .flatMap(rs -> Observable.fromArray(rs.split("\\s")));
+            .flatMap(rs -> Flowable.fromArray(rs.split("\\s")));
         })
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
@@ -271,11 +271,11 @@ public class StreamVsRxJava {
             throw new RuntimeException("Skip");
         }
         int[] k = new int[1];
-        Observable.fromIterable(rows)
+        Flowable.fromIterable(rows)
         .groupBy(v -> k[0] & 7)
         .flatMap(g -> {
             return g.subscribeOn(Schedulers.computation())
-                    .flatMap(rs -> Observable.fromArray(rs.split("\\s")));
+                    .flatMap(rs -> Flowable.fromArray(rs.split("\\s")));
         })
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
@@ -290,11 +290,11 @@ public class StreamVsRxJava {
             throw new RuntimeException("Skip");
         }
         int[] k = new int[1];
-        Observable.fromIterable(rows)
+        Flowable.fromIterable(rows)
         .groupBy(v -> k[0] & 7)
         .flatMap(g -> {
             return g.observeOn(Schedulers.computation())
-                    .flatMap(rs -> Observable.fromArray(rs.split("\\s")));
+                    .flatMap(rs -> Flowable.fromArray(rs.split("\\s")));
         })
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
@@ -307,11 +307,11 @@ public class StreamVsRxJava {
 //    @Benchmark
     public void rx2nParallel3() {
         int[] k = new int[1];
-        NbpObservable.fromIterable(rows)
+        Observable.fromIterable(rows)
         .groupBy(v -> k[0] & 7)
         .flatMap(g -> {
             return g.subscribeOn(Schedulers.computation())
-            .flatMap(rs -> NbpObservable.fromArray(rs.split("\\s")));
+            .flatMap(rs -> Observable.fromArray(rs.split("\\s")));
         })
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
@@ -323,13 +323,13 @@ public class StreamVsRxJava {
 
     @Benchmark
     public void rx2Parallel2b() {
-        Observable.fromIterable(rows)
+        Flowable.fromIterable(rows)
         .buffer(batch)
         .flatMap(r -> {
-            return Observable.just(r)
+            return Flowable.just(r)
                     .subscribeOn(Schedulers.computation())
                     .flatMapIterable(v -> v)
-                    .flatMap(rs -> Observable.fromArray(rs.split("\\s")));
+                    .flatMap(rs -> Flowable.fromArray(rs.split("\\s")));
         })
         .filter(w -> w.length() > 4)
         .map(w -> w.length())

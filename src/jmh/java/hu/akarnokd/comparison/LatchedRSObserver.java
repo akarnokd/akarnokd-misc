@@ -16,10 +16,9 @@ package hu.akarnokd.comparison;
 import java.util.concurrent.CountDownLatch;
 
 import org.openjdk.jmh.infra.Blackhole;
+import org.reactivestreams.*;
 
-import hu.akarnokd.rxjava2.Observer;
-
-public class LatchedRSObserver<T> extends Observer<T> {
+public class LatchedRSObserver<T> implements Subscriber<T> {
 
     public CountDownLatch latch = new CountDownLatch(1);
     private final Blackhole bh;
@@ -28,6 +27,11 @@ public class LatchedRSObserver<T> extends Observer<T> {
         this.bh = bh;
     }
 
+    @Override
+    public void onSubscribe(Subscription s) {
+        s.request(Long.MAX_VALUE);
+    }
+    
     @Override
     public void onComplete() {
         latch.countDown();

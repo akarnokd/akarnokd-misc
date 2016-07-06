@@ -2,7 +2,8 @@ package hu.akarnokd.queue;
 
 import java.util.concurrent.atomic.*;
 
-import hu.akarnokd.rxjava2.internal.util.Pow2;
+import io.reactivex.internal.util.Pow2;
+
 
 public final class SpscStealableArrayQeque<T> extends AtomicReferenceArray<Object> {
     /** */

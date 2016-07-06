@@ -7,7 +7,7 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 
-import hu.akarnokd.rxjava2.Observable;
+import io.reactivex.Flowable;
 
 /**
  * Example benchmark. Run from command line as
@@ -37,16 +37,16 @@ public class PublisherFlatMapPerf {
 
         @Setup
         public void setup() {
-            baseline = Observable.range(1, count);
+            baseline = Flowable.range(1, count);
 
-            justFlatMapRange = Observable.just(1).flatMap(v -> Observable.range(v, count));
+            justFlatMapRange = Flowable.just(1).flatMap(v -> Flowable.range(v, count));
 
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
             
-            justFlatMapArray = Observable.just(1).flatMap(v -> Observable.fromArray(arr));
+            justFlatMapArray = Flowable.just(1).flatMap(v -> Flowable.fromArray(arr));
 
-            rangeFlatMapJust = Observable.range(1, count).flatMap(v -> Observable.just(v));
+            rangeFlatMapJust = Flowable.range(1, count).flatMap(v -> Flowable.just(v));
         }
     }
 
@@ -60,14 +60,14 @@ public class PublisherFlatMapPerf {
 
         @Setup
         public void setup() {
-            justFlatMapJust = Observable.just(1).flatMap(v -> Observable.just(v));
+            justFlatMapJust = Flowable.just(1).flatMap(v -> Flowable.just(v));
             
             Integer[] arr = new Integer[1000];
             Arrays.fill(arr, 777);
 
-            rangeFlatMapRange = Observable.range(0, 1000).flatMap(v -> Observable.range(v, 1000));
+            rangeFlatMapRange = Flowable.range(0, 1000).flatMap(v -> Flowable.range(v, 1000));
 
-            rangeFlatMapArray = Observable.range(0, 1000).flatMap(v -> Observable.fromArray(arr));
+            rangeFlatMapArray = Flowable.range(0, 1000).flatMap(v -> Flowable.fromArray(arr));
         }
     }
 

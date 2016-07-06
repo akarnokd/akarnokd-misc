@@ -20,9 +20,10 @@ package hu.akarnokd.collection;
 
 import java.util.Arrays;
 
-import hu.akarnokd.rxjava2.exceptions.CompositeException;
-import hu.akarnokd.rxjava2.functions.Consumer;
-import hu.akarnokd.rxjava2.internal.util.Pow2;
+import io.reactivex.exceptions.CompositeException;
+import io.reactivex.functions.Consumer;
+import io.reactivex.internal.util.Pow2;
+
 
 /**
  * A simple open hash set with add, remove and clear capabilities only.
