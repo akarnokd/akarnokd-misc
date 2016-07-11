@@ -25,16 +25,16 @@ import java.util.function.Function;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava2.*;
-import reactor.core.publisher.*;
-import reactor.core.scheduler.*;
+import rsc.publisher.Px;
+
 
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithRscParallelOpt extends ShakespearePlaysScrabble {
 
+	
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -61,33 +61,27 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
     		
     		Benchmark                                              Mode  Cnt       Score      Error  Units
 			ShakespearePlaysScrabbleWithRxJava.measureThroughput   avgt   15  250074,776 ± 7736,734  us/op
-			ShakespearePlaysScrabbleWithFluxs.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
+			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
     
-    static Flux<Integer> chars(String word) {
-        //return Flux.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return new FluxCharSequence(word);
+    static Px<Integer> chars(String word) {
+//        return Px.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return Px.characters(word);
     }
-    @Param({/*"1", "2", "3", "4", "5", "6", "7", */"8"})
+    
+    @Param({/*"1", "2", "3", "4", "5", "6", "7",*/ "8"})
     public int cores;
     
-    @Param({"parallel"/*, "computation"*/})
-    public String mode;
-    
-    Scheduler scheduler;
+    rsc.scheduler.Scheduler scheduler;
     
     @Setup
-    public void localSetup() {
-        if ("parallel".equals(mode)) {
-            scheduler = Schedulers.newParallel("RcParallel", cores);
-        } else {
-            scheduler = Schedulers.newComputation("RcComputation", cores);
-        }
+    public void setupThis() {
+        scheduler = new rsc.scheduler.ParallelScheduler(cores);
     }
     
     @TearDown
-    public void localTeardown() {
+    public void teardown() {
         scheduler.shutdown();
     }
     
@@ -96,10 +90,10 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
-		iterations=5
+		iterations=5, time = 1
     )
     @Measurement(
-    	iterations=5
+    	iterations=5, time = 1
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
@@ -118,12 +112,12 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
         	        ;
         
     					
-        Function<String, Flux<Integer>> toIntegerFlux = 
+        Function<String, Px<Integer>> toIntegerPx = 
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Function<String, Mono<HashMap<Integer, MutableLong>>> histoOfLetters =
-        		word -> toIntegerFlux.apply(word)
+        Function<String, Px<HashMap<Integer, MutableLong>>> histoOfLetters =
+        		word -> toIntegerPx.apply(word)
         					.collect(
     							() -> new HashMap<Integer, MutableLong>(), 
     							(HashMap<Integer, MutableLong> map, Integer value) -> 
@@ -136,7 +130,7 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
     									newValue.incAndSet();
     								}
     								
-        					);
+        					) ;
                 
         // number of blanks for a given letter
         Function<Entry<Integer, MutableLong>, Long> blank =
@@ -149,96 +143,95 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
         			;
 
         // number of blanks for a given word
-        Function<String, Mono<Long>> nBlanks = 
-        		word -> Rx2Math.sumLong(histoOfLetters.apply(word)
+        Function<String, Px<Long>> nBlanks = 
+        		word -> histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					);
+        					.sumLong();
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Mono<Boolean>> checkBlanks = 
+        Function<String, Px<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
         					.map(l -> l <= 2L) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Mono<Integer>> score2 = 
-        		word -> Rx2Math.sumInt(histoOfLetters.apply(word)
+        Function<String, Px<Integer>> score2 = 
+        		word -> histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					);
+        					.sumInt() ;
         					
         // Placing the word on the board
-        // Building the Fluxs of first and last letters
-        Function<String, Flux<Integer>> first3 = 
+        // Building the streams of first and last letters
+        Function<String, Px<Integer>> first3 = 
         		word -> chars(word).take(3) ;
-        Function<String, Flux<Integer>> last3 = 
+        Function<String, Px<Integer>> last3 = 
         		word -> chars(word).skip(3) ;
         		
         
-        // Flux to be maxed
-        Function<String, Flux<Integer>> toBeMaxed = 
-        	word -> Flux.concat(first3.apply(word), last3.apply(word))
+        // Stream to be maxed
+        Function<String, Px<Integer>> toBeMaxed = 
+        	word -> Px.concatArray(first3.apply(word), last3.apply(word))
         	;
             
         // Bonus for double letter
-        Function<String, Mono<Integer>> bonusForDoubleLetter = 
-        	word -> Rx2Math.maxInt(toBeMaxed.apply(word)
+        Function<String, Px<Integer>> bonusForDoubleLetter = 
+        	word -> toBeMaxed.apply(word)
         				.map(scoreOfALetter)
-        				);
+        				.maxInt() ;
             
         // score of the word put on the board
-        Function<String, Mono<Integer>> score3 = 
+        Function<String, Px<Integer>> score3 = 
         	word ->
-//        		Flux.fromArray(
+//        		Px.fromArray(
 //        				score2.apply(word), 
 //        				score2.apply(word), 
 //        				bonusForDoubleLetter.apply(word), 
 //        				bonusForDoubleLetter.apply(word), 
-//        				Flux.just(word.length() == 7 ? 50 : 0)
+//        				Px.just(word.length() == 7 ? 50 : 0)
 //        		)
-//        		.flatMap(Flux -> Flux)
-                Rx2Math.sumInt(Flux.concat(
+//        		.flatMap(Px -> Px)
+                Px.concatArray(
                         score2.apply(word).map(v -> v * 2), 
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
-                        Flux.just(word.length() == 7 ? 50 : 0)
+                        Px.just(word.length() == 7 ? 50 : 0)
                 )
-        		);
+        		.sumInt() ;
 
-        Function<Function<String, Mono<Integer>>, Flux<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Flux.fromIterable(shakespeareWords)
-        		                .parallel()
-        		                .runOn(scheduler)
-        						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).block())
-        						.collect(
-        							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
-        							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).block() ;
-        								List<String> list = map.get(key) ;
-        								if (list == null) {
-        									list = new ArrayList<String>() ;
-        									map.put(key, list) ;
-        								}
-        								list.add(word) ;
-        							}
-        						)
-        						.reduce((m1, m2) -> {
-        						    for (Map.Entry<Integer, List<String>> e : m2.entrySet()) {
-        						        List<String> list = m1.get(e.getKey());
-        						        if (list == null) {
-        						            m1.put(e.getKey(), e.getValue());
-        						        } else {
-        						            list.addAll(e.getValue());
-        						        }
-        						    }
-        						    return m1;
-        						})
-        						;
+        Function<Function<String, Px<Integer>>, Px<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> Px.fromIterable(shakespeareWords)
+        						.parallel()
+                                .runOn(scheduler)
+                                .filter(scrabbleWords::contains)
+                                .filter(word -> checkBlanks.apply(word).blockingFirst())
+                                .collect(
+                                    () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
+                                    (TreeMap<Integer, List<String>> map, String word) -> {
+                                        Integer key = score.apply(word).blockingFirst();
+                                        List<String> list = map.get(key) ;
+                                        if (list == null) {
+                                            list = new ArrayList<String>() ;
+                                            map.put(key, list) ;
+                                        }
+                                        list.add(word) ;
+                                    }
+                                )
+                                .reduce((m1, m2) -> {
+                                    for (Map.Entry<Integer, List<String>> e : m2.entrySet()) {
+                                        List<String> list = m1.get(e.getKey());
+                                        if (list == null) {
+                                            m1.put(e.getKey(), e.getValue());
+                                        } else {
+                                            list.addAll(e.getValue());
+                                        }
+                                    }
+                                    return m1;
+                                });
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                buildHistoOnScore.apply(score3)
+        		buildHistoOnScore.apply(score3)
         			.flatMapIterable(map -> map.entrySet())
         			.take(3)
         			.collect(
@@ -247,7 +240,7 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
         					list.add(entry) ;
         				}
         			)
-        			.block();
+        			.blockingFirst() ;
         			
         
 //        System.out.println(finalList2);
@@ -256,13 +249,13 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
     }
     
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithReactor25ParallelOpt s = new ShakespearePlaysScrabbleWithReactor25ParallelOpt();
+        ShakespearePlaysScrabbleWithRscParallelOpt s = new ShakespearePlaysScrabbleWithRscParallelOpt();
         s.init();
-        s.localSetup();
+        s.setupThis();
         try {
             System.out.println(s.measureThroughput());
         } finally {
-            s.localTeardown();
+            s.teardown();
         }
     }
 }
