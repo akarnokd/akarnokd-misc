@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava2.*;
+import hu.akarnokd.rxjava2.math.MathFlowable;
+import hu.akarnokd.rxjava2.string.StringFlowable;
 import io.reactivex.Flowable;
 import io.reactivex.functions.Function;
 
@@ -67,7 +68,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
     
     static Flowable<Integer> chars(String word) {
 //        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return new FlowableCharSequence(word);
+        return StringFlowable.characters(word);
     }
     
     @SuppressWarnings("unused")
@@ -129,7 +130,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 
         // number of blanks for a given word
         Function<String, Flowable<Long>> nBlanks = 
-        		word -> Rx2Math.sumLong(histoOfLetters.apply(word)
+        		word -> MathFlowable.sumLong(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
         					) 
@@ -143,7 +144,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         
         // score taking blanks into account letterScore1
         Function<String, Flowable<Integer>> score2 = 
-        		word -> Rx2Math.sumInt(histoOfLetters.apply(word)
+        		word -> MathFlowable.sumInt(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
         					) ;
@@ -163,7 +164,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
             
         // Bonus for double letter
         Function<String, Flowable<Integer>> bonusForDoubleLetter = 
-        	word -> Rx2Math.maxInt(toBeMaxed.apply(word)
+        	word -> MathFlowable.max(toBeMaxed.apply(word)
         				.map(scoreOfALetter)
         				) ;
             
@@ -178,7 +179,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 //        				Flowable.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Flowable -> Flowable)
-                Rx2Math.sumInt(Flowable.concat(
+                MathFlowable.sumInt(Flowable.concat(
                         score2.apply(word).map(v -> v * 2), 
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Flowable.just(word.length() == 7 ? 50 : 0)

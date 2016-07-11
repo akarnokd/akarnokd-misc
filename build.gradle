@@ -51,7 +51,7 @@ apply plugin: 'osgi'
 
 dependencies {
     compile 'org.reactivestreams:reactive-streams:1.0.0'
-    
+
     compile 'io.reactivex:rxjava:1.1.+'
     compile 'io.reactivex:rxjava-string:+';
 
@@ -73,6 +73,7 @@ dependencies {
 //    	exclude group: "io.reactivex", module: "rxjava"
 //    }
 
+    // -------------------------------------------------------------------
 
     compile('com.github.akarnokd:ixjava:1.+') {
     	exclude group: "io.reactivex", module: "rxjava"
@@ -83,6 +84,12 @@ dependencies {
     }
 
     compile 'com.github.akarnokd:akarnokd-xml:+'
+
+    compile('com.github.akarnokd:rxjava2-extensions:+') {
+    	exclude group: "io.reactivex", module: "rxjava"
+    }
+
+    // -------------------------------------------------------------------
     
     compile 'com.google.guava:guava:19.0'
     

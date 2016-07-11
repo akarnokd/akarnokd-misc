@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava2.*;
+import hu.akarnokd.rxjava2.math.MathObservable;
+import hu.akarnokd.rxjava2.string.StringObservable;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
@@ -66,7 +67,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
     
     static Observable<Integer> chars(String word) {
 //        return Observable.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return new ObservableCharSequence(word);
+        return StringObservable.characters(word);
     }
     
     @SuppressWarnings("unused")
@@ -128,7 +129,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
 
         // number of blanks for a given word
         Function<String, Observable<Long>> nBlanks = 
-        		word -> Rx2Math.sumLong(histoOfLetters.apply(word)
+        		word -> MathObservable.sumLong(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
         					) ;
@@ -141,7 +142,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         
         // score taking blanks into account letterScore1
         Function<String, Observable<Integer>> score2 = 
-        		word -> Rx2Math.sumInt(histoOfLetters.apply(word)
+        		word -> MathObservable.sumInt(histoOfLetters.apply(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
         					) ;
@@ -161,7 +162,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
             
         // Bonus for double letter
         Function<String, Observable<Integer>> bonusForDoubleLetter = 
-        	word -> Rx2Math.maxInt(toBeMaxed.apply(word)
+        	word -> MathObservable.max(toBeMaxed.apply(word)
         				.map(scoreOfALetter)
         				) ;
             
@@ -176,7 +177,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
 //        				Observable.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Observable -> Observable)
-                Rx2Math.sumInt(Observable.concat(
+                MathObservable.sumInt(Observable.concat(
                         score2.apply(word).map(v -> v * 2), 
                         bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Observable.just(word.length() == 7 ? 50 : 0)
