@@ -98,6 +98,8 @@ dependencies {
     //compile 'com.typesafe.akka:akka-actor_2.11:2.4.3'
 
     //compile 'io.swave:swave-core_2.11:0.5-M1'
+    
+    compile 'it.unimi.dsi:fastutil:7.0.12'
 }
 
 processResources {
