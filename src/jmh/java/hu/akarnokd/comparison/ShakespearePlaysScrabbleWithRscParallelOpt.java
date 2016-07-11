@@ -20,7 +20,7 @@ package hu.akarnokd.comparison;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Function;
 
 import org.openjdk.jmh.annotations.*;
@@ -73,11 +73,21 @@ public class ShakespearePlaysScrabbleWithRscParallelOpt extends ShakespearePlays
     @Param({/*"1", "2", "3", "4", "5", "6", "7",*/ "8"})
     public int cores;
     
+    @Param({ "1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024"})
+    public int prefetch;
+    
+    @Param({"true"})
+    public boolean fj;
+    
     rsc.scheduler.Scheduler scheduler;
     
     @Setup
     public void setupThis() {
-        scheduler = new rsc.scheduler.ParallelScheduler(cores);
+        if (fj) {
+            scheduler = new rsc.scheduler.ExecutorServiceScheduler(ForkJoinPool.commonPool(), false);
+        } else {
+            scheduler = new rsc.scheduler.ParallelScheduler(cores);
+        }
     }
     
     @TearDown
@@ -202,7 +212,7 @@ public class ShakespearePlaysScrabbleWithRscParallelOpt extends ShakespearePlays
         Function<Function<String, Px<Integer>>, Px<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Px.fromIterable(shakespeareWords)
         						.parallel()
-                                .runOn(scheduler)
+                                .runOn(scheduler, prefetch)
                                 .filter(scrabbleWords::contains)
                                 .filter(word -> checkBlanks.apply(word).blockingFirst())
                                 .collect(
