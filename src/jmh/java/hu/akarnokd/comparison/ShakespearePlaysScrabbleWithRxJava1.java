@@ -42,7 +42,7 @@ import rx.functions.Func1;
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithRxJava extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithRxJava1 extends ShakespearePlaysScrabble {
 
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
