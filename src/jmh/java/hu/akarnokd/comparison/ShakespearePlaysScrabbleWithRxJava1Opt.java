@@ -34,6 +34,7 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
+import hu.akarnokd.rxjava.MathObservable;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -137,10 +138,10 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
 
         // number of blanks for a given word
         Func1<String, Observable<Long>> nBlanks = 
-        		word -> histoOfLetters.call(word)
+        		word -> MathObservable.sumLong(histoOfLetters.call(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(blank)
-        					.reduce(Long::sum) ;
+        					) ;
         					
                 
         // can a word be written with 2 blanks?
@@ -150,10 +151,10 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         
         // score taking blanks into account letterScore1
         Func1<String, Observable<Integer>> score2 = 
-        		word -> histoOfLetters.call(word)
+        		word -> MathObservable.sumInteger(histoOfLetters.call(word)
         					.flatMapIterable(map -> map.entrySet())
         					.map(letterScore)
-        					.reduce(Integer::sum) ;
+        					) ;
         					
         // Placing the word on the board
         // Building the streams of first and last letters
@@ -170,9 +171,9 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
             
         // Bonus for double letter
         Func1<String, Observable<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.call(word)
+        	word -> MathObservable.max(toBeMaxed.call(word)
         				.map(scoreOfALetter)
-        				.reduce(Integer::max) ;
+        				) ;
             
         // score of the word put on the board
         Func1<String, Observable<Integer>> score3 = 
@@ -185,12 +186,12 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
 //        				Observable.just(word.length() == 7 ? 50 : 0)
 //        		)
 //        		.flatMap(Observable -> Observable)
-                Observable.concat(
+                MathObservable.sumInteger(Observable.concat(
                         score2.call(word).map(v -> v * 2), 
                         bonusForDoubleLetter.call(word).map(v -> v * 2), 
                         Observable.just(word.length() == 7 ? 50 : 0)
                 )
-        		.reduce(Integer::sum) ;
+        		) ;
 
         Func1<Func1<String, Observable<Integer>>, Observable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Observable.from(shakespeareWords)
