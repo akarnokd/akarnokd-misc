@@ -59,21 +59,22 @@ dependencies {
     
     //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
     
-    compile 'io.projectreactor:reactor-core:2.5.0.BUILD-SNAPSHOT'
+    compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     
     compile 'com.typesafe.akka:akka-stream_2.11:2.4.6'
     
-    compile 'org.jctools:jctools-core:1.1'
+    compile 'org.jctools:jctools-core:1.2'
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
-    compile 'io.projectreactor:reactive-streams-commons:0.5.0.BUILD-SNAPSHOT'
 
 //    compile('io.reactivex:rxjava-math:+') {
 //    	exclude group: "io.reactivex", module: "rxjava"
 //    }
 
     // -------------------------------------------------------------------
+    
+    compile 'io.projectreactor:reactive-streams-commons:0.5.0.BUILD-SNAPSHOT'
 
     compile('com.github.akarnokd:ixjava:1.+') {
     	exclude group: "io.reactivex", module: "rxjava"
