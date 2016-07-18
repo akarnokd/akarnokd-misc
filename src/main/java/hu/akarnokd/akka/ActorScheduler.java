@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import akka.actor.*;
-import reactor.core.flow.Cancellation;
+import reactor.core.Cancellation;
 
 public class ActorScheduler 
 implements reactor.core.scheduler.Scheduler {

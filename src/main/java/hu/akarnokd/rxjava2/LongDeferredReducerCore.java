@@ -2,8 +2,6 @@ package hu.akarnokd.rxjava2;
 
 import org.reactivestreams.*;
 
-import reactor.core.subscriber.DeferredScalarSubscriber;
-
 public abstract class LongDeferredReducerCore extends DeferredScalarSubscriber<Long, Long> 
 implements Subscriber<Long> {
 
