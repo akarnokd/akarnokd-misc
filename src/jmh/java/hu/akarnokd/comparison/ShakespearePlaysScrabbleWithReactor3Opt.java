@@ -18,22 +18,32 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Warmup;
 
 import hu.akarnokd.rxjava2.*;
+
+import java.util.function.Function;
 import reactor.core.publisher.*;
-import reactor.core.scheduler.*;
 
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithReactor3Opt extends ShakespearePlaysScrabble {
 
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
@@ -68,27 +78,6 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
     static Flux<Integer> chars(String word) {
         //return Flux.range(0, word.length()).map(i -> (int)word.charAt(i));
         return new FluxCharSequence(word);
-    }
-    @Param({/*"1", "2", "3", "4", "5", "6", "7", */"8"})
-    public int cores;
-    
-    @Param({"parallel"/*, "computation"*/})
-    public String mode;
-    
-    Scheduler scheduler;
-    
-    @Setup
-    public void localSetup() {
-        if ("parallel".equals(mode)) {
-            scheduler = Schedulers.newParallel("RcParallel", cores);
-        } else {
-            scheduler = Schedulers.newComputation("RcComputation", cores);
-        }
-    }
-    
-    @TearDown
-    public void localTeardown() {
-        scheduler.shutdown();
     }
     
     @SuppressWarnings("unused")
@@ -205,10 +194,8 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
                 )
         		);
 
-        Function<Function<String, Mono<Integer>>, Flux<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        Function<Function<String, Mono<Integer>>, Mono<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flux.fromIterable(shakespeareWords)
-        		                .parallel()
-        		                .runOn(scheduler)
         						.filter(scrabbleWords::contains)
         						.filter(word -> checkBlanks.apply(word).block())
         						.collect(
@@ -222,19 +209,7 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
         								}
         								list.add(word) ;
         							}
-        						)
-        						.reduce((m1, m2) -> {
-        						    for (Map.Entry<Integer, List<String>> e : m2.entrySet()) {
-        						        List<String> list = m1.get(e.getKey());
-        						        if (list == null) {
-        						            m1.put(e.getKey(), e.getValue());
-        						        } else {
-        						            list.addAll(e.getValue());
-        						        }
-        						    }
-        						    return m1;
-        						})
-        						;
+        						);
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
@@ -256,13 +231,8 @@ public class ShakespearePlaysScrabbleWithReactor25ParallelOpt extends Shakespear
     }
     
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithReactor25ParallelOpt s = new ShakespearePlaysScrabbleWithReactor25ParallelOpt();
+        ShakespearePlaysScrabbleWithReactor3Opt s = new ShakespearePlaysScrabbleWithReactor3Opt();
         s.init();
-        s.localSetup();
-        try {
-            System.out.println(s.measureThroughput());
-        } finally {
-            s.localTeardown();
-        }
+        System.out.println(s.measureThroughput());
     }
 }

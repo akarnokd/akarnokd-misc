@@ -107,6 +107,10 @@ dependencies {
     //compile 'io.swave:swave-core_2.11:0.5-M1'
     
     compile 'it.unimi.dsi:fastutil:7.0.12'
+    
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile group: 'com.squareup.retrofit2', name: 'adapter-rxjava', version: '2.1.0'
 }
 
 processResources {

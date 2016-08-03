@@ -41,7 +41,7 @@ import reactor.core.publisher.*;
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithReactor25 extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithReactor3 extends ShakespearePlaysScrabble {
 
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
