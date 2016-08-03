@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.reactivestreams.Subscriber;
 
-import reactor.core.flow.Fuseable;
+import reactor.core.Fuseable;
 import reactor.core.publisher.Flux;
 import rsc.subscriber.SubscriptionHelper;
 import rsc.util.BackpressureHelper;

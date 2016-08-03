@@ -2,7 +2,7 @@ package hu.akarnokd.rxjava2;
 
 import org.reactivestreams.*;
 
-import reactor.core.flow.Fuseable;
+import reactor.core.Fuseable;
 import reactor.core.publisher.MonoSource;
 
 public class SumIntMono extends MonoSource<Integer, Integer> implements Fuseable {
