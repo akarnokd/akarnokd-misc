@@ -60,7 +60,7 @@ dependencies {
     //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
-    compile 'io.projectreactor:reactor-core:3+'
+    compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     
     compile 'com.typesafe.akka:akka-stream_2.11:2.4.6'
     
