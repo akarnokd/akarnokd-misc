@@ -13,6 +13,7 @@
 
 package hu.akarnokd.comparison;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 import org.openjdk.jmh.annotations.*;
@@ -22,15 +23,15 @@ import org.reactivestreams.Publisher;
 import com.typesafe.config.*;
 
 import akka.actor.ActorSystem;
-import akka.stream.*;
-import akka.stream.impl.fusing.Fusing;
+import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
 import hu.akarnokd.akka.ActorScheduler;
-import io.reactivex.*;
+import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.Subscribers;
 import reactor.core.publisher.Flux;
 import rsc.publisher.Px;
+import rsc.scheduler.SingleScheduler;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -58,9 +59,6 @@ public class ReactiveStreamsImplsAsync {
     Publisher<Integer> akRangeAsync;
     Publisher<Integer> akRangePipeline;
     
-    Publisher<Integer> ak2RangeAsync;
-    Publisher<Integer> ak2RangePipeline;
-
     Publisher<Integer> asRangeAsync;
     Publisher<Integer> asRangePipeline;
 
@@ -79,40 +77,51 @@ public class ReactiveStreamsImplsAsync {
     
     @Setup
     public void setup() throws Exception {
+        Integer[] array = new Integer[times];
+        for (int i = 0; i < times; i++) {
+            array[i] = i + 1;
+        }
+        
+
         exec1 = Executors.newSingleThreadScheduledExecutor();
         exec2 = Executors.newSingleThreadScheduledExecutor();
         
         single1 = rx.schedulers.Schedulers.from(exec1);
         single2 = rx.schedulers.Schedulers.from(exec2);
-        Scheduler single3 = Schedulers.single();
-        Scheduler single4 = Schedulers.from(exec2);
+        io.reactivex.Scheduler single3 = Schedulers.single();
+        io.reactivex.Scheduler single4 = new io.reactivex.internal.schedulers.SingleScheduler();
 
         singleRa1 = reactor.core.scheduler.Schedulers.newSingle("A");
         singleRa2 = reactor.core.scheduler.Schedulers.newSingle("B");
 
-        rx.Observable<Integer> rxRange = rx.Observable.range(1, times);
+        rx.Observable<Integer> rxRange = rx.Observable.from(array);
         rxRangeAsync = rxRange.observeOn(single1);
         rxRangePipeline = rxRange.subscribeOn(single1).observeOn(single2);
         
-        Flowable<Integer> rx2Range = Flowable.range(1, times);
+        Flowable<Integer> rx2Range = Flowable.fromArray(array);
         rx2RangeAsync = rx2Range.observeOn(single3);
         rx2RangePipeline = rx2Range.subscribeOn(single3).observeOn(single4);
 
-        Flux<Integer> raRange = Flux.range(1, times);
+        Flux<Integer> raRange = Flux.fromArray(array);
         raRangeAsync = raRange.publishOn(singleRa1);
         raRangePipeline = raRange.subscribeOn(singleRa1).publishOn(singleRa2);
 
-        Px<Integer> rscRange = Px.range(1, times);
-        rscRangeAsync = rscRange.observeOn(exec1);
-        rscRangePipeline = rscRange.subscribeOn(exec1).observeOn(exec2);
+        SingleScheduler rscs1 = new SingleScheduler("Rscs1", true);
+        SingleScheduler rscs2 = new SingleScheduler("Rscs2", true);
+        
+        Px<Integer> rscRange = Px.fromArray(array);
+        rscRangeAsync = rscRange.observeOn(rscs1);
+        rscRangePipeline = rscRange.subscribeOn(rscs1).observeOn(rscs2);
 
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf");
+        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
+
         actorSystem = ActorSystem.create("sys", cfg);
 
         materializer = ActorMaterializer.create(actorSystem);
         
+        List<Integer> list = Arrays.asList(array);
         Publisher<Integer> akRange = s -> {
-            Source.range(1, times)
+            Source.fromIterator(() -> list.iterator())
             .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
             .subscribe(s);
         };
@@ -120,25 +129,11 @@ public class ReactiveStreamsImplsAsync {
         akRangeAsync = akRange;
         akRangePipeline = akRange;
 
-        Publisher<Integer> ak2Range = s -> {
-            optimize(Source.range(1, times))
-            .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
-            .subscribe(s);
-        };
-        
-        ak2RangeAsync = ak2Range;
-        ak2RangePipeline = ak2Range;
-        
         ActorScheduler as1 = new ActorScheduler(actorSystem);
         ActorScheduler as2 = new ActorScheduler(actorSystem);
         
         asRangeAsync = raRange.publishOn(as1);
         asRangePipeline = raRange.subscribeOn(as1).publishOn(as2);
-    }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    static <V> Source<Integer, V> optimize(Graph g) {
-        return Source.fromGraph(Fusing.aggressive(g));
     }
     
     @TearDown
@@ -284,32 +279,6 @@ public class ReactiveStreamsImplsAsync {
 
     // -------------------------------------------------------------------------
     
-    @Benchmark
-    public void rangeAsync_akka2(Blackhole bh) throws InterruptedException {
-        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
-        ak2RangeAsync.subscribe(lo);
-        
-        if (times == 1) {
-            while (lo.latch.getCount() != 0);
-        } else {
-            lo.latch.await();
-        }
-    }
-    
-    @Benchmark
-    public void rangePipeline_akka2(Blackhole bh) throws InterruptedException {
-        LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
-        ak2RangePipeline.subscribe(lo);
-        
-        if (times == 1) {
-            while (lo.latch.getCount() != 0);
-        } else {
-            lo.latch.await();
-        }
-    }
-
-    // -------------------------------------------------------------------------
-
     @Benchmark
     public void rangeAsync_actorscheduler(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
