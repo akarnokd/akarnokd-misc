@@ -113,8 +113,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
     
@@ -129,8 +128,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
     
@@ -159,8 +157,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
     
@@ -175,8 +172,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
     
@@ -260,8 +256,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
 
@@ -280,8 +275,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
 //    @Benchmark
@@ -299,8 +293,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
   
@@ -316,8 +309,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
 
@@ -334,8 +326,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .toBlocking()
-        .last()
+        .blockingLast()
         ;
     }
 }

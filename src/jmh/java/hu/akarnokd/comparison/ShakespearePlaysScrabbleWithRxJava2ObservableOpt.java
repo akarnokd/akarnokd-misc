@@ -81,7 +81,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
     	iterations=5
     )
     @Fork(1)
-    public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
+    public List<Entry<Integer, List<String>>> measureThroughput() throws Exception {
 
         //  to compute the score of a given word
     	Function<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
@@ -187,11 +187,11 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         Function<Function<String, Observable<Integer>>, Observable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Observable.fromIterable(shakespeareWords)
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).toBlocking().first())
+        						.filter(word -> checkBlanks.apply(word).blockingFirst())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).toBlocking().first() ;
+        								Integer key = score.apply(word).blockingFirst() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -212,7 +212,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         					list.add(entry) ;
         				}
         			)
-        			.toBlocking().first() ;
+        			.blockingFirst() ;
         			
         
 //        System.out.println(finalList2);

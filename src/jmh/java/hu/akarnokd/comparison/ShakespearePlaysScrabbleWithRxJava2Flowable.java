@@ -83,7 +83,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
     	iterations=5, time = 1
     )
     @Fork(1)
-    public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
+    public List<Entry<Integer, List<String>>> measureThroughput() throws Exception {
 
         // Function to compute the score of a given word
     	Function<Integer, Flowable<Integer>> scoreOfALetter = letter -> Flowable.just(letterScores[letter - 'a']) ;
@@ -184,11 +184,11 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flowable.fromIterable(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).toBlocking().first())
+        						.filter(word -> checkBlanks.apply(word).blockingFirst())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).toBlocking().first() ;
+        								Integer key = score.apply(word).blockingFirst() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -209,8 +209,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         					list.add(entry) ;
         				}
         			)
-        			.toBlocking()
-        			.first() ;
+        			.blockingFirst() ;
         			
         
 //        System.out.println(finalList2);

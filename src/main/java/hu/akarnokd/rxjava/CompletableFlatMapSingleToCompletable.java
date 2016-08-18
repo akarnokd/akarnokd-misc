@@ -1,6 +1,6 @@
 package hu.akarnokd.rxjava;
 
-import io.reactivex.internal.util.Exceptions;
+import io.reactivex.exceptions.Exceptions;
 import rx.*;
 import rx.Completable.*;
 import rx.functions.Func1;
@@ -18,7 +18,7 @@ public final class CompletableFlatMapSingleToCompletable<T> implements Completab
     
     @Override
     public void call(CompletableSubscriber t) {
-        SourceSubscriber<T> parent = new SourceSubscriber<T>(t, mapper);
+        SourceSubscriber<T> parent = new SourceSubscriber<>(t, mapper);
         t.onSubscribe(parent);
         source.subscribe(parent);
     }
