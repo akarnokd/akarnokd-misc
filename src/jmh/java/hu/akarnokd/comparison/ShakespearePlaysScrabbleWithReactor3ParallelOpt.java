@@ -69,17 +69,12 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
         //return Flux.range(0, word.length()).map(i -> (int)word.charAt(i));
         return new FluxCharSequence(word);
     }
-//    @Param({/*"1", "2", "3", "4", "5", "6", "7", */"8"})
-    public int cores;
-    
-//    @Param({"parallel"/*, "computation"*/})
-    public String mode;
     
     Scheduler scheduler;
     
     @Setup
     public void localSetup() {
-        scheduler = Schedulers.newParallel("RcParallel", cores);
+        scheduler = Schedulers.newParallel("RcParallel", 8);
     }
     
     @TearDown
