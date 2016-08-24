@@ -29,7 +29,6 @@ import akka.stream.javadsl.*;
 import io.reactivex.*;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.subscribers.Subscribers;
 import reactor.core.publisher.Flux;
 import rsc.publisher.Px;
 
@@ -441,14 +440,14 @@ public class ReactiveStreamsImpls {
         List<Integer> values = Observable.range(1, 1000).toList().blockingFirst();
         System.out.println(values.size());
         try {
-            o.ak2Range
-            .subscribe(Subscribers.create(System.out::println, 
+            Flowable.fromPublisher(o.ak2Range)
+            .subscribe(System.out::println, 
                     Throwable::printStackTrace, 
                     () -> System.out.println("Done"), 
                 s -> {
                     System.out.println(s.getClass() + " " + s);
                     s.request(Long.MAX_VALUE);
-            }));
+            });
     
             Thread.sleep(1000);
         } finally {
