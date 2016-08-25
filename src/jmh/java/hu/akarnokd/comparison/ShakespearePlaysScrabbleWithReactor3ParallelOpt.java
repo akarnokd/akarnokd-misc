@@ -196,7 +196,7 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
                 )
         		);
 
-        Function<Function<String, Mono<Integer>>, Flux<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        Function<Function<String, Mono<Integer>>, Mono<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flux.fromIterable(shakespeareWords)
         		                .parallel()
         		                .runOn(scheduler)
