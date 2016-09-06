@@ -55,8 +55,8 @@ public class OnesTypesFlatMapPerf {
         
         Single<Integer> singleOne = Single.just(1);
         
-        flowableMaybe = Flowable.fromArray(array).flatMap(v -> singleOne.toFlowable());
-        observableMaybe = Observable.fromArray(array).flatMap(v -> singleOne.toObservable());
+        flowableSingle = Flowable.fromArray(array).flatMap(v -> singleOne.toFlowable());
+        observableSingle = Observable.fromArray(array).flatMap(v -> singleOne.toObservable());
         
         Mono<Integer> monoOne = Mono.just(1);
         
