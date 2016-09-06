@@ -2,10 +2,9 @@ package hu.akarnokd.rxjava;
 
 import io.reactivex.exceptions.Exceptions;
 import rx.*;
-import rx.Completable.*;
 import rx.functions.Func1;
 
-public final class CompletableFlatMapSingleToCompletable<T> implements CompletableOnSubscribe {
+public final class CompletableFlatMapSingleToCompletable<T> implements Completable.OnSubscribe {
 
     final Single<T> source;
     
@@ -17,18 +16,18 @@ public final class CompletableFlatMapSingleToCompletable<T> implements Completab
     }
     
     @Override
-    public void call(CompletableSubscriber t) {
+    public void call(rx.CompletableSubscriber t) {
         SourceSubscriber<T> parent = new SourceSubscriber<>(t, mapper);
         t.onSubscribe(parent);
         source.subscribe(parent);
     }
     
-    static final class SourceSubscriber<T> extends SingleSubscriber<T> implements CompletableSubscriber {
-        final CompletableSubscriber actual;
+    static final class SourceSubscriber<T> extends SingleSubscriber<T> implements rx.CompletableSubscriber {
+        final rx.CompletableSubscriber actual;
         
         final Func1<? super T, Completable> mapper;
 
-        public SourceSubscriber(CompletableSubscriber actual, Func1<? super T, Completable> mapper) {
+        public SourceSubscriber(rx.CompletableSubscriber actual, Func1<? super T, Completable> mapper) {
             this.actual = actual;
             this.mapper = mapper;
         }
