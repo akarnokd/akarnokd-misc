@@ -88,7 +88,11 @@ dependencies {
     compile 'com.github.akarnokd:akarnokd-xml:+'
 
     compile('com.github.akarnokd:rxjava2-extensions:+') {
-    	exclude group: "io.reactivex", module: "rxjava"
+    	exclude group: "io.reactivex.rxjava2", module: "rxjava"
+    }
+
+    compile('com.github.akarnokd:rxjava2-interop:+') {
+    	exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
 
     // -------------------------------------------------------------------
