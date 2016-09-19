@@ -8,11 +8,10 @@ import org.openjdk.jmh.infra.Blackhole;
 
 import com.google.common.collect.FluentIterable;
 
-import ix.Ix;
+import ix.*;
 import reactor.core.publisher.Flux;
 import rsc.publisher.Px;
 import rx.Observable;
-import rx.functions.Action1;
 
 /**
  * Example benchmark. Run from command line as
@@ -214,32 +213,32 @@ public class IxPerf {
 
 //    @Benchmark
     public void rangeIx(Blackhole bh) {
-        rangeIx.foreach((Action1<Integer>)bh::consume);
+        rangeIx.foreach((IxConsumer<Integer>)bh::consume);
     }
 
     @Benchmark
     public void takeIx(Blackhole bh) {
-        takeIx.foreach((Action1<Integer>)bh::consume);
+        takeIx.foreach((IxConsumer<Integer>)bh::consume);
     }
 
 //    @Benchmark
     public void flatMapIx(Blackhole bh) {
-        flatMapIx.foreach((Action1<Integer>)bh::consume);
+        flatMapIx.foreach((IxConsumer<Integer>)bh::consume);
     }
     
 //    @Benchmark
     public void concatMapIx(Blackhole bh) {
-        concatMapIx.foreach((Action1<Integer>)bh::consume);
+        concatMapIx.foreach((IxConsumer<Integer>)bh::consume);
     }
 
 //    @Benchmark
     public void flatMapXRangeIx(Blackhole bh) {
-        flatMapXRangeIx.foreach((Action1<Integer>)bh::consume);
+        flatMapXRangeIx.foreach((IxConsumer<Integer>)bh::consume);
     }
     
 //    @Benchmark
     public void concatMapXRangeIx(Blackhole bh) {
-        concatMapXRangeIx.foreach((Action1<Integer>)bh::consume);
+        concatMapXRangeIx.foreach((IxConsumer<Integer>)bh::consume);
     }
 
     // -----------------------------------------------------------

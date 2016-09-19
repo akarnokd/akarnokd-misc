@@ -55,9 +55,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.1.+'
     compile 'io.reactivex:rxjava-string:+';
 
-    compile 'io.reactivex.rxjava2:rxjava:+'
-    
-    //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.0-DP0-SNAPSHOT'
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
@@ -74,6 +72,8 @@ dependencies {
 //    }
 
     // -------------------------------------------------------------------
+
+    //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
     
     compile 'io.projectreactor:reactive-streams-commons:0.6.0.BUILD-SNAPSHOT'
 
@@ -87,7 +87,7 @@ dependencies {
 
     compile 'com.github.akarnokd:akarnokd-xml:+'
 
-    compile('com.github.akarnokd:rxjava2-extensions:0.2.1') {
+    compile('com.github.akarnokd:rxjava2-extensions:+') {
     	exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
 

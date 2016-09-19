@@ -18,23 +18,13 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
-import io.reactivex.Flowable;
+import io.reactivex.*;
 import io.reactivex.functions.Function;
 
 /**
@@ -130,7 +120,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableBeta extends Shakespeare
         			) ;
 
         // number of blanks for a given word
-        Function<String, Flowable<Long>> nBlanks = 
+        Function<String, Single<Long>> nBlanks = 
         		word -> histoOfLetters.apply(word)
         					.flatMap(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
         					.flatMap(blank)
@@ -138,12 +128,12 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableBeta extends Shakespeare
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Flowable<Boolean>> checkBlanks = 
+        Function<String, Single<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.flatMap(l -> Flowable.just(l <= 2L)) ;
+        					.flatMap(l -> Single.just(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Flowable<Integer>> score2 = 
+        Function<String, Single<Integer>> score2 = 
         		word -> histoOfLetters.apply(word)
         					.flatMap(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
         					.flatMap(letterScore)
@@ -163,30 +153,31 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableBeta extends Shakespeare
         				.flatMap(observable -> observable) ;
             
         // Bonus for double letter
-        Function<String, Flowable<Integer>> bonusForDoubleLetter = 
+        Function<String, Single<Integer>> bonusForDoubleLetter = 
         	word -> toBeMaxed.apply(word)
         				.flatMap(scoreOfALetter)
         				.reduce(Integer::max) ;
             
         // score of the word put on the board
-        Function<String, Flowable<Integer>> score3 = 
+        Function<String, Single<Integer>> score3 = 
         	word ->
-        		Flowable.just(
+        		Single.merge(
+        		    Flowable.just(
         				score2.apply(word).map(v -> v * 2), 
         				bonusForDoubleLetter.apply(word).map(v -> v * 2), 
-        				Flowable.just(word.length() == 7 ? 50 : 0)
+        				Single.just(word.length() == 7 ? 50 : 0)
+        			)
         		)
-        		.flatMap(observable -> observable)
         		.reduce(Integer::sum) ;
 
-        Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        Function<Function<String, Single<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flowable.fromIterable(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).blockingFirst())
+        						.filter(word -> checkBlanks.apply(word).blockingGet())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).blockingFirst() ;
+        								Integer key = score.apply(word).blockingGet() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;

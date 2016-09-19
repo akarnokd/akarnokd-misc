@@ -24,8 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import ix.Ix;
-import rx.functions.Func1;
+import ix.*;
 
 /**
  *
@@ -83,10 +82,10 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         //  to compute the score of a given word
-    	Func1<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
+    	IxFunction<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
             
         // score of the same letters in a word
-        Func1<Entry<Integer, MutableLong>, Integer> letterScore =
+        IxFunction<Entry<Integer, MutableLong>, Integer> letterScore =
         		entry -> 
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
@@ -96,12 +95,12 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         	        ;
         
     					
-        Func1<String, Ix<Integer>> toIntegerIx = 
+        IxFunction<String, Ix<Integer>> toIntegerIx = 
         		string -> chars(string);
                     
         // Histogram of the letters in a given word
-        Func1<String, Ix<HashMap<Integer, MutableLong>>> histoOfLetters =
-        		word -> toIntegerIx.call(word)
+        IxFunction<String, Ix<HashMap<Integer, MutableLong>>> histoOfLetters =
+        		word -> toIntegerIx.apply(word)
         					.collect(
     							() -> new HashMap<Integer, MutableLong>(), 
     							(HashMap<Integer, MutableLong> map, Integer value) -> 
@@ -117,7 +116,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         					) ;
                 
         // number of blanks for a given letter
-        Func1<Entry<Integer, MutableLong>, Long> blank =
+        IxFunction<Entry<Integer, MutableLong>, Long> blank =
         		entry ->
 	        			Long.max(
 	        				0L, 
@@ -127,46 +126,46 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         			;
 
         // number of blanks for a given word
-        Func1<String, Ix<Long>> nBlanks = 
-        		word -> histoOfLetters.call(word)
+        IxFunction<String, Ix<Long>> nBlanks = 
+        		word -> histoOfLetters.apply(word)
         					.flatMap(map -> map.entrySet())
         					.map(blank)
         					.sumLong();
         					
                 
         // can a word be written with 2 blanks?
-        Func1<String, Ix<Boolean>> checkBlanks = 
-        		word -> nBlanks.call(word)
+        IxFunction<String, Ix<Boolean>> checkBlanks = 
+        		word -> nBlanks.apply(word)
         					.map(l -> l <= 2L) ;
         
         // score taking blanks into account letterScore1
-        Func1<String, Ix<Integer>> score2 = 
-        		word -> histoOfLetters.call(word)
+        IxFunction<String, Ix<Integer>> score2 = 
+        		word -> histoOfLetters.apply(word)
         					.flatMap(map -> map.entrySet())
         					.map(letterScore)
         					.sumInt();
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        Func1<String, Ix<Integer>> first3 = 
+        IxFunction<String, Ix<Integer>> first3 = 
         		word -> chars(word).take(3) ;
-        Func1<String, Ix<Integer>> last3 = 
+        IxFunction<String, Ix<Integer>> last3 = 
         		word -> chars(word).skip(3) ;
         		
         
         // Stream to be maxed
-        Func1<String, Ix<Integer>> toBeMaxed = 
-        	word -> Ix.concatArray(first3.call(word), last3.call(word))
+        IxFunction<String, Ix<Integer>> toBeMaxed = 
+        	word -> Ix.concatArray(first3.apply(word), last3.apply(word))
         	;
             
         // Bonus for double letter
-        Func1<String, Ix<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.call(word)
+        IxFunction<String, Ix<Integer>> bonusForDoubleLetter = 
+        	word -> toBeMaxed.apply(word)
         				.map(scoreOfALetter)
         				.maxInt();
             
         // score of the word put on the board
-        Func1<String, Ix<Integer>> score3 = 
+        IxFunction<String, Ix<Integer>> score3 = 
         	word ->
 //        		Ix.fromArray(
 //        				score2.call(word), 
@@ -177,20 +176,20 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
 //        		)
 //        		.flatMap(Ix -> Ix)
                 Ix.concatArray(
-                        score2.call(word).map(v -> v * 2), 
-                        bonusForDoubleLetter.call(word).map(v -> v * 2), 
+                        score2.apply(word).map(v -> v * 2), 
+                        bonusForDoubleLetter.apply(word).map(v -> v * 2), 
                         Ix.just(word.length() == 7 ? 50 : 0)
                 )
         		.sumInt();
 
-        Func1<Func1<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        IxFunction<IxFunction<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Ix.from(shakespeareWords)
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.call(word).first())
+        						.filter(word -> checkBlanks.apply(word).first())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.call(word).first() ;
+        								Integer key = score.apply(word).first() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -202,7 +201,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-        		buildHistoOnScore.call(score3)
+        		buildHistoOnScore.apply(score3)
         			.flatMap(map -> map.entrySet())
         			.take(3)
         			.collect(

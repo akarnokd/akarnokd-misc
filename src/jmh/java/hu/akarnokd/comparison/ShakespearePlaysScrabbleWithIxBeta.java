@@ -35,8 +35,7 @@ import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
 
-import ix.Ix;
-import rx.functions.Func1;
+import ix.*;
 
 /**
  *
@@ -87,10 +86,10 @@ public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         // Function to compute the score of a given word
-    	Func1<Integer, Ix<Integer>> scoreOfALetter = letter -> Ix.just(letterScores[letter - 'a']) ;
+    	IxFunction<Integer, Ix<Integer>> scoreOfALetter = letter -> Ix.just(letterScores[letter - 'a']) ;
             
         // score of the same letters in a word
-        Func1<Entry<Integer, LongWrapper>, Ix<Integer>> letterScore =
+        IxFunction<Entry<Integer, LongWrapper>, Ix<Integer>> letterScore =
         		entry -> 
         			Ix.just(
     					letterScores[entry.getKey() - 'a']*
@@ -100,12 +99,12 @@ public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble
     	                    )
         	        ) ;
         
-        Func1<String, Ix<Integer>> toIntegerIx = 
+        IxFunction<String, Ix<Integer>> toIntegerIx = 
         		string -> Ix.from(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        Func1<String, Ix<HashMap<Integer, LongWrapper>>> histoOfLetters =
-        		word -> toIntegerIx.call(word)
+        IxFunction<String, Ix<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        		word -> toIntegerIx.apply(word)
         					.collect(
     							() -> new HashMap<Integer, LongWrapper>(), 
     							(HashMap<Integer, LongWrapper> map, Integer value) -> 
@@ -120,7 +119,7 @@ public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble
         					) ;
                 
         // number of blanks for a given letter
-        Func1<Entry<Integer, LongWrapper>, Ix<Long>> blank =
+        IxFunction<Entry<Integer, LongWrapper>, Ix<Long>> blank =
         		entry ->
         			Ix.just(
 	        			Long.max(
@@ -131,63 +130,63 @@ public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble
         			) ;
 
         // number of blanks for a given word
-        Func1<String, Ix<Long>> nBlanks = 
-        		word -> histoOfLetters.call(word)
+        IxFunction<String, Ix<Long>> nBlanks = 
+        		word -> histoOfLetters.apply(word)
         					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         					.flatMap(blank)
         					.sumLong();
         					
                 
         // can a word be written with 2 blanks?
-        Func1<String, Ix<Boolean>> checkBlanks = 
-        		word -> nBlanks.call(word)
+        IxFunction<String, Ix<Boolean>> checkBlanks = 
+        		word -> nBlanks.apply(word)
         					.flatMap(l -> Ix.just(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
-        Func1<String, Ix<Integer>> score2 = 
-        		word -> histoOfLetters.call(word)
+        IxFunction<String, Ix<Integer>> score2 = 
+        		word -> histoOfLetters.apply(word)
         					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         					.flatMap(letterScore)
         					.sumInt();
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        Func1<String, Ix<Integer>> first3 = 
+        IxFunction<String, Ix<Integer>> first3 = 
         		word -> Ix.from(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
-        Func1<String, Ix<Integer>> last3 = 
+        IxFunction<String, Ix<Integer>> last3 = 
         		word -> Ix.from(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
         		
         
         // Stream to be maxed
-        Func1<String, Ix<Integer>> toBeMaxed = 
-        	word -> Ix.fromArray(first3.call(word), last3.call(word))
+        IxFunction<String, Ix<Integer>> toBeMaxed = 
+        	word -> Ix.fromArray(first3.apply(word), last3.apply(word))
         				.flatMap(observable -> observable) ;
             
         // Bonus for double letter
-        Func1<String, Ix<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.call(word)
+        IxFunction<String, Ix<Integer>> bonusForDoubleLetter = 
+        	word -> toBeMaxed.apply(word)
         				.flatMap(scoreOfALetter)
         				.maxInt();
             
         // score of the word put on the board
-        Func1<String, Ix<Integer>> score3 = 
+        IxFunction<String, Ix<Integer>> score3 = 
         	word ->
         		Ix.fromArray(
-        				score2.call(word).map(v -> v * 2), 
-        				bonusForDoubleLetter.call(word).map(v -> v * 2), 
+        				score2.apply(word).map(v -> v * 2), 
+        				bonusForDoubleLetter.apply(word).map(v -> v * 2), 
         				Ix.just(word.length() == 7 ? 50 : 0)
         		)
         		.flatMap(observable -> observable)
         		.sumInt() ;
 
-        Func1<Func1<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        IxFunction<IxFunction<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Ix.from(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.call(word).first())
+        						.filter(word -> checkBlanks.apply(word).first())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.call(word).first() ;
+        								Integer key = score.apply(word).first() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -199,7 +198,7 @@ public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-        		buildHistoOnScore.call(score3)
+        		buildHistoOnScore.apply(score3)
         			.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         			.take(3)
         			.collect(
