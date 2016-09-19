@@ -69,7 +69,7 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
             while (cdl.getCount() != 0) { }
         } else {
             try {
-                if (!cdl.await(10, TimeUnit.MILLISECONDS)) {
+                if (!cdl.await(10, TimeUnit.SECONDS)) {
                     throw new RuntimeException("Timeout!");
                 }
             } catch (InterruptedException ex) {
