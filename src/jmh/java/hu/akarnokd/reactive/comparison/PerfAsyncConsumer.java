@@ -1,18 +1,23 @@
 package hu.akarnokd.reactive.comparison;
 
+import java.util.concurrent.*;
+
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.*;
 
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 
-public final class PerfConsumer implements Subscriber<Object>, Observer<Object>, SingleObserver<Object>,
+public final class PerfAsyncConsumer implements Subscriber<Object>, Observer<Object>, SingleObserver<Object>,
 CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
+    final CountDownLatch cdl;
+    
     final Blackhole bh;
     
-    public PerfConsumer(Blackhole bh) {
+    public PerfAsyncConsumer(Blackhole bh) {
         this.bh = bh;
+        this.cdl = new CountDownLatch(1);
     }
     
     @Override
@@ -24,11 +29,13 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     @Override
     public void onComplete() {
         bh.consume(false);
+        cdl.countDown();
     }
 
     @Override
     public void onError(Throwable e) {
         bh.consume(e);
+        cdl.countDown();
     }
 
     @Override
@@ -39,6 +46,7 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     @Override
     public void onSuccess(Object value) {
         bh.consume(value);
+        cdl.countDown();
     }
 
     @Override
@@ -49,10 +57,24 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     @Override
     public void onCompleted() {
         bh.consume(false);
+        cdl.countDown();
     }
     @Override
     public void onSubscribe(rx.Subscription d) {
         bh.consume(d);
     }
     
+    public void await(int count) {
+        if (count <= 1000) {
+            while (cdl.getCount() != 0) { }
+        } else {
+            try {
+                if (!cdl.await(10, TimeUnit.MILLISECONDS)) {
+                    throw new RuntimeException("Timeout!");
+                }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
 }

@@ -121,18 +121,18 @@ public class SubscribePerf {
 
     @Benchmark
     public void neverRxCompletable(Blackhole bh) {
-        rxCompletableNever.subscribe(new PerfRxCompletableSubscriber(bh));
+        rxCompletableNever.subscribe(new PerfConsumer(bh));
     }
     
     @Benchmark
     public void emptyRxCompletable(Blackhole bh) {
-        rxCompletableEmpty.subscribe(new PerfRxCompletableSubscriber(bh));
+        rxCompletableEmpty.subscribe(new PerfConsumer(bh));
     }
     
     
     @Benchmark
     public void justRxCompletable(Blackhole bh) {
-        rxCompletableJust.subscribe(new PerfRxCompletableSubscriber(bh));
+        rxCompletableJust.subscribe(new PerfConsumer(bh));
     }
     
     /// ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
