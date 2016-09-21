@@ -1,6 +1,6 @@
 package hu.akarnokd.comparison;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 import org.openjdk.jmh.annotations.*;
@@ -18,23 +18,41 @@ import io.reactivex.schedulers.Schedulers;
 @State(Scope.Thread)
 public class ParallelPerf {
 
-    @Param({"8"/*, "16", "32", "64", "128", "256"*/ })
+    @Param({"1024" })
     public int count;
     
     @Param({"1", "10", "100", "1000", "10000"})
     public int cost;
     
+    Flowable<Integer> flowable;
+
+    Flowable<Integer> flowableFJ;
+
+    @Setup
+    public void setup() {
+        flowable = ParallelFlowable.from(Flowable.range(0, count)).runOn(Schedulers.computation())
+        .filter(v -> { Blackhole.consumeCPU(cost); return false; })
+        .sequential();
+        
+        flowableFJ = ParallelFlowable.from(Flowable.range(0, count))
+                .runOn(Schedulers.from(ForkJoinPool.commonPool()))
+        .filter(v -> { Blackhole.consumeCPU(cost); return false; })
+        .sequential();
+    }
+    
     @Benchmark
     public Object parallelStream() {
-        return IntStream.range(0, count).parallel().map(v -> { Blackhole.consumeCPU(cost); return v; })
-        .count();
+        return IntStream.range(0, count).parallel().filter(v -> { Blackhole.consumeCPU(cost); return false; })
+        .findAny();
     }
     
     @Benchmark
     public Object parallelFlowable() {
-        return ParallelFlowable.from(Flowable.range(0, count)).runOn(Schedulers.computation())
-        .map(v -> { Blackhole.consumeCPU(cost); return v; })
-        .sequential()
-        .blockingLast();
+        return flowable.blockingLast(0);
+    }
+
+    @Benchmark
+    public Object parallelFlowableForkJoin() {
+        return flowableFJ.blockingLast(0);
     }
 }
