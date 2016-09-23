@@ -93,7 +93,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         		string -> Flowable.fromIterable(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        Function<String, Flowable<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        Function<String, Single<HashMap<Integer, LongWrapper>>> histoOfLetters =
         		word -> toIntegerFlowable.apply(word)
         					.collect(
     							() -> new HashMap<Integer, LongWrapper>(), 
@@ -120,22 +120,22 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         			) ;
 
         // number of blanks for a given word
-        Function<String, Single<Long>> nBlanks = 
+        Function<String, Maybe<Long>> nBlanks = 
         		word -> histoOfLetters.apply(word)
-        					.flatMap(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
+        					.flatMapPublisher(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
         					.flatMap(blank)
         					.reduce(Long::sum) ;
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Single<Boolean>> checkBlanks = 
+        Function<String, Maybe<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.flatMap(l -> Single.just(l <= 2L)) ;
+        					.flatMap(l -> Maybe.just(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Single<Integer>> score2 = 
+        Function<String, Maybe<Integer>> score2 = 
         		word -> histoOfLetters.apply(word)
-        					.flatMap(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
+        					.flatMapPublisher(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
         					.flatMap(letterScore)
         					.reduce(Integer::sum) ;
         					
@@ -153,25 +153,25 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         				.flatMap(observable -> observable) ;
             
         // Bonus for double letter
-        Function<String, Single<Integer>> bonusForDoubleLetter = 
+        Function<String, Maybe<Integer>> bonusForDoubleLetter = 
         	word -> toBeMaxed.apply(word)
         				.flatMap(scoreOfALetter)
         				.reduce(Integer::max) ;
             
         // score of the word put on the board
-        Function<String, Single<Integer>> score3 = 
+        Function<String, Maybe<Integer>> score3 = 
         	word ->
-        		Single.merge(Flowable.just(
+                Maybe.merge(Arrays.asList(
         				score2.apply(word), 
         				score2.apply(word), 
         				bonusForDoubleLetter.apply(word), 
         				bonusForDoubleLetter.apply(word), 
-        				Single.just(word.length() == 7 ? 50 : 0)
+        				Maybe.just(word.length() == 7 ? 50 : 0)
         		    )
         		)
         		.reduce(Integer::sum) ;
 
-        Function<Function<String, Single<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        Function<Function<String, Maybe<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
         		score -> Flowable.fromIterable(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
         						.filter(word -> checkBlanks.apply(word).blockingGet())
@@ -191,7 +191,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
         		buildHistoOnScore.apply(score3)
-        			.flatMap(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
+        			.flatMapPublisher(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
@@ -199,7 +199,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         					list.add(entry) ;
         				}
         			)
-        			.blockingFirst() ;
+        			.blockingGet() ;
         			
         
 //        System.out.println(finalList2);

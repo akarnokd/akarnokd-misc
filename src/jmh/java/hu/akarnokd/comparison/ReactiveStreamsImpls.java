@@ -131,7 +131,7 @@ public class ReactiveStreamsImpls {
         rscRangeAsync = rscRange.observeOn(exec1);
         rscRangePipeline = rscRange.subscribeOn(exec1).observeOn(exec2);
 
-        values = rx2Range.toList().blockingFirst();
+        values = rx2Range.toList().blockingGet();
         
 
         Config cfg = ConfigFactory.parseResources(ReactiveStreamsImpls.class, "/akka-streams.conf").resolve();
@@ -437,7 +437,7 @@ public class ReactiveStreamsImpls {
         o.times = 1000;
         o.setup();
         
-        List<Integer> values = Observable.range(1, 1000).toList().blockingFirst();
+        List<Integer> values = Observable.range(1, 1000).toList().blockingGet();
         System.out.println(values.size());
         try {
             Flowable.fromPublisher(o.ak2Range)

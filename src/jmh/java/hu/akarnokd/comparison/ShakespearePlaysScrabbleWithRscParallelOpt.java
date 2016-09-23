@@ -70,13 +70,13 @@ public class ShakespearePlaysScrabbleWithRscParallelOpt extends ShakespearePlays
         return Px.characters(word);
     }
     
-    @Param({/*"1", "2", "3", "4", "5", "6", "7",*/ "8"})
-    public int cores;
+//    @Param({/*"1", "2", "3", "4", "5", "6", "7",*/ "8"})
+    public int cores = 8;
     
-    @Param({ /*"1", "2", "4", "8", "16", "32", "64",*/ "128"/*, "256", "512", "1024"*/})
-    public int prefetch;
+//    @Param({ /*"1", "2", "4", "8", "16", "32", "64",*/ "128"/*, "256", "512", "1024"*/})
+    public int prefetch = 128;
     
-    @Param({"false"})
+//    @Param({"false"})
     public boolean fj;
     
     rsc.scheduler.Scheduler scheduler;

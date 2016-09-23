@@ -113,7 +113,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
     
@@ -128,7 +128,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
     
@@ -157,7 +157,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
     
@@ -172,7 +172,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
     
@@ -256,7 +256,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
 
@@ -275,7 +275,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
 //    @Benchmark
@@ -293,7 +293,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
   
@@ -309,7 +309,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
 
@@ -326,7 +326,7 @@ public class StreamVsRxJava {
         .filter(w -> w.length() > 4)
         .map(w -> w.length())
         .reduce(0, (a, b) -> a + b)
-        .blockingLast()
+        .blockingGet()
         ;
     }
 }
