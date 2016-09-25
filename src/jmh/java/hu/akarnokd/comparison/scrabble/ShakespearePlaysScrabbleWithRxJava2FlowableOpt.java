@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava2.SingleFlatMapIterableFlowable;
 import hu.akarnokd.rxjava2.math.MathFlowable;
 import hu.akarnokd.rxjava2.string.StringFlowable;
 import io.reactivex.*;
@@ -130,12 +131,13 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
 
         // number of blanks for a given word
         Function<String, Flowable<Long>> nBlanks = 
-                word -> MathFlowable.sumLong(histoOfLetters.apply(word)
-                            .toFlowable()
-                            .flatMapIterable(map -> map.entrySet())
+                word -> MathFlowable.sumLong(
+                            new SingleFlatMapIterableFlowable<>(histoOfLetters.apply(word),
+                                    map -> map.entrySet()
+                            )
                             .map(blank)
-                            ) 
-                            ;
+                        ) 
+                    ;
                             
                 
         // can a word be written with 2 blanks?
@@ -145,9 +147,10 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         
         // score taking blanks into account letterScore1
         Function<String, Flowable<Integer>> score2 = 
-                word -> MathFlowable.sumInt(histoOfLetters.apply(word)
-                            .toFlowable()
-                            .flatMapIterable(map -> map.entrySet())
+                word -> MathFlowable.sumInt(
+                            new SingleFlatMapIterableFlowable<>(histoOfLetters.apply(word),
+                                map -> map.entrySet()
+                            )
                             .map(letterScore)
                             ) ;
                             
@@ -207,9 +210,9 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                buildHistoOnScore.apply(score3)
-                    .toFlowable()
-                    .flatMapIterable(map -> map.entrySet())
+                    new SingleFlatMapIterableFlowable<>(buildHistoOnScore.apply(score3),
+                            map -> map.entrySet()
+                    )
                     .take(3)
                     .collect(
                         () -> new ArrayList<Entry<Integer, List<String>>>(), 
