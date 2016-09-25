@@ -16,7 +16,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
+
+import static hu.akarnokd.comparison.FluentIterables.*;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -24,14 +26,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import io.reactivex.*;
-import io.reactivex.functions.Function;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 
+import hu.akarnokd.comparison.IterableSpliterator;
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble {
 
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
@@ -62,7 +65,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -70,32 +73,32 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
 		iterations=5
     )
     @Measurement(
-    	iterations=5, time = 1
+    	iterations=5
     )
     @Fork(1)
-    public List<Entry<Integer, List<String>>> measureThroughput() throws Exception {
+    public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         // Function to compute the score of a given word
-    	Function<Integer, Flowable<Integer>> scoreOfALetter = letter -> Flowable.just(letterScores[letter - 'a']) ;
+    	Function<Integer, FluentIterable<Integer>> scoreOfALetter = letter -> FluentIterable.of(new Integer[] { letterScores[letter - 'a'] }) ;
             
         // score of the same letters in a word
-        Function<Entry<Integer, LongWrapper>, Flowable<Integer>> letterScore =
+        Function<Entry<Integer, LongWrapper>, FluentIterable<Integer>> letterScore =
         		entry -> 
-        			Flowable.just(
+        			FluentIterable.of(new Integer[] {
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
     	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
-        	        ) ;
+        			}) ;
         
-        Function<String, Flowable<Integer>> toIntegerFlowable = 
-        		string -> Flowable.fromIterable(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
+		Function<String, FluentIterable<Integer>> toIntegerFluentIterable = 
+        		string -> FluentIterable.from(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        Function<String, Single<HashMap<Integer, LongWrapper>>> histoOfLetters =
-        		word -> toIntegerFlowable.apply(word)
-        					.collect(
+        Function<String, FluentIterable<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        		word -> collect(toIntegerFluentIterable.apply(word),
+        					
     							() -> new HashMap<Integer, LongWrapper>(), 
     							(HashMap<Integer, LongWrapper> map, Integer value) -> 
     								{ 
@@ -109,76 +112,76 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         					) ;
                 
         // number of blanks for a given letter
-        Function<Entry<Integer, LongWrapper>, Flowable<Long>> blank =
+		Function<Entry<Integer, LongWrapper>, FluentIterable<Long>> blank =
         		entry ->
-        			Flowable.just(
+        			FluentIterable.of(new Long[] {
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
 	        				scrabbleAvailableLetters[entry.getKey() - 'a']
 	        			)
-        			) ;
+        			}) ;
 
         // number of blanks for a given word
-        Function<String, Maybe<Long>> nBlanks = 
-        		word -> histoOfLetters.apply(word)
-        					.flatMapPublisher(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
-        					.flatMap(blank)
-        					.reduce(Long::sum) ;
+        Function<String, FluentIterable<Long>> nBlanks = 
+        		word -> sumLong(histoOfLetters.apply(word)
+        					.transformAndConcat(map -> FluentIterable.from(() -> map.entrySet().iterator()))
+        					.transformAndConcat(blank)
+        					);
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Maybe<Boolean>> checkBlanks = 
+        Function<String, FluentIterable<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.flatMap(l -> Maybe.just(l <= 2L)) ;
+        					.transformAndConcat(l -> FluentIterable.of(new Boolean[] { l <= 2L })) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Maybe<Integer>> score2 = 
-        		word -> histoOfLetters.apply(word)
-        					.flatMapPublisher(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
-        					.flatMap(letterScore)
-        					.reduce(Integer::sum) ;
+        Function<String, FluentIterable<Integer>> score2 = 
+        		word -> sumInt(histoOfLetters.apply(word)
+        					.transformAndConcat(map -> FluentIterable.from(() -> map.entrySet().iterator()))
+        					.transformAndConcat(letterScore)
+        					);
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        Function<String, Flowable<Integer>> first3 = 
-        		word -> Flowable.fromIterable(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
-        Function<String, Flowable<Integer>> last3 = 
-        		word -> Flowable.fromIterable(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
+        Function<String, FluentIterable<Integer>> first3 = 
+        		word -> FluentIterable.from(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
+        Function<String, FluentIterable<Integer>> last3 = 
+        		word -> FluentIterable.from(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
         		
         
         // Stream to be maxed
-        Function<String, Flowable<Integer>> toBeMaxed = 
-        	word -> Flowable.just(first3.apply(word), last3.apply(word))
-        				.flatMap(observable -> observable) ;
+        Function<String, FluentIterable<Integer>> toBeMaxed = 
+        	word -> FluentIterable.of(new FluentIterable[] { first3.apply(word), last3.apply(word) })
+        				.transformAndConcat(observable -> observable) ;
             
         // Bonus for double letter
-        Function<String, Maybe<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.apply(word)
-        				.flatMap(scoreOfALetter)
-        				.reduce(Integer::max) ;
+        Function<String, FluentIterable<Integer>> bonusForDoubleLetter = 
+        	word -> maxInt(toBeMaxed.apply(word)
+        				.transformAndConcat(scoreOfALetter)
+        				);
             
         // score of the word put on the board
-        Function<String, Maybe<Integer>> score3 = 
+        Function<String, FluentIterable<Integer>> score3 = 
         	word ->
-                Maybe.merge(Arrays.asList(
+        		sumInt(FluentIterable.of(new FluentIterable[] {
         				score2.apply(word), 
         				score2.apply(word), 
         				bonusForDoubleLetter.apply(word), 
         				bonusForDoubleLetter.apply(word), 
-        				Maybe.just(word.length() == 7 ? 50 : 0)
-        		    )
-        		)
-        		.reduce(Integer::sum) ;
+        				FluentIterable.of(new Integer[] { word.length() == 7 ? 50 : 0 })
+        		})
+        		.transformAndConcat(observable -> observable)
+        		) ;
 
-        Function<Function<String, Maybe<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Flowable.fromIterable(() -> shakespeareWords.iterator())
+        Function<Function<String, FluentIterable<Integer>>, FluentIterable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> collect(FluentIterable.from(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).blockingGet())
-        						.collect(
+        						.filter(word -> checkBlanks.apply(word).first().get())
+        						,
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).blockingGet() ;
+        								Integer key = score.apply(word).first().get() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -190,20 +193,26 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-        		buildHistoOnScore.apply(score3)
-        			.flatMapPublisher(map -> Flowable.fromIterable(() -> map.entrySet().iterator()))
-        			.take(3)
-        			.collect(
+        		    collect(buildHistoOnScore.apply(score3)
+        			.transformAndConcat(map -> FluentIterable.from(() -> map.entrySet().iterator()))
+        			.limit(3)
+        			,
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
         				(list, entry) -> {
         					list.add(entry) ;
         				}
         			)
-        			.blockingGet() ;
+        			.first().get() ;
         			
         
 //        System.out.println(finalList2);
         
         return finalList2 ;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        ShakespearePlaysScrabbleWithGuava s = new ShakespearePlaysScrabbleWithGuava();
+        s.init();
+        System.out.println(s.measureThroughput());
     }
 }

@@ -16,35 +16,23 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
-import rsc.publisher.Px;
-
+import hu.akarnokd.comparison.IterableSpliterator;
+import ix.*;
 
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithIx extends ShakespearePlaysScrabble {
 
-	
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -74,137 +62,126 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
-    
-    static Px<Integer> chars(String word) {
-//        return Px.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return Px.characters(word);
-    }
-    
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
-		iterations=5, time = 1
+		iterations=5
     )
     @Measurement(
-    	iterations=5, time = 1
+    	iterations=5
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
-        //  to compute the score of a given word
-    	Function<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
+        // Function to compute the score of a given word
+    	IxFunction<Integer, Ix<Integer>> scoreOfALetter = letter -> Ix.just(letterScores[letter - 'a']) ;
             
         // score of the same letters in a word
-        Function<Entry<Integer, MutableLong>, Integer> letterScore =
+        IxFunction<Entry<Integer, LongWrapper>, Ix<Integer>> letterScore =
         		entry -> 
+        			Ix.just(
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
     	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
-        	        ;
+        	        ) ;
         
-    					
-        Function<String, Px<Integer>> toIntegerPx = 
-        		string -> chars(string);
+        IxFunction<String, Ix<Integer>> toIntegerIx = 
+        		string -> Ix.from(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        Function<String, Px<HashMap<Integer, MutableLong>>> histoOfLetters =
-        		word -> toIntegerPx.apply(word)
+        IxFunction<String, Ix<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        		word -> toIntegerIx.apply(word)
         					.collect(
-    							() -> new HashMap<Integer, MutableLong>(), 
-    							(HashMap<Integer, MutableLong> map, Integer value) -> 
+    							() -> new HashMap<Integer, LongWrapper>(), 
+    							(HashMap<Integer, LongWrapper> map, Integer value) -> 
     								{ 
-    									MutableLong newValue = map.get(value) ;
+    									LongWrapper newValue = map.get(value) ;
     									if (newValue == null) {
-    										newValue = new MutableLong();
-    										map.put(value, newValue);
+    										newValue = () -> 0L ;
     									}
-    									newValue.incAndSet();
+    									map.put(value, newValue.incAndSet()) ;
     								}
     								
         					) ;
                 
         // number of blanks for a given letter
-        Function<Entry<Integer, MutableLong>, Long> blank =
+        IxFunction<Entry<Integer, LongWrapper>, Ix<Long>> blank =
         		entry ->
+        			Ix.just(
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
 	        				scrabbleAvailableLetters[entry.getKey() - 'a']
 	        			)
-        			;
+        			) ;
 
         // number of blanks for a given word
-        Function<String, Px<Long>> nBlanks = 
+        IxFunction<String, Ix<Long>> nBlanks = 
         		word -> histoOfLetters.apply(word)
-        					.flatMapIterable(map -> map.entrySet())
-        					.map(blank)
+        					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
+        					.flatMap(blank)
         					.sumLong();
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Px<Boolean>> checkBlanks = 
+        IxFunction<String, Ix<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.map(l -> l <= 2L) ;
+        					.flatMap(l -> Ix.just(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Px<Integer>> score2 = 
+        IxFunction<String, Ix<Integer>> score2 = 
         		word -> histoOfLetters.apply(word)
-        					.flatMapIterable(map -> map.entrySet())
-        					.map(letterScore)
-        					.sumInt() ;
+        					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
+        					.flatMap(letterScore)
+        					.sumInt();
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        Function<String, Px<Integer>> first3 = 
-        		word -> chars(word).take(3) ;
-        Function<String, Px<Integer>> last3 = 
-        		word -> chars(word).skip(3) ;
+        IxFunction<String, Ix<Integer>> first3 = 
+        		word -> Ix.from(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
+        IxFunction<String, Ix<Integer>> last3 = 
+        		word -> Ix.from(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
         		
         
         // Stream to be maxed
-        Function<String, Px<Integer>> toBeMaxed = 
-        	word -> Px.concatArray(first3.apply(word), last3.apply(word))
-        	;
+        IxFunction<String, Ix<Integer>> toBeMaxed = 
+        	word -> Ix.fromArray(first3.apply(word), last3.apply(word))
+        				.flatMap(observable -> observable) ;
             
         // Bonus for double letter
-        Function<String, Px<Integer>> bonusForDoubleLetter = 
+        IxFunction<String, Ix<Integer>> bonusForDoubleLetter = 
         	word -> toBeMaxed.apply(word)
-        				.map(scoreOfALetter)
-        				.maxInt() ;
+        				.flatMap(scoreOfALetter)
+        				.maxInt();
             
         // score of the word put on the board
-        Function<String, Px<Integer>> score3 = 
+        IxFunction<String, Ix<Integer>> score3 = 
         	word ->
-//        		Px.fromArray(
-//        				score2.apply(word), 
-//        				score2.apply(word), 
-//        				bonusForDoubleLetter.apply(word), 
-//        				bonusForDoubleLetter.apply(word), 
-//        				Px.just(word.length() == 7 ? 50 : 0)
-//        		)
-//        		.flatMap(Px -> Px)
-                Px.concatArray(
-                        score2.apply(word).map(v -> v * 2), 
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2), 
-                        Px.just(word.length() == 7 ? 50 : 0)
-                )
+        		Ix.fromArray(
+        				score2.apply(word), 
+        				score2.apply(word), 
+        				bonusForDoubleLetter.apply(word), 
+        				bonusForDoubleLetter.apply(word), 
+        				Ix.just(word.length() == 7 ? 50 : 0)
+        		)
+        		.flatMap(observable -> observable)
         		.sumInt() ;
 
-        Function<Function<String, Px<Integer>>, Px<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Px.fromIterable(shakespeareWords)
+        IxFunction<IxFunction<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> Ix.from(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).blockingFirst())
+        						.filter(word -> checkBlanks.apply(word).first())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).blockingFirst() ;
+        								Integer key = score.apply(word).first() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
-        									list = new ArrayList<>() ;
+        									list = new ArrayList<String>() ;
         									map.put(key, list) ;
         								}
         								list.add(word) ;
@@ -214,7 +191,7 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
         		buildHistoOnScore.apply(score3)
-        			.flatMapIterable(map -> map.entrySet())
+        			.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
@@ -222,17 +199,11 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         					list.add(entry) ;
         				}
         			)
-        			.blockingFirst() ;
+        			.first() ;
         			
         
 //        System.out.println(finalList2);
         
         return finalList2 ;
-    }
-    
-    public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithRscOpt s = new ShakespearePlaysScrabbleWithRscOpt();
-        s.init();
-        System.out.println(s.measureThroughput());
     }
 }

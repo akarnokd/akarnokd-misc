@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -25,17 +25,15 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.rxjava2.math.MathFlowable;
-import hu.akarnokd.rxjava2.parallel.ParallelFlowable;
 import hu.akarnokd.rxjava2.string.StringFlowable;
 import io.reactivex.*;
 import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespearePlaysScrabble {
 
     
     /*
@@ -190,39 +188,27 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
                 )
                 ) ;
 
-        Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-                score -> 
-                ParallelFlowable.from(Flowable.fromIterable(shakespeareWords))
-                .runOn(Schedulers.computation())
-                .filter(scrabbleWords::contains)
-                .filter(word -> checkBlanks.apply(word).blockingFirst())
-                .collect(
-                    () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
-                    (TreeMap<Integer, List<String>> map, String word) -> {
-                        Integer key = score.apply(word).blockingFirst();
-                        List<String> list = map.get(key) ;
-                        if (list == null) {
-                            list = new ArrayList<String>() ;
-                            map.put(key, list) ;
-                        }
-                        list.add(word) ;
-                    }
-                )
-                .reduce((m1, m2) -> {
-                    for (Map.Entry<Integer, List<String>> e : m2.entrySet()) {
-                        List<String> list = m1.get(e.getKey());
-                        if (list == null) {
-                            m1.put(e.getKey(), e.getValue());
-                        } else {
-                            list.addAll(e.getValue());
-                        }
-                    }
-                    return m1;
-                });
+        Function<Function<String, Flowable<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+                score -> Flowable.fromIterable(shakespeareWords)
+                                .filter(scrabbleWords::contains)
+                                .filter(word -> checkBlanks.apply(word).blockingFirst())
+                                .collect(
+                                    () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
+                                    (TreeMap<Integer, List<String>> map, String word) -> {
+                                        Integer key = score.apply(word).blockingFirst() ;
+                                        List<String> list = map.get(key) ;
+                                        if (list == null) {
+                                            list = new ArrayList<String>() ;
+                                            map.put(key, list) ;
+                                        }
+                                        list.add(word) ;
+                                    }
+                                ) ;
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
                 buildHistoOnScore.apply(score3)
+                    .toFlowable()
                     .flatMapIterable(map -> map.entrySet())
                     .take(3)
                     .collect(
@@ -240,7 +226,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
     }
     
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithRxJava2ParallelOpt s = new ShakespearePlaysScrabbleWithRxJava2ParallelOpt();
+        ShakespearePlaysScrabbleWithRxJava2FlowableOpt s = new ShakespearePlaysScrabbleWithRxJava2FlowableOpt();
         s.init();
         System.out.println(s.measureThroughput());
     }

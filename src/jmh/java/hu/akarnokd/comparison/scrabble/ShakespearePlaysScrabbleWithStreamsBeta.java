@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
 import java.util.Comparator;
 import java.util.List;
@@ -45,7 +45,7 @@ import org.openjdk.jmh.annotations.Warmup;
  *
  * @author José
  */
-public abstract class ShakespearePlaysScrabbleWithStreams extends ShakespearePlaysScrabble {
+public abstract class ShakespearePlaysScrabbleWithStreamsBeta extends ShakespearePlaysScrabble {
 
     
     @SuppressWarnings("unused")
@@ -130,8 +130,7 @@ public abstract class ShakespearePlaysScrabbleWithStreams extends ShakespearePla
         // score of the word put on the board
         Function<String, Integer> score3 =
             word -> 
-               (score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
-               + (score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
+               2*(score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
                + (word.length() == 7 ? 50 : 0);
 
         Function<Function<String, Integer>, Map<Integer, List<String>>> buildHistoOnScore = 

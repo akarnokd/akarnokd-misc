@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,6 +35,7 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
+import hu.akarnokd.comparison.IterableSpliterator;
 import rsc.publisher.Px;
 
 
@@ -42,7 +43,7 @@ import rsc.publisher.Px;
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithRscBeta extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithRsc extends ShakespearePlaysScrabble {
 
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
@@ -173,8 +174,10 @@ public class ShakespearePlaysScrabbleWithRscBeta extends ShakespearePlaysScrabbl
         Function<String, Px<Integer>> score3 = 
         	word ->
         		Px.fromArray(
-        				score2.apply(word).map(v -> v * 2), 
-        				bonusForDoubleLetter.apply(word).map(v -> v * 2), 
+        				score2.apply(word), 
+        				score2.apply(word), 
+        				bonusForDoubleLetter.apply(word), 
+        				bonusForDoubleLetter.apply(word), 
         				Px.just(word.length() == 7 ? 50 : 0)
         		)
         		.flatMap(Px -> Px)
@@ -217,7 +220,7 @@ public class ShakespearePlaysScrabbleWithRscBeta extends ShakespearePlaysScrabbl
     }
     
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithRscBeta s = new ShakespearePlaysScrabbleWithRscBeta();
+        ShakespearePlaysScrabbleWithRsc s = new ShakespearePlaysScrabbleWithRsc();
         s.init();
         System.out.println(s.measureThroughput());
     }

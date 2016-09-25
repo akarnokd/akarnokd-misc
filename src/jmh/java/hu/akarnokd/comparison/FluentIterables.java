@@ -10,27 +10,27 @@ public enum FluentIterables {
     
     ;
     
-    static FluentIterable<Integer> sumInt(FluentIterable<Integer> source) {
+    public static FluentIterable<Integer> sumInt(FluentIterable<Integer> source) {
         return reduce(source, () -> 0, (a, b) -> a + b);
     }
 
-    static FluentIterable<Integer> maxInt(FluentIterable<Integer> source) {
+    public static FluentIterable<Integer> maxInt(FluentIterable<Integer> source) {
         return reduce(source, () -> 0, Integer::max);
     }
 
-    static FluentIterable<Long> maxLong(FluentIterable<Long> source) {
+    public static FluentIterable<Long> maxLong(FluentIterable<Long> source) {
         return reduce(source, () -> 0L, Long::max);
     }
 
-    static FluentIterable<Long> sumLong(FluentIterable<Long> source) {
+    public static FluentIterable<Long> sumLong(FluentIterable<Long> source) {
         return reduce(source, () -> 0L, (a, b) -> a + b);
     }
 
-    static <T, R> FluentIterable<R> collect(FluentIterable<T> source, Supplier<R> supplier, BiConsumer<R, T> consumer) {
+    public static <T, R> FluentIterable<R> collect(FluentIterable<T> source, Supplier<R> supplier, BiConsumer<R, T> consumer) {
         return reduce(source, supplier, (a, b) -> { consumer.accept(a, b); return a; });
     }
 
-    static <T, R> FluentIterable<R> reduce(FluentIterable<T> source, Supplier<R> collectionSupplier, BiFunction<R, T, R> function) {
+    public static <T, R> FluentIterable<R> reduce(FluentIterable<T> source, Supplier<R> collectionSupplier, BiFunction<R, T, R> function) {
         return new FluentIterable<R>() {
             @Override
             public Iterator<R> iterator() {
@@ -76,7 +76,7 @@ public enum FluentIterables {
         };
     }
     
-    static FluentIterable<Integer> range(int start, int count) {
+    public static FluentIterable<Integer> range(int start, int count) {
         return new FluentIterable<Integer>() {
             @Override
             public Iterator<Integer> iterator() {

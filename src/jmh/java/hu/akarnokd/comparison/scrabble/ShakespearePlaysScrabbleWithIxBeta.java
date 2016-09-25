@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.*;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -35,13 +34,14 @@ import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Warmup;
 
-import reactor.core.publisher.*;
+import hu.akarnokd.comparison.IterableSpliterator;
+import ix.*;
 
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble {
 
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
@@ -72,7 +72,7 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -86,12 +86,12 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         // Function to compute the score of a given word
-    	Function<Integer, Flux<Integer>> scoreOfALetter = letter -> Flux.just(letterScores[letter - 'a']) ;
+    	IxFunction<Integer, Ix<Integer>> scoreOfALetter = letter -> Ix.just(letterScores[letter - 'a']) ;
             
         // score of the same letters in a word
-        Function<Entry<Integer, LongWrapper>, Flux<Integer>> letterScore =
+        IxFunction<Entry<Integer, LongWrapper>, Ix<Integer>> letterScore =
         		entry -> 
-                    Flux.just(
+        			Ix.just(
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
@@ -99,12 +99,12 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
     	                    )
         	        ) ;
         
-        Function<String, Flux<Integer>> toIntegerStream = 
-        		string -> Flux.fromIterable(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
+        IxFunction<String, Ix<Integer>> toIntegerIx = 
+        		string -> Ix.from(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        Function<String, Flux<HashMap<Integer, LongWrapper>>> histoOfLetters =
-        		word -> Flux.from(toIntegerStream.apply(word)
+        IxFunction<String, Ix<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        		word -> toIntegerIx.apply(word)
         					.collect(
     							() -> new HashMap<Integer, LongWrapper>(), 
     							(HashMap<Integer, LongWrapper> map, Integer value) -> 
@@ -116,12 +116,12 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
     									map.put(value, newValue.incAndSet()) ;
     								}
     								
-        					)) ;
+        					) ;
                 
         // number of blanks for a given letter
-        Function<Entry<Integer, LongWrapper>, Flux<Long>> blank =
+        IxFunction<Entry<Integer, LongWrapper>, Ix<Long>> blank =
         		entry ->
-        Flux.just(
+        			Ix.just(
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
@@ -130,63 +130,63 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
         			) ;
 
         // number of blanks for a given word
-        Function<String, Flux<Long>> nBlanks = 
-        		word -> Flux.from(histoOfLetters.apply(word)
-        					.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
+        IxFunction<String, Ix<Long>> nBlanks = 
+        		word -> histoOfLetters.apply(word)
+        					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         					.flatMap(blank)
-        					.reduce(Long::sum)) ;
+        					.sumLong();
         					
                 
         // can a word be written with 2 blanks?
-        Function<String, Flux<Boolean>> checkBlanks = 
+        IxFunction<String, Ix<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.flatMap(l -> Flux.just(l <= 2L)) ;
+        					.flatMap(l -> Ix.just(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
-        Function<String, Flux<Integer>> score2 = 
-        		word -> Flux.from(histoOfLetters.apply(word)
-        					.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
+        IxFunction<String, Ix<Integer>> score2 = 
+        		word -> histoOfLetters.apply(word)
+        					.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         					.flatMap(letterScore)
-        					.reduce(Integer::sum));
+        					.sumInt();
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        Function<String, Flux<Integer>> first3 = 
-        		word -> Flux.fromIterable(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
-        Function<String, Flux<Integer>> last3 = 
-        		word -> Flux.fromIterable(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
+        IxFunction<String, Ix<Integer>> first3 = 
+        		word -> Ix.from(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
+        IxFunction<String, Ix<Integer>> last3 = 
+        		word -> Ix.from(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
         		
         
         // Stream to be maxed
-        Function<String, Flux<Integer>> toBeMaxed = 
-        	word -> Flux.just(first3.apply(word), last3.apply(word))
-        				.flatMap(Stream -> Stream) ;
+        IxFunction<String, Ix<Integer>> toBeMaxed = 
+        	word -> Ix.fromArray(first3.apply(word), last3.apply(word))
+        				.flatMap(observable -> observable) ;
             
         // Bonus for double letter
-        Function<String, Flux<Integer>> bonusForDoubleLetter = 
-        	word -> Flux.from(toBeMaxed.apply(word)
+        IxFunction<String, Ix<Integer>> bonusForDoubleLetter = 
+        	word -> toBeMaxed.apply(word)
         				.flatMap(scoreOfALetter)
-        				.reduce(Integer::max));
+        				.maxInt();
             
         // score of the word put on the board
-        Function<String, Flux<Integer>> score3 = 
+        IxFunction<String, Ix<Integer>> score3 = 
         	word ->
-                Flux.from(Flux.just(
+        		Ix.fromArray(
         				score2.apply(word).map(v -> v * 2), 
         				bonusForDoubleLetter.apply(word).map(v -> v * 2), 
-        				Flux.just(word.length() == 7 ? 50 : 0)
+        				Ix.just(word.length() == 7 ? 50 : 0)
         		)
-        		.flatMap(Stream -> Stream)
-        		.reduce(Integer::sum)) ;
+        		.flatMap(observable -> observable)
+        		.sumInt() ;
 
-        Function<Function<String, Flux<Integer>>, Flux<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Flux.from(Flux.fromIterable(() -> shakespeareWords.iterator())
+        IxFunction<IxFunction<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> Ix.from(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).toIterable().iterator().next())
+        						.filter(word -> checkBlanks.apply(word).first())
         						.collect(
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).toIterable().iterator().next();
+        								Integer key = score.apply(word).first() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -194,12 +194,12 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
         								}
         								list.add(word) ;
         							}
-        						));
+        						) ;
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                Flux.from(buildHistoOnScore.apply(score3)
-        			.flatMap(map -> Flux.fromIterable(() -> map.entrySet().iterator()))
+        		buildHistoOnScore.apply(score3)
+        			.flatMap(map -> Ix.from(() -> map.entrySet().iterator()))
         			.take(3)
         			.collect(
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
@@ -207,7 +207,7 @@ public class ShakespearePlaysScrabbleWithReactor3Beta extends ShakespearePlaysSc
         					list.add(entry) ;
         				}
         			)
-        			).toIterable().iterator().next() ;
+        			.first() ;
         			
         
 //        System.out.println(finalList2);

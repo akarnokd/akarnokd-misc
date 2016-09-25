@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
 import java.util.stream.Stream;
 
@@ -24,15 +24,15 @@ import java.util.stream.Stream;
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithNonParallelStreamsBeta extends ShakespearePlaysScrabbleWithStreamsBeta {
+public class ShakespearePlaysScrabbleWithParallelStreams extends ShakespearePlaysScrabbleWithStreams {
 
 	@Override
     Stream<String> buildShakerspeareWordsStream() {
-		return shakespeareWords.stream() ;
+		return shakespeareWords.parallelStream() ;
 	}
 	
 	public static void main(String[] args) throws Exception {
-	    ShakespearePlaysScrabbleWithNonParallelStreamsBeta s = new ShakespearePlaysScrabbleWithNonParallelStreamsBeta();
+	    ShakespearePlaysScrabbleWithParallelStreams s = new ShakespearePlaysScrabbleWithParallelStreams();
         s.init();
         System.out.println(s.measureThroughput());
     }

@@ -16,7 +16,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
+
+import static hu.akarnokd.comparison.FluentIterables.*;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -24,15 +26,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import ix.*;
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 
+import hu.akarnokd.comparison.IterableSpliterator;
 /**
  *
  * @author José
  */
-public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrabble {
 
-	
 	/*
     Result: 12,690 ±(99.9%) 0,148 s/op [Average]
     		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
@@ -62,12 +65,6 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
 			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
     		
     */ 
-    
-    static Ix<Integer> chars(String word) {
-        //return Ix.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return Ix.characters(word);
-    }
-    
     @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
@@ -81,115 +78,108 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
-        //  to compute the score of a given word
-    	IxFunction<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
+        // Function to compute the score of a given word
+    	Function<Integer, FluentIterable<Integer>> scoreOfALetter = letter -> FluentIterable.of(new Integer[] { letterScores[letter - 'a'] }) ;
             
         // score of the same letters in a word
-        IxFunction<Entry<Integer, MutableLong>, Integer> letterScore =
+        Function<Entry<Integer, LongWrapper>, FluentIterable<Integer>> letterScore =
         		entry -> 
+        			FluentIterable.of(new Integer[] {
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
     	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
-        	        ;
+        			}) ;
         
-    					
-        IxFunction<String, Ix<Integer>> toIntegerIx = 
-        		string -> chars(string);
+		Function<String, FluentIterable<Integer>> toIntegerFluentIterable = 
+        		string -> FluentIterable.from(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
                     
         // Histogram of the letters in a given word
-        IxFunction<String, Ix<HashMap<Integer, MutableLong>>> histoOfLetters =
-        		word -> toIntegerIx.apply(word)
-        					.collect(
-    							() -> new HashMap<Integer, MutableLong>(), 
-    							(HashMap<Integer, MutableLong> map, Integer value) -> 
+        Function<String, FluentIterable<HashMap<Integer, LongWrapper>>> histoOfLetters =
+        		word -> collect(toIntegerFluentIterable.apply(word),
+        					
+    							() -> new HashMap<Integer, LongWrapper>(), 
+    							(HashMap<Integer, LongWrapper> map, Integer value) -> 
     								{ 
-    									MutableLong newValue = map.get(value) ;
+    									LongWrapper newValue = map.get(value) ;
     									if (newValue == null) {
-    										newValue = new MutableLong();
-    										map.put(value, newValue);
+    										newValue = () -> 0L ;
     									}
-    									newValue.incAndSet();
+    									map.put(value, newValue.incAndSet()) ;
     								}
     								
         					) ;
                 
         // number of blanks for a given letter
-        IxFunction<Entry<Integer, MutableLong>, Long> blank =
+		Function<Entry<Integer, LongWrapper>, FluentIterable<Long>> blank =
         		entry ->
+        			FluentIterable.of(new Long[] {
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
 	        				scrabbleAvailableLetters[entry.getKey() - 'a']
 	        			)
-        			;
+        			}) ;
 
         // number of blanks for a given word
-        IxFunction<String, Ix<Long>> nBlanks = 
-        		word -> histoOfLetters.apply(word)
-        					.flatMap(map -> map.entrySet())
-        					.map(blank)
-        					.sumLong();
+        Function<String, FluentIterable<Long>> nBlanks = 
+        		word -> sumLong(histoOfLetters.apply(word)
+        					.transformAndConcat(map -> FluentIterable.from(() -> map.entrySet().iterator()))
+        					.transformAndConcat(blank)
+        					);
         					
                 
         // can a word be written with 2 blanks?
-        IxFunction<String, Ix<Boolean>> checkBlanks = 
+        Function<String, FluentIterable<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.map(l -> l <= 2L) ;
+        					.transformAndConcat(l -> FluentIterable.of(new Boolean[] { l <= 2L })) ;
         
         // score taking blanks into account letterScore1
-        IxFunction<String, Ix<Integer>> score2 = 
-        		word -> histoOfLetters.apply(word)
-        					.flatMap(map -> map.entrySet())
-        					.map(letterScore)
-        					.sumInt();
+        Function<String, FluentIterable<Integer>> score2 = 
+        		word -> sumInt(histoOfLetters.apply(word)
+        					.transformAndConcat(map -> FluentIterable.from(() -> map.entrySet().iterator()))
+        					.transformAndConcat(letterScore)
+        					);
         					
         // Placing the word on the board
         // Building the streams of first and last letters
-        IxFunction<String, Ix<Integer>> first3 = 
-        		word -> chars(word).take(3) ;
-        IxFunction<String, Ix<Integer>> last3 = 
-        		word -> chars(word).skip(3) ;
+        Function<String, FluentIterable<Integer>> first3 = 
+        		word -> FluentIterable.from(IterableSpliterator.of(word.chars().boxed().limit(3).spliterator())) ;
+        Function<String, FluentIterable<Integer>> last3 = 
+        		word -> FluentIterable.from(IterableSpliterator.of(word.chars().boxed().skip(3).spliterator())) ;
         		
         
         // Stream to be maxed
-        IxFunction<String, Ix<Integer>> toBeMaxed = 
-        	word -> Ix.concatArray(first3.apply(word), last3.apply(word))
-        	;
+        Function<String, FluentIterable<Integer>> toBeMaxed = 
+        	word -> FluentIterable.of(new FluentIterable[] { first3.apply(word), last3.apply(word) })
+        				.transformAndConcat(observable -> observable) ;
             
         // Bonus for double letter
-        IxFunction<String, Ix<Integer>> bonusForDoubleLetter = 
-        	word -> toBeMaxed.apply(word)
-        				.map(scoreOfALetter)
-        				.maxInt();
+        Function<String, FluentIterable<Integer>> bonusForDoubleLetter = 
+        	word -> maxInt(toBeMaxed.apply(word)
+        				.transformAndConcat(scoreOfALetter)
+        				);
             
         // score of the word put on the board
-        IxFunction<String, Ix<Integer>> score3 = 
+        Function<String, FluentIterable<Integer>> score3 = 
         	word ->
-//        		Ix.fromArray(
-//        				score2.call(word), 
-//        				score2.call(word), 
-//        				bonusForDoubleLetter.call(word), 
-//        				bonusForDoubleLetter.call(word), 
-//        				Ix.just(word.length() == 7 ? 50 : 0)
-//        		)
-//        		.flatMap(Ix -> Ix)
-                Ix.concatArray(
-                        score2.apply(word).map(v -> v * 2), 
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2), 
-                        Ix.just(word.length() == 7 ? 50 : 0)
-                )
-        		.sumInt();
+        		sumInt(FluentIterable.of(new FluentIterable[] {
+        				score2.apply(word).transform(v -> v * 2), 
+        				bonusForDoubleLetter.apply(word).transform(v -> v * 2), 
+        				FluentIterable.of(new Integer[] { word.length() == 7 ? 50 : 0 })
+        		})
+        		.transformAndConcat(observable -> observable)
+        		) ;
 
-        IxFunction<IxFunction<String, Ix<Integer>>, Ix<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-        		score -> Ix.from(shakespeareWords)
+        Function<Function<String, FluentIterable<Integer>>, FluentIterable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+        		score -> collect(FluentIterable.from(() -> shakespeareWords.iterator())
         						.filter(scrabbleWords::contains)
-        						.filter(word -> checkBlanks.apply(word).first())
-        						.collect(
+        						.filter(word -> checkBlanks.apply(word).first().get())
+        						,
         							() -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()), 
         							(TreeMap<Integer, List<String>> map, String word) -> {
-        								Integer key = score.apply(word).first() ;
+        								Integer key = score.apply(word).first().get() ;
         								List<String> list = map.get(key) ;
         								if (list == null) {
         									list = new ArrayList<String>() ;
@@ -201,16 +191,16 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-        		buildHistoOnScore.apply(score3)
-        			.flatMap(map -> map.entrySet())
-        			.take(3)
-        			.collect(
+        		    collect(buildHistoOnScore.apply(score3)
+        			.transformAndConcat(map -> FluentIterable.from(() -> map.entrySet().iterator()))
+        			.limit(3)
+        			,
         				() -> new ArrayList<Entry<Integer, List<String>>>(), 
         				(list, entry) -> {
         					list.add(entry) ;
         				}
         			)
-        			.first() ;
+        			.first().get() ;
         			
         
 //        System.out.println(finalList2);
@@ -219,7 +209,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     }
     
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithIxOpt s = new ShakespearePlaysScrabbleWithIxOpt();
+        ShakespearePlaysScrabbleWithGuavaBeta s = new ShakespearePlaysScrabbleWithGuavaBeta();
         s.init();
         System.out.println(s.measureThroughput());
     }

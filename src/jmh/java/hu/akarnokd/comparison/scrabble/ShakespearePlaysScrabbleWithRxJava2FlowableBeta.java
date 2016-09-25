@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package hu.akarnokd.comparison;
+package hu.akarnokd.comparison.scrabble;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.comparison.IterableSpliterator;
 import io.reactivex.*;
 import io.reactivex.functions.Function;
 
