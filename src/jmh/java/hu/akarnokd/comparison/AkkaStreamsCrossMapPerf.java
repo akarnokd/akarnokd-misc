@@ -45,9 +45,9 @@ public class AkkaStreamsCrossMapPerf {
     
     Publisher<Integer> flatMapAkkaRxAkka;
 
-    Publisher<Integer> concatMapRx;
+    Publisher<Integer> concatMapRxRx;
     
-    Publisher<Integer> flatMapRx;
+    Publisher<Integer> flatMapRxRx;
 
     @Setup
     public void setup() throws Exception {
@@ -122,9 +122,9 @@ public class AkkaStreamsCrossMapPerf {
         flatMapRxAkka = outerRx.flatMap(v -> 
         Source.from(innerIterable).runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer), 4);
         
-        concatMapRx = outerRx.concatMap(v -> innerRx.subscribeOn(io.reactivex.schedulers.Schedulers.computation()));
+        concatMapRxRx = outerRx.concatMap(v -> innerRx.subscribeOn(io.reactivex.schedulers.Schedulers.computation()));
         
-        flatMapRx = outerRx.flatMap(v -> innerRx.subscribeOn(io.reactivex.schedulers.Schedulers.computation()), 4);
+        flatMapRxRx = outerRx.flatMap(v -> innerRx.subscribeOn(io.reactivex.schedulers.Schedulers.computation()), 4);
     }
     
     @TearDown
@@ -191,17 +191,17 @@ public class AkkaStreamsCrossMapPerf {
     }
     
     @Benchmark
-    public void concatMapRx(Blackhole bh) {
+    public void concatMapRxRx(Blackhole bh) {
         PerfAsyncConsumer s = new PerfAsyncConsumer(bh);
-        concatMapRx.subscribe(s);
+        concatMapRxRx.subscribe(s);
         s.await(1_000_000, 120);
     }
 
     
     @Benchmark
-    public void flatMapRx(Blackhole bh) {
+    public void flatMapRxRx(Blackhole bh) {
         PerfAsyncConsumer s = new PerfAsyncConsumer(bh);
-        flatMapRx.subscribe(s);
+        flatMapRxRx.subscribe(s);
         s.await(1_000_000, 120);
     }
 
