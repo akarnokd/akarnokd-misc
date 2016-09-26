@@ -24,10 +24,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava2.SingleFlatMapIterableObservable;
 import hu.akarnokd.rxjava2.math.MathObservable;
 import hu.akarnokd.rxjava2.string.StringObservable;
-import io.reactivex.*;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 
 /**
@@ -130,9 +131,9 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
 
         // number of blanks for a given word
         Function<String, Observable<Long>> nBlanks = 
-                word -> MathObservable.sumLong(histoOfLetters.apply(word)
-                            .toObservable()
-                            .flatMapIterable(map -> map.entrySet())
+                word -> MathObservable.sumLong(
+                            new SingleFlatMapIterableObservable<>(histoOfLetters.apply(word),
+                            map -> map.entrySet())
                             .map(blank)
                             ) ;
                             
@@ -144,9 +145,9 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         
         // score taking blanks into account letterScore1
         Function<String, Observable<Integer>> score2 = 
-                word -> MathObservable.sumInt(histoOfLetters.apply(word)
-                            .toObservable()
-                            .flatMapIterable(map -> map.entrySet())
+                word -> MathObservable.sumInt(
+                            new SingleFlatMapIterableObservable<>(histoOfLetters.apply(word),
+                            map -> map.entrySet())
                             .map(letterScore)
                             ) ;
                             
@@ -198,9 +199,8 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
                 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                buildHistoOnScore.apply(score3)
-                    .toObservable()
-                    .flatMapIterable(map -> map.entrySet())
+                new SingleFlatMapIterableObservable<>(buildHistoOnScore.apply(score3),
+                    map -> map.entrySet())
                     .take(3)
                     .collect(
                         () -> new ArrayList<Entry<Integer, List<String>>>(), 
