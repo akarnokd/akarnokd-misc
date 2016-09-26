@@ -73,6 +73,8 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
         return StringFlowable.characters(word);
     }
     
+    final Scheduler scheduler = Schedulers.computation(); // = new WeakParallelScheduler();
+    
     @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
@@ -193,7 +195,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> 
                 ParallelFlowable.from(Flowable.fromIterable(shakespeareWords))
-                .runOn(Schedulers.computation())
+                .runOn(scheduler)
                 .filter(scrabbleWords::contains)
                 .filter(word -> checkBlanks.apply(word).blockingFirst())
                 .collect(

@@ -31,6 +31,8 @@ public class AkkaStreamsFlatMapPerf {
 
     Publisher<Integer> akRangeFlatMapJust;
 
+    Publisher<Integer> akRangeConcatMapJust;
+
     @Setup
     public void setup() throws Exception {
         Config cfg = ConfigFactory.parseResources(AkkaStreamsFlatMapPerf.class, "/akka-streams.conf");
@@ -41,6 +43,13 @@ public class AkkaStreamsFlatMapPerf {
         akRangeFlatMapJust = s -> 
         Source.range(1, times)
         .flatMapMerge(maxConcurrent, v -> Source.single(v))
+        .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
+        .subscribe(s)
+        ;
+        
+        akRangeConcatMapJust = s -> 
+        Source.range(1, times)
+        .flatMapConcat(v -> Source.single(v))
         .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
         .subscribe(s)
         ;
