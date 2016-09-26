@@ -65,11 +65,16 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     }
     
     public void await(int count) {
+        await(count, 10);
+    }
+    
+    
+    public void await(int count, int timeoutSeconds) {
         if (count <= 1000) {
             while (cdl.getCount() != 0) { }
         } else {
             try {
-                if (!cdl.await(10, TimeUnit.SECONDS)) {
+                if (!cdl.await(timeoutSeconds, TimeUnit.SECONDS)) {
                     throw new RuntimeException("Timeout!");
                 }
             } catch (InterruptedException ex) {
