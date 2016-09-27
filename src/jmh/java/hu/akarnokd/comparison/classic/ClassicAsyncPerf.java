@@ -129,7 +129,7 @@ public class ClassicAsyncPerf {
         });
         
         for (int i = 1; i <= c; i++) {
-            pp.onNext(i);
+            ps.onNext(i);
         }
         
         await(cdl, c);
@@ -150,7 +150,7 @@ public class ClassicAsyncPerf {
         });
         
         for (int i = 1; i <= c; i++) {
-            pp.onNext(i);
+            ps.onNext(i);
         }
         
         await(cdl, c);
