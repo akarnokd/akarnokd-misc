@@ -75,7 +75,7 @@ public class IxPerf {
         rangeRsc = Px.fromArray(array);
         rangeFx = Flux.fromArray(array);
         rangeIx = Ix.fromArray(array);
-        rangeGx = FluentIterable.of(array);
+        rangeGx = FluentIterable.from(array);
         
         int half = Math.max(1, count >> 1);
         takeRx = rangeRx.take(half);
@@ -88,13 +88,13 @@ public class IxPerf {
         flatMapRsc = rangeRsc.flatMap(Px::just);
         flatMapFx = rangeFx.flatMap(Flux::just);
         flatMapIx = rangeIx.flatMap(Ix::just);
-        flatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.of(new Integer[] { v }));  // no flatMap and just in Guava...
+        flatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.from(new Integer[] { v }));  // no flatMap and just in Guava...
 
         concatMapRx = rangeRx.concatMap(Observable::just);
         concatMapRsc = rangeRsc.concatMap(Px::just);
         concatMapFx = rangeFx.concatMap(Flux::just);
         concatMapIx = Ix.concat(rangeIx.map(Ix::just)); // Ix doesn't have concatMap...
-        concatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.of(new Integer[] { v }));  // no just() in Guava...
+        concatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.from(new Integer[] { v }));  // no just() in Guava...
 
         int inner = 1_000_000 / count;
         
@@ -105,13 +105,13 @@ public class IxPerf {
         flatMapXRangeRsc = rangeRsc.flatMap(v -> Px.fromArray(array2));
         flatMapXRangeFx = rangeFx.flatMap(v -> Flux.fromArray(array2));
         flatMapXRangeIx = rangeIx.flatMap(v -> Ix.fromArray(array2));
-        flatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.of(array2)); // no flatMap in Guava...
+        flatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.from(array2)); // no flatMap in Guava...
 
         concatMapXRangeRx = rangeRx.concatMap(v -> Observable.from(array2));
         concatMapXRangeRsc = rangeRsc.concatMap(v -> Px.fromArray(array2));
         concatMapXRangeFx = rangeFx.concatMap(v -> Flux.fromArray(array2));
         concatMapXRangeIx = Ix.concat(rangeIx.map(v -> Ix.fromArray(array2)));  // Ix doesn't have concatMap...
-        concatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.of(array2));
+        concatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.from(array2));
 
     }
     

@@ -36,36 +36,7 @@ import hu.akarnokd.comparison.IterableSpliterator;
  */
 public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrabble {
 
-	/*
-    Result: 12,690 ±(99.9%) 0,148 s/op [Average]
-    		  Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
-    		  Confidence interval (99.9%): [12,543, 12,838]
-    		  Samples, N = 15
-    		        mean =     12,690 ±(99.9%) 0,148 s/op
-    		         min =     12,281 s/op
-    		  p( 0,0000) =     12,281 s/op
-    		  p(50,0000) =     12,717 s/op
-    		  p(90,0000) =     12,784 s/op
-    		  p(95,0000) =     12,784 s/op
-    		  p(99,0000) =     12,784 s/op
-    		  p(99,9000) =     12,784 s/op
-    		  p(99,9900) =     12,784 s/op
-    		  p(99,9990) =     12,784 s/op
-    		  p(99,9999) =     12,784 s/op
-    		         max =     12,784 s/op
-
-
-    		# Run complete. Total time: 00:06:26
-
-    		Benchmark                                               Mode  Cnt   Score   Error  Units
-    		ShakespearePlaysScrabbleWithRxJava.measureThroughput  sample   15  12,690 ± 0,148   s/op   
-    		
-    		Benchmark                                              Mode  Cnt       Score      Error  Units
-			ShakespearePlaysScrabbleWithRxJava.measureThroughput   avgt   15  250074,776 ± 7736,734  us/op
-			ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
-    		
-    */ 
-    @SuppressWarnings({ "unchecked", "unused" })
+    @SuppressWarnings({ "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -79,18 +50,18 @@ public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrab
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         // Function to compute the score of a given word
-    	Function<Integer, FluentIterable<Integer>> scoreOfALetter = letter -> FluentIterable.of(new Integer[] { letterScores[letter - 'a'] }) ;
+    	Function<Integer, FluentIterable<Integer>> scoreOfALetter = letter -> FluentIterable.of(letterScores[letter - 'a']) ;
             
         // score of the same letters in a word
         Function<Entry<Integer, LongWrapper>, FluentIterable<Integer>> letterScore =
         		entry -> 
-        			FluentIterable.of(new Integer[] {
+        			FluentIterable.of(
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
     	                        scrabbleAvailableLetters[entry.getKey() - 'a']
     	                    )
-        			}) ;
+        			) ;
         
 		Function<String, FluentIterable<Integer>> toIntegerFluentIterable = 
         		string -> FluentIterable.from(IterableSpliterator.of(string.chars().boxed().spliterator())) ;
@@ -114,13 +85,13 @@ public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrab
         // number of blanks for a given letter
 		Function<Entry<Integer, LongWrapper>, FluentIterable<Long>> blank =
         		entry ->
-        			FluentIterable.of(new Long[] {
+        			FluentIterable.of(
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
 	        				scrabbleAvailableLetters[entry.getKey() - 'a']
 	        			)
-        			}) ;
+        			) ;
 
         // number of blanks for a given word
         Function<String, FluentIterable<Long>> nBlanks = 
@@ -133,7 +104,7 @@ public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrab
         // can a word be written with 2 blanks?
         Function<String, FluentIterable<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.transformAndConcat(l -> FluentIterable.of(new Boolean[] { l <= 2L })) ;
+        					.transformAndConcat(l -> FluentIterable.of(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
         Function<String, FluentIterable<Integer>> score2 = 
@@ -152,8 +123,7 @@ public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrab
         
         // Stream to be maxed
         Function<String, FluentIterable<Integer>> toBeMaxed = 
-        	word -> FluentIterable.of(new FluentIterable[] { first3.apply(word), last3.apply(word) })
-        				.transformAndConcat(observable -> observable) ;
+        	word -> FluentIterable.concat(first3.apply(word), last3.apply(word));
             
         // Bonus for double letter
         Function<String, FluentIterable<Integer>> bonusForDoubleLetter = 
@@ -164,12 +134,11 @@ public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrab
         // score of the word put on the board
         Function<String, FluentIterable<Integer>> score3 = 
         	word ->
-        		sumInt(FluentIterable.of(new FluentIterable[] {
+        		sumInt(FluentIterable.concat(
         				score2.apply(word).transform(v -> v * 2), 
         				bonusForDoubleLetter.apply(word).transform(v -> v * 2), 
-        				FluentIterable.of(new Integer[] { word.length() == 7 ? 50 : 0 })
-        		})
-        		.transformAndConcat(observable -> observable)
+        				FluentIterable.of(word.length() == 7 ? 50 : 0)
+        		)
         		) ;
 
         Function<Function<String, FluentIterable<Integer>>, FluentIterable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
