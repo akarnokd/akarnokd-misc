@@ -79,12 +79,12 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         // Function to compute the score of a given word
-    	Function<Integer, FluentIterable<Integer>> scoreOfALetter = letter -> FluentIterable.of(new Integer[] { letterScores[letter - 'a'] }) ;
+    	Function<Integer, FluentIterable<Integer>> scoreOfALetter = letter -> FluentIterable.of(letterScores[letter - 'a']) ;
             
         // score of the same letters in a word
         Function<Entry<Integer, LongWrapper>, FluentIterable<Integer>> letterScore =
         		entry -> 
-        			FluentIterable.of(new Integer[] {
+        			FluentIterable.from(new Integer[] {
     					letterScores[entry.getKey() - 'a']*
     					Integer.min(
     	                        (int)entry.getValue().get(), 
@@ -114,13 +114,13 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
         // number of blanks for a given letter
 		Function<Entry<Integer, LongWrapper>, FluentIterable<Long>> blank =
         		entry ->
-        			FluentIterable.of(new Long[] {
+        			FluentIterable.of(
 	        			Long.max(
 	        				0L, 
 	        				entry.getValue().get() - 
 	        				scrabbleAvailableLetters[entry.getKey() - 'a']
 	        			)
-        			}) ;
+        			) ;
 
         // number of blanks for a given word
         Function<String, FluentIterable<Long>> nBlanks = 
@@ -133,7 +133,7 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
         // can a word be written with 2 blanks?
         Function<String, FluentIterable<Boolean>> checkBlanks = 
         		word -> nBlanks.apply(word)
-        					.transformAndConcat(l -> FluentIterable.of(new Boolean[] { l <= 2L })) ;
+        					.transformAndConcat(l -> FluentIterable.of(l <= 2L)) ;
         
         // score taking blanks into account letterScore1
         Function<String, FluentIterable<Integer>> score2 = 
@@ -152,8 +152,7 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
         
         // Stream to be maxed
         Function<String, FluentIterable<Integer>> toBeMaxed = 
-        	word -> FluentIterable.of(new FluentIterable[] { first3.apply(word), last3.apply(word) })
-        				.transformAndConcat(observable -> observable) ;
+        	word -> FluentIterable.concat(first3.apply(word), last3.apply(word));
             
         // Bonus for double letter
         Function<String, FluentIterable<Integer>> bonusForDoubleLetter = 
@@ -164,14 +163,13 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
         // score of the word put on the board
         Function<String, FluentIterable<Integer>> score3 = 
         	word ->
-        		sumInt(FluentIterable.of(new FluentIterable[] {
+        		sumInt(FluentIterable.concat(
         				score2.apply(word), 
         				score2.apply(word), 
         				bonusForDoubleLetter.apply(word), 
         				bonusForDoubleLetter.apply(word), 
-        				FluentIterable.of(new Integer[] { word.length() == 7 ? 50 : 0 })
-        		})
-        		.transformAndConcat(observable -> observable)
+        				FluentIterable.of(word.length() == 7 ? 50 : 0)
+        		        )
         		) ;
 
         Function<Function<String, FluentIterable<Integer>>, FluentIterable<TreeMap<Integer, List<String>>>> buildHistoOnScore =

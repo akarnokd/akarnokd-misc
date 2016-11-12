@@ -52,7 +52,7 @@ apply plugin: 'osgi'
 dependencies {
     compile 'org.reactivestreams:reactive-streams:1.0.0'
 
-    compile 'io.reactivex:rxjava:1.1.+'
+    compile 'io.reactivex:rxjava:1.2.+'
     compile 'io.reactivex:rxjava-string:+';
 
     compile 'io.reactivex.rxjava2:rxjava:2.0.0-DP0-SNAPSHOT'
@@ -97,7 +97,7 @@ dependencies {
 
     // -------------------------------------------------------------------
     
-    compile 'com.google.guava:guava:19.0'
+    compile 'com.google.guava:guava:20.0'
     
     compile 'javax.servlet:javax.servlet-api:3.1.0'
     
