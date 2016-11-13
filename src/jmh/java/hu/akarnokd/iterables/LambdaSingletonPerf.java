@@ -18,7 +18,12 @@ import ix.Ix;
 @Warmup(iterations = 5)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.SECONDS)
-@Fork(value = 1)
+@Fork(value = 1, jvmArgs = {
+        "-XX:MaxInlineLevel=20",
+        "-XX:+UnlockDiagnosticVMOptions",
+        "-XX:+PrintAssembly",
+        "-XX:+TraceClassLoading",
+        "-XX:+LogCompilation" })
 @State(Scope.Thread)
 public class LambdaSingletonPerf {
 
@@ -48,7 +53,7 @@ public class LambdaSingletonPerf {
         c = bh::consume;
     }
 
-    @Benchmark
+//    @Benchmark
     public void arrayList() {
         arrayList.forEach(c);
     }
@@ -58,62 +63,62 @@ public class LambdaSingletonPerf {
         lambda.forEach(c);
     }
 
-    @Benchmark
+//    @Benchmark
     public void lambdaBugged() {
         lambdaBugged.forEach(c);
     }
 
-    @Benchmark
+//    @Benchmark
     public void ix() {
         ix.forEach(c);
     }
 
-    @Benchmark
+//    @Benchmark
     public void singleton() {
         singleton.forEach(c);
     }
 
-    @Benchmark
+//    @Benchmark
     public void singletonList() {
         singletonList.forEach(c);
     }
 
-    @Benchmark
+//    @Benchmark
     public void arrayListFor(Blackhole bh) {
         for (Integer i : arrayList) {
             bh.consume(i);
         }
     }
 
-    @Benchmark
+//    @Benchmark
     public void lambdaFor(Blackhole bh) {
         for (Integer i : lambda) {
             bh.consume(i);
         }
     }
 
-    @Benchmark
+//    @Benchmark
     public void lambdaBuggedFor(Blackhole bh) {
         for (Integer i : lambdaBugged) {
             bh.consume(i);
         }
     }
 
-    @Benchmark
+//    @Benchmark
     public void ixFor(Blackhole bh) {
         for (Integer i : ix) {
             bh.consume(i);
         }
     }
 
-    @Benchmark
+//    @Benchmark
     public void singletonFor(Blackhole bh) {
         for (Integer i : singleton) {
             bh.consume(i);
         }
     }
 
-    @Benchmark
+//    @Benchmark
     public void singletonListFor(Blackhole bh) {
         for (Integer i : singletonList) {
             bh.consume(i);

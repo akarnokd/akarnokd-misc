@@ -163,7 +163,7 @@ jmh {
         include = ".*"
     }
     
-    jvmArgs = '-XX:MaxInlineLevel=20'
+    //jvmArgs = '-XX:MaxInlineLevel=20' use @Fork attribute
 }
 
 plugins.withType(EclipsePlugin) {
