@@ -120,4 +120,15 @@ public class LambdaSingletonPerf {
         }
 
     }
+    
+    static volatile Object field;
+    
+    public static void main(String[] args) {
+        SingletonSet<Integer> set = SingletonSet.of(1);
+        for (int i = 0; i < 500_000_000; i++) {
+            for (Object s : set) {
+                field = s;
+            }
+        }
+    }
 }
