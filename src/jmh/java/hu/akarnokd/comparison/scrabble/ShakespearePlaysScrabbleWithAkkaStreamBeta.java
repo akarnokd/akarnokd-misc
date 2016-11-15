@@ -39,7 +39,7 @@ import hu.akarnokd.comparison.ReactiveStreamsImplsAsync;
  * @author José
  * @author akarnokd
  */
-public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlaysScrabble {
 
     ActorSystem actorSystem;
 
@@ -173,21 +173,24 @@ public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysS
                     TreeMap<Integer, List<String>> map = new TreeMap<>(Comparator.reverseOrder());
                     return Source.from(shakespeareWords)
                                     .filter(scrabbleWords::contains)
-                                    .flatMapConcat((String word) -> 
-                                        checkBlanks.apply(word)
-                                        .filter(v -> v)
-                                        .map(v -> word)
-                                    )
-                                    .flatMapConcat(word -> score.apply(word)
-                                            .map(key -> {
-                                                List<String> list = map.get(key) ;
-                                                if (list == null) {
-                                                    list = new ArrayList<>() ;
-                                                    map.put(key, list) ;
-                                                }
-                                                list.add(word) ;
-                                                return word;
-                                            }))
+                                    .filter(word -> {
+                                        try {
+                                            return first(checkBlanks.apply(word));
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            return false;
+                                        }
+                                    })
+                                    .map(word -> {
+                                        Integer key = first(score.apply(word)) ;
+                                        List<String> list = map.get(key) ;
+                                        if (list == null) {
+                                            list = new ArrayList<>() ;
+                                            map.put(key, list) ;
+                                        }
+                                        list.add(word) ;
+                                        return word;
+                                    })
                                     .drop(Long.MAX_VALUE)
                                     .concat(Source.single(map));
                 } ;
@@ -229,7 +232,7 @@ public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysS
     }
 
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithAkkaStreamOpt s = new ShakespearePlaysScrabbleWithAkkaStreamOpt();
+        ShakespearePlaysScrabbleWithAkkaStreamBeta s = new ShakespearePlaysScrabbleWithAkkaStreamBeta();
         s.init();
         s.setup();
         try {
