@@ -21,18 +21,18 @@ package hu.akarnokd.comparison.scrabble;
 import java.util.stream.Stream;
 
 /**
- *
+ * Shakespeare plays Scrabble with Java Streams.
  * @author José
  */
 public class ShakespearePlaysScrabbleWithNonParallelStreams extends ShakespearePlaysScrabbleWithStreams {
 
-	@Override
+    @Override
     Stream<String> buildShakerspeareWordsStream() {
-		return shakespeareWords.stream() ;
-	}
-	
-	public static void main(String[] args) throws Exception {
-	    ShakespearePlaysScrabbleWithNonParallelStreams s = new ShakespearePlaysScrabbleWithNonParallelStreams();
+        return shakespeareWords.stream() ;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ShakespearePlaysScrabbleWithNonParallelStreams s = new ShakespearePlaysScrabbleWithNonParallelStreams();
         s.init();
         System.out.println(s.measureThroughput());
     }

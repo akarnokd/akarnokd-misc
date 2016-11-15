@@ -23,7 +23,7 @@ public class TestRx2 {
                     @Override
                     public Long next() {
 //                        System.out.println("nxt");
-                        try { Thread.sleep(200); } catch (InterruptedException e) {}
+                        try { Thread.sleep(200); } catch (InterruptedException e) { }
                         final long l = count.incrementAndGet();
 //                        System.out.println("inc: "+l);
                         return l;
@@ -54,17 +54,17 @@ public class TestRx2 {
                     public void onSubscribe(Subscription s) {
                         s.request(Long.MAX_VALUE);
                     }
-                    
+
                     @Override
                     public void onNext(List<Long> tuple) {
                         System.out.printf("(%d,%d)\n", tuple.get(0), tuple.get(1));
                     }
-                    
+
                     @Override
                     public void onError(Throwable t) {
                         t.printStackTrace();
                     }
-                    
+
                     @Override
                     public void onComplete() {
                         System.out.println("Done");

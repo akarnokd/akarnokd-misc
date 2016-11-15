@@ -24,7 +24,7 @@ public class AkkaStreamsFlatMapPerf {
 
     @Param({"1", "2", "16"})
     public int maxConcurrent;
-    
+
     ActorSystem actorSystem;
 
     ActorMaterializer materializer;
@@ -40,38 +40,40 @@ public class AkkaStreamsFlatMapPerf {
 
         materializer = ActorMaterializer.create(actorSystem);
 
-        akRangeFlatMapJust = s -> 
+        akRangeFlatMapJust = s ->
         Source.range(1, times)
         .flatMapMerge(maxConcurrent, v -> Source.single(v))
         .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
         .subscribe(s)
         ;
-        
-        akRangeConcatMapJust = s -> 
+
+        akRangeConcatMapJust = s ->
         Source.range(1, times)
         .flatMapConcat(v -> Source.single(v))
         .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
         .subscribe(s)
         ;
     }
-    
+
     @TearDown
     public void teardown() {
         actorSystem.terminate();
     }
-    
+
     @Benchmark
     public void rangeFlatMapJust_akka(Blackhole bh) throws InterruptedException {
         LatchedSubscriber<Integer> lo = new LatchedSubscriber<>(bh);
         akRangeFlatMapJust.subscribe(lo);
-        
+
         if (times == 1) {
-            while (lo.latch.getCount() != 0);
+            while (lo.latch.getCount() != 0) {
+                ;
+            }
         } else {
             lo.latch.await();
         }
     }
-    
+
     public class LatchedSubscriber<T> implements Subscriber<T> {
 
         public CountDownLatch latch = new CountDownLatch(1);
@@ -85,7 +87,7 @@ public class AkkaStreamsFlatMapPerf {
         public void onSubscribe(Subscription s) {
             s.request(Long.MAX_VALUE);
         }
-        
+
         @Override
         public void onComplete() {
             latch.countDown();

@@ -6,37 +6,34 @@ import rx.Observable.Operator;
 import rx.Subscriber;
 import rx.functions.Func1;
 
-    public final class BufferUntil<T> 
-    implements Operator<List<T>, T>{
-        
+    public final class BufferUntil<T>
+    implements Operator<List<T>, T> {
+
         final Func1<T, Boolean> boundaryPredicate;
-    
+
         public BufferUntil(Func1<T, Boolean> boundaryPredicate) {
             this.boundaryPredicate = boundaryPredicate;
         }
-        
+
         @Override
         public Subscriber<? super T> call(
                 Subscriber<? super List<T>> child) {
-            BufferWhileSubscriber parent = 
+            BufferWhileSubscriber parent =
                     new BufferWhileSubscriber(child);
             child.add(parent);
             return parent;
         }
-        
+
         final class BufferWhileSubscriber extends Subscriber<T> {
             final Subscriber<? super List<T>> actual;
-            
+
             List<T> buffer = new ArrayList<>();
-            
-            /**
-             * @param actual
-             */
-            public BufferWhileSubscriber(
+
+            BufferWhileSubscriber(
                     Subscriber<? super List<T>> actual) {
                 this.actual = actual;
             }
-    
+
             @Override
             public void onNext(T t) {
                 buffer.add(t);
@@ -45,13 +42,13 @@ import rx.functions.Func1;
                     buffer = new ArrayList<>();
                 }
             }
-            
+
             @Override
             public void onError(Throwable e) {
                 buffer = null;
                 actual.onError(e);
             }
-            
+
             @Override
             public void onCompleted() {
                 List<T> b = buffer;

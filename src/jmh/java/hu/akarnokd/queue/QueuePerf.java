@@ -1,11 +1,11 @@
 /*
  * Copyright 2015 David Karnok
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
  * the License for the specific language governing permissions and limitations under the License.
@@ -33,7 +33,7 @@ import rsc.util.*;
 public class QueuePerf {
     @Param({ "1", "1000", "1000000" })
     public int count;
-    
+
     @Param({ "16", "256", "1024", "65536"})
     public int prefetch;
 
@@ -42,33 +42,33 @@ public class QueuePerf {
 
     Px<Integer> rsc;
     Px<Integer> rscLinked;
-    
+
     Px<Integer> jctUnsafe;
     Px<Integer> jctSafe;
-    
+
     Px<Integer> jctUnsafeGrow;
 //    Px<Integer> jctSafeGrow;
 
     Px<Integer> jctUnsafeUnb;
     Px<Integer> jctSafeUnb;
 
-    
+
     @Setup
     public void setup() {
         exec1 = Executors.newSingleThreadExecutor();
         exec2 = Executors.newSingleThreadExecutor();
-        
+
         Integer[] arr = new Integer[count];
         for (int i = 0; i < count; i++) {
             arr[i] = 777;
         }
-        
+
         Px<Integer> source = Px.fromArray(arr).subscribeOn(exec1);
-        
+
         ExecutorServiceScheduler s2 = new ExecutorServiceScheduler(exec2);
-        
+
         rsc = new PublisherObserveOn<>(source, s2, false, prefetch, () -> new SpscArrayQueue<>(prefetch));
-        
+
         rscLinked = new PublisherObserveOn<>(source, s2, false, prefetch, () -> new SpscLinkedArrayQueue<>(prefetch));
 
         jctUnsafe = new PublisherObserveOn<>(source, s2, false, prefetch, () -> new org.jctools.queues.SpscArrayQueue<>(prefetch));
@@ -81,20 +81,22 @@ public class QueuePerf {
         jctSafeUnb = new PublisherObserveOn<>(source, s2, false, prefetch, () -> new org.jctools.queues.atomic.SpscUnboundedAtomicArrayQueue<>(prefetch));
 
     }
-    
+
     @TearDown
     public void teardown() {
         exec1.shutdown();
         exec2.shutdown();
     }
-    
+
     void run(Publisher<Integer> p, Blackhole bh) {
         LatchedRSObserver<Integer> lo = new LatchedRSObserver<>(bh);
-        
+
         p.subscribe(lo);
-        
+
         if (count < 1000) {
-            while (lo.latch.getCount() != 0);
+            while (lo.latch.getCount() != 0) {
+                ;
+            }
         } else {
             try {
                 lo.latch.await();
@@ -103,7 +105,7 @@ public class QueuePerf {
             }
         }
     }
-    
+
     @Benchmark
     public void rsc(Blackhole bh) {
         run(rsc, bh);

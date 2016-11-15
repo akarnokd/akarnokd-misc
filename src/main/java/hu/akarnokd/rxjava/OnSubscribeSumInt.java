@@ -1,12 +1,12 @@
 /**
  * Copyright 2016 Netflix, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,9 +22,9 @@ import rx.Observable.OnSubscribe;
 public final class OnSubscribeSumInt implements OnSubscribe<Integer> {
 
     final Observable<Integer> source;
-    
+
     final boolean zeroDefault;
-    
+
     public OnSubscribeSumInt(Observable<Integer> source, boolean zeroDefault) {
         this.source = source;
         this.zeroDefault = zeroDefault;
@@ -38,8 +38,8 @@ public final class OnSubscribeSumInt implements OnSubscribe<Integer> {
     static final class SumIntSubscriber extends ScalarDeferredSubscriber<Integer, Integer> {
 
         int sum;
-        
-        public SumIntSubscriber(Subscriber<? super Integer> actual, boolean zeroDefault) {
+
+        SumIntSubscriber(Subscriber<? super Integer> actual, boolean zeroDefault) {
             super(actual);
             if (zeroDefault) {
                 hasValue = true;
@@ -53,7 +53,7 @@ public final class OnSubscribeSumInt implements OnSubscribe<Integer> {
             }
             sum += t.intValue();
         }
-        
+
         @Override
         public void onCompleted() {
             if (hasValue) {

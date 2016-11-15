@@ -6,7 +6,8 @@ import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.ResourceSubscriber;
 
-public class BasicPrint {
+public final class BasicPrint {
+    private BasicPrint() { }
     public static void main(String[] args) throws Exception {
         Flowable.interval(10, TimeUnit.MILLISECONDS)
         .doOnNext(System.out::println)
@@ -28,19 +29,19 @@ public class BasicPrint {
             System.out.println("received: " + t);
             request(1L);
           }
-          
+
           @Override
             public void onError(Throwable t) {
                 t.printStackTrace();
             }
-          
+
           @Override
             public void onComplete() {
                 // TODO Auto-generated method stub
-                
+
             }
         });
-        
+
         Thread.sleep(100000);
     }
 }

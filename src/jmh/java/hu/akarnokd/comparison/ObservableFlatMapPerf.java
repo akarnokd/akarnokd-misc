@@ -22,7 +22,7 @@ import rx.Observable;
 public class ObservableFlatMapPerf {
 
     @State(Scope.Thread)
-    public static class Regular { 
+    public static class Regular {
         @Param({"1", "1000", "1000000"})
         int count;
 
@@ -42,7 +42,7 @@ public class ObservableFlatMapPerf {
 
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
-            
+
             justFlatMapArray = Observable.just(1).flatMap(v -> Observable.from(arr));
 
             rangeFlatMapJust = Observable.range(1, count).flatMap(v -> Observable.just(v));
@@ -50,7 +50,7 @@ public class ObservableFlatMapPerf {
     }
 
     @State(Scope.Thread)
-    public static class CrossRange { 
+    public static class CrossRange {
         Observable<Integer> justFlatMapJust;
 
         Observable<Integer> rangeFlatMapRange;
@@ -60,7 +60,7 @@ public class ObservableFlatMapPerf {
         @Setup
         public void setup() {
             justFlatMapJust = Observable.just(1).flatMap(v -> Observable.just(v));
-            
+
             Integer[] arr = new Integer[1000];
             Arrays.fill(arr, 777);
 

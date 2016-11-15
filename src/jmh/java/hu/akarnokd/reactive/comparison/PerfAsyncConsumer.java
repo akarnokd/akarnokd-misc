@@ -12,14 +12,14 @@ public final class PerfAsyncConsumer implements Subscriber<Object>, Observer<Obj
 CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
     final CountDownLatch cdl;
-    
+
     final Blackhole bh;
-    
+
     public PerfAsyncConsumer(Blackhole bh) {
         this.bh = bh;
         this.cdl = new CountDownLatch(1);
     }
-    
+
     @Override
     public void onSubscribe(Subscription s) {
         bh.consume(s);
@@ -53,7 +53,7 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     public void onSubscribe(Disposable d) {
         bh.consume(d);
     }
-    
+
     @Override
     public void onCompleted() {
         bh.consume(false);
@@ -63,12 +63,12 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     public void onSubscribe(rx.Subscription d) {
         bh.consume(d);
     }
-    
+
     public void await(int count) {
         await(count, 10);
     }
-    
-    
+
+
     public void await(int count, int timeoutSeconds) {
         if (count <= 1000) {
             while (cdl.getCount() != 0) { }

@@ -27,7 +27,7 @@ public class ScanReplay {
         subscriber.assertValueCount(1);
         subscriber.assertValues(6);
     }
-    
+
     @Test
     public void testFlakyReplayBehavior() {
         final TestScheduler scheduler = new TestScheduler();
@@ -46,7 +46,7 @@ public class ScanReplay {
 //        subscriber.assertValueCount(1);
         subscriber.assertValues(6);
     }
-    
+
     @Test
     public void testFlakyReplayBehavior2() {
         final PublishSubject<Integer> subject = PublishSubject.create();

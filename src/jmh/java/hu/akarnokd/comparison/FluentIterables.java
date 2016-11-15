@@ -7,9 +7,9 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 
 public enum FluentIterables {
-    
+
     ;
-    
+
     public static FluentIterable<Integer> sumInt(FluentIterable<Integer> source) {
         return reduce(source, () -> 0, (a, b) -> a + b);
     }
@@ -37,27 +37,27 @@ public enum FluentIterables {
                 Iterator<T> it = source.iterator();
                 R acc = collectionSupplier.get();
                 return new Iterator<R>() {
-                    
+
                     boolean has;
-                    
+
                     boolean once;
-                    
+
                     R result = acc;
-                    
+
                     @Override
                     public boolean hasNext() {
                         if (!once) {
                             once = true;
-                            
+
                             R r = result;
-                            
+
                             Iterator<T> sit = it;
-                            
+
                             while (sit.hasNext()) {
-                                
+
                                 r = function.apply(r, sit.next());
                             }
-                            
+
                             result = r;
                             has = true;
                         }
@@ -75,7 +75,7 @@ public enum FluentIterables {
             }
         };
     }
-    
+
     public static FluentIterable<Integer> range(int start, int count) {
         return new FluentIterable<Integer>() {
             @Override

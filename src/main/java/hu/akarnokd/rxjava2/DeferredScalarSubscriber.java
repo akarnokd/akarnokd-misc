@@ -40,7 +40,7 @@ Fuseable.QueueSubscription<O> {
     static final byte OUTPUT_HAS_VALUE = 2;
     static final byte OUTPUT_COMPLETE = 3;
 
-    public DeferredScalarSubscriber(Subscriber<? super O> subscriber) {
+    DeferredScalarSubscriber(Subscriber<? super O> subscriber) {
         this.subscriber = subscriber;
     }
 

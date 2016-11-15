@@ -21,10 +21,12 @@ package hu.akarnokd.comparison;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
-public class IterableSpliterator<T>  {
+public final class IterableSpliterator<T>  {
 
-	public static <T> Iterable<T> of(Spliterator<T> spliterator) {
+    private IterableSpliterator() { }
 
-		return () -> Spliterators.iterator(spliterator)	;
-	}
+    public static <T> Iterable<T> of(Spliterator<T> spliterator) {
+
+        return () -> Spliterators.iterator(spliterator)    ;
+    }
 }

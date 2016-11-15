@@ -22,12 +22,12 @@ public class BackpressureProblem {
                     sink.complete();
                 }).
                 onBackpressureError().subscribe(ts);
-        
+
         ts.assertNoValues()
         .assertError(IllegalStateException.class)
         .assertNotComplete();
     }
-    
+
     @Test
     public void fluxCreateDemoElasticScheduler() throws Exception {
         final int inputCount = 1000;
@@ -49,7 +49,7 @@ public class BackpressureProblem {
                         try {
                             Thread.sleep(1000);
                         } catch (InterruptedException ex) {
-                            
+
                         }
                     }
                     latch.countDown();
@@ -57,7 +57,7 @@ public class BackpressureProblem {
                     e.printStackTrace();
                     latch.countDown();
                 });
-        
+
         latch.await();
     }
 }

@@ -15,10 +15,10 @@ public class MaxIntMono extends MonoSource<Integer, Integer> implements Fuseable
     public void subscribe(Subscriber<? super Integer> observer) {
         source.subscribe(new MaxIntSubscriber(observer));
     }
-    
+
     static final class MaxIntSubscriber extends IntDeferredReducerCore {
 
-        public MaxIntSubscriber(Subscriber<? super Integer> actual) {
+        MaxIntSubscriber(Subscriber<? super Integer> actual) {
             super(actual);
         }
 
@@ -31,6 +31,6 @@ public class MaxIntMono extends MonoSource<Integer, Integer> implements Fuseable
                 accumulator = Math.max(accumulator, value.intValue());
             }
         }
-        
+
     }
 }

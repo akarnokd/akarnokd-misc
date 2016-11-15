@@ -2,7 +2,9 @@ package hu.akarnokd.rxjava;
 
 import rx.Observable;
 
-public class PublishExample {
+public final class PublishExample {
+
+    private PublishExample() { }
 
     public static void main(String[] args) {
         Observable.range(1, 10)

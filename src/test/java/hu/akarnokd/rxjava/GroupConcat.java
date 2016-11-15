@@ -6,7 +6,8 @@ import java.util.*;
 import rx.Observable;
 import rx.observables.GroupedObservable;
 
-public class GroupConcat {
+public final class GroupConcat {
+    private GroupConcat() { }
     static final class AppInfo {
         String name;
         LocalDate date;
@@ -17,7 +18,7 @@ public class GroupConcat {
     }
     public static void main(String[] args) {
         System.setProperty("rx.ring-buffer.size", "16");
-        
+
         List<AppInfo> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 3; j++) {
@@ -27,10 +28,10 @@ public class GroupConcat {
                 list.add(ai);
             }
         }
-        
+
         Observable<GroupedObservable<String, AppInfo>> o = Observable.from(list)
         .groupBy(v -> v.date.format(DateTimeFormatter.ofPattern("MM/yyyy")));
-        
+
         Observable.concat(o)
         .subscribe(System.out::println);
     }

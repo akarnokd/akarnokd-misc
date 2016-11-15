@@ -12,10 +12,10 @@ public class WindmillTest {
         CPUSet set = CPUSet.builder().addSocket(0).build();
         set.start();
         CPU cpu = set.get(0);
-        
+
         CountDownLatch cdl = new CountDownLatch(1);
         int c = 1_000_000;
-        
+
         for (int i = 0; i < c; i++) {
             int j = i;
             cpu.schedule(() -> {
@@ -27,7 +27,7 @@ public class WindmillTest {
                 }
             });
         }
-        
+
         cdl.await();
         set.halt();
     }

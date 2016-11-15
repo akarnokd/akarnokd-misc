@@ -28,19 +28,19 @@ import ix.Ix;
 public class LambdaSingletonPerf {
 
     List<Integer> arrayList;
-    
+
     Iterable<Integer> lambda;
 
     Iterable<Integer> lambdaBugged;
-    
+
     Ix<Integer> ix;
-    
+
     Iterable<Integer> singleton;
 
     Iterable<Integer> singletonList;
 
     Consumer<Integer> c;
-    
+
     @Setup
     public void setup(Blackhole bh) {
         arrayList = new ArrayList<>();
@@ -125,9 +125,9 @@ public class LambdaSingletonPerf {
         }
 
     }
-    
+
     static volatile Object field;
-    
+
     public static void main(String[] args) {
         SingletonSet<Integer> set = SingletonSet.of(1);
         for (int i = 0; i < 500_000_000; i++) {

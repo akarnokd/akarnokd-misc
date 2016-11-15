@@ -20,36 +20,36 @@ import io.reactivex.schedulers.Schedulers;
 @Fork(value = 1)
 @State(Scope.Thread)
 public class ZipPerf {
-    
+
     @Param({"1", "1000", "1000000"})
     public int firstLen;
     @Param({"1", "1000", "1000000"})
     public int secondLen;
-    
+
     Flowable<Integer> baseline;
-    
+
     Flowable<Integer> bothSync;
     Flowable<Integer> firstSync;
     Flowable<Integer> secondSync;
     Flowable<Integer> bothAsync;
-    
+
     boolean small;
-    
+
     @Setup
     public void setup() {
         Integer[] array1 = new Integer[firstLen];
         Arrays.fill(array1, 777);
         Integer[] array2 = new Integer[secondLen];
         Arrays.fill(array2, 777);
-        
-        baseline = Flowable.fromArray(firstLen < secondLen? array2 : array1);
-    
+
+        baseline = Flowable.fromArray(firstLen < secondLen ? array2 : array1);
+
         Flowable<Integer> o1 = Flowable.fromArray(array1);
-        
+
         Flowable<Integer> o2 = Flowable.fromArray(array2);
-        
+
         BiFunction<Integer, Integer, Integer> plus = (a, b) -> a + b;
-        
+
         bothSync = Flowable.zip(o1, o2, plus);
 
         firstSync = Flowable.zip(o1, o2.subscribeOn(Schedulers.computation()), plus);
@@ -57,10 +57,10 @@ public class ZipPerf {
         secondSync = Flowable.zip(o1.subscribeOn(Schedulers.computation()), o2, plus);
 
         bothAsync = Flowable.zip(o1.subscribeOn(Schedulers.computation()), o2.subscribeOn(Schedulers.computation()), plus);
-    
+
         small = Math.min(firstLen, secondLen) < 100;
     }
-    
+
     @Benchmark
     public void baseline(Blackhole bh) {
         baseline.subscribe(new LatchedRSObserver<Integer>(bh));
@@ -75,9 +75,11 @@ public class ZipPerf {
     public void syncAsync(Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
         firstSync.subscribe(o);
-        
+
         if (small) {
-            while (o.latch.getCount() != 0);
+            while (o.latch.getCount() != 0) {
+                ;
+            }
         } else {
             o.latch.await();
         }
@@ -87,9 +89,11 @@ public class ZipPerf {
     public void asyncSync(Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
         secondSync.subscribe(o);
-        
+
         if (small) {
-            while (o.latch.getCount() != 0);
+            while (o.latch.getCount() != 0) {
+                ;
+            }
         } else {
             o.latch.await();
         }
@@ -99,9 +103,11 @@ public class ZipPerf {
     public void asyncAsync(Blackhole bh) throws Exception {
         LatchedRSObserver<Integer> o = new LatchedRSObserver<>(bh);
         bothAsync.subscribe(o);
-        
+
         if (small) {
-            while (o.latch.getCount() != 0);
+            while (o.latch.getCount() != 0) {
+                ;
+            }
         } else {
             o.latch.await();
         }

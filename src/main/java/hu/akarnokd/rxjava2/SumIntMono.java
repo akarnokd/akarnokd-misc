@@ -15,10 +15,10 @@ public class SumIntMono extends MonoSource<Integer, Integer> implements Fuseable
     public void subscribe(Subscriber<? super Integer> observer) {
         source.subscribe(new SumIntSubscriber(observer));
     }
-    
+
     static final class SumIntSubscriber extends IntDeferredReducerCore {
 
-        public SumIntSubscriber(Subscriber<? super Integer> actual) {
+        SumIntSubscriber(Subscriber<? super Integer> actual) {
             super(actual);
         }
 
@@ -29,6 +29,6 @@ public class SumIntMono extends MonoSource<Integer, Integer> implements Fuseable
             }
             accumulator += value.intValue();
         }
-        
+
     }
 }

@@ -21,7 +21,7 @@ public class BufferPerf {
 
     @Param({"1", "10", "100", "1000", "10000", "100000", "1000000"})
     public int count;
-    
+
     ByteBuffer buffer;
 
     @Setup
@@ -29,27 +29,27 @@ public class BufferPerf {
         buffer = ByteBuffer.allocate(count);
         buffer.clear();
     }
-    
+
     @Benchmark
     public void indexLoop(Blackhole bh) {
         ByteBuffer bi = buffer;
-        
+
         int c = bi.limit();
         for (int i = 0; i < c; i++) {
             bh.consume(bi.get(i));
         }
         bi.clear();
     }
-    
+
     @Benchmark
     public void consumeLoop(Blackhole bh) {
         ByteBuffer bi = buffer;
-        
+
         while (bi.hasRemaining()) {
             bh.consume(bi.get());
         }
-        
+
         bi.clear();
     }
-    
+
 }

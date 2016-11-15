@@ -7,7 +7,9 @@ import com.google.common.collect.*;
 
 import it.unimi.dsi.fastutil.objects.*;
 
-public class MethodDiff {
+public final class MethodDiff {
+
+    private MethodDiff() { }
 
     static String rename(String s) {
         if ("dooncompleted".equals(s)) {
@@ -21,19 +23,19 @@ public class MethodDiff {
         }
         return s;
     }
-    
+
     static String replacepackage(String s) {
         return s.replace("rx.Observable", "Rx1")
                 .replace("io.reactivex.Flowable", "Rx2")
                 .replace("org.reactivestreams.Publisher", "Orp");
     }
-    
+
     public static void main(String[] args) {
         Object2IntMap<String> rx1 = new Object2IntOpenHashMap<>();
         Multimap<String, Method> rx1m = HashMultimap.create();
         {
             Method[] ms = rx.Observable.class.getMethods();
-            
+
             for (Method m : ms) {
                 if (!m.isAnnotationPresent(Deprecated.class)) {
                     String s = rename(m.getName().toLowerCase());
@@ -43,12 +45,12 @@ public class MethodDiff {
                 }
             }
         }
-        
+
         Object2IntMap<String> rx2 = new Object2IntOpenHashMap<>();
         Multimap<String, Method> rx2m = HashMultimap.create();
         {
             Method[] ms = io.reactivex.Flowable.class.getMethods();
-            
+
             for (Method m : ms) {
                 if (!m.isAnnotationPresent(Deprecated.class)) {
                     String s = m.getName().toLowerCase();
@@ -58,7 +60,7 @@ public class MethodDiff {
                 }
             }
         }
-        
+
         List<String> methods = new ArrayList<>(rx1.keySet());
         Collections.sort(methods);
 
@@ -69,42 +71,42 @@ public class MethodDiff {
             }
             return c;
         };
-        
+
         for (String e : methods) {
-            
+
             Integer old = rx1.get(e);
             Integer overloads = rx2.get(e);
-            
+
             if (overloads == null) {
                 System.out.print(e);
                 System.out.print("(");
                 System.out.print(old);
                 System.out.println(")");
                 List<Method> c1 = new ArrayList<>(rx1m.get(e));
-                
+
                 Collections.sort(c1, comp);
                 for (Method m : c1) {
                     System.out.print("    ");
                     System.out.println(replacepackage(m.toGenericString()));
                 }
                 System.out.println();
-            } else 
+            } else
             if (overloads < old) {
-                
+
                 System.out.print(e);
                 System.out.print("  ");
                 System.out.print(overloads);
                 System.out.print("/");
                 System.out.println(old);
                 List<Method> c1 = new ArrayList<>(rx1m.get(e));
-                
+
                 Collections.sort(c1, comp);
                 for (Method m : c1) {
                     System.out.print("    ");
                     System.out.println(replacepackage(m.toGenericString()));
                 }
                 System.out.println("    ----");
-                
+
                 List<Method> c2 = new ArrayList<>(rx2m.get(e));
                 Collections.sort(c2, comp);
                 for (Method m : c2) {

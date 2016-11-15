@@ -4,6 +4,7 @@ import rx.*;
 import rx.schedulers.Schedulers;
 
 public final class EmitterTest {
+    private EmitterTest() { }
   public static void main(String[] args) {
     Observable<Integer> obs = Observable.fromEmitter(emitter -> {
       for (int i = 1; i < 1000; i++) {

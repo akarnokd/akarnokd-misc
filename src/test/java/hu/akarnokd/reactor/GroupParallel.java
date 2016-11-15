@@ -11,9 +11,9 @@ public class GroupParallel {
 
     @Test
     public void parallelGroupComputation() throws Exception {
-        
+
         AtomicInteger wip = new AtomicInteger();
-        
+
         Flux.range(1, 1000_000)
         .groupBy(i -> i % 8)
         .flatMap(g -> g)
@@ -21,7 +21,7 @@ public class GroupParallel {
         .runOn(Schedulers.parallel())
         .sequential()
         .subscribe(c -> {
-            
+
             if (wip.getAndIncrement() != 0) {
                 System.err.println("Concurrent invocation!");
             }
@@ -30,10 +30,10 @@ public class GroupParallel {
             } catch (Throwable ex) {
                 ex.printStackTrace();
             }
-            
+
             wip.decrementAndGet();
         });
-        
+
         Thread.sleep(100000);
     }
 }

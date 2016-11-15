@@ -23,7 +23,7 @@ import io.reactivex.Flowable;
 public class PublisherFlatMapPerf {
 
     @State(Scope.Thread)
-    public static class Regular { 
+    public static class Regular {
         @Param({"1", "1000", "1000000"})
         int count;
 
@@ -43,7 +43,7 @@ public class PublisherFlatMapPerf {
 
             Integer[] arr = new Integer[count];
             Arrays.fill(arr, 777);
-            
+
             justFlatMapArray = Flowable.just(1).flatMap(v -> Flowable.fromArray(arr));
 
             rangeFlatMapJust = Flowable.range(1, count).flatMap(v -> Flowable.just(v));
@@ -51,7 +51,7 @@ public class PublisherFlatMapPerf {
     }
 
     @State(Scope.Thread)
-    public static class CrossRange { 
+    public static class CrossRange {
         Publisher<Integer> justFlatMapJust;
 
         Publisher<Integer> rangeFlatMapRange;
@@ -61,7 +61,7 @@ public class PublisherFlatMapPerf {
         @Setup
         public void setup() {
             justFlatMapJust = Flowable.just(1).flatMap(v -> Flowable.just(v));
-            
+
             Integer[] arr = new Integer[1000];
             Arrays.fill(arr, 777);
 

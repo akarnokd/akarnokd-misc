@@ -24,34 +24,34 @@ public final class FluxCharSequence extends Flux<Integer> {
     public void subscribe(Subscriber<? super Integer> s) {
         s.onSubscribe(new CharSequenceSubscription(s, string));
     }
-    
-    static final class CharSequenceSubscription 
+
+    static final class CharSequenceSubscription
     implements Fuseable.QueueSubscription<Integer> {
         final Subscriber<? super Integer> actual;
-        
+
         final CharSequence string;
-        
+
         final int end;
-        
+
         int index;
-        
+
         volatile boolean cancelled;
-        
+
         volatile long requested;
         static final AtomicLongFieldUpdater<CharSequenceSubscription> REQUESTED =
                 AtomicLongFieldUpdater.newUpdater(CharSequenceSubscription.class, "requested");
-        
-        public CharSequenceSubscription(Subscriber<? super Integer> actual, CharSequence string) {
+
+        CharSequenceSubscription(Subscriber<? super Integer> actual, CharSequence string) {
             this.actual = actual;
             this.string = string;
             this.end = string.length();
         }
-        
+
         @Override
         public void cancel() {
             cancelled = true;
         }
-        
+
         @Override
         public void request(long n) {
             if (SubscriptionHelper.validate(n)) {
@@ -64,52 +64,52 @@ public final class FluxCharSequence extends Flux<Integer> {
                 }
             }
         }
-        
+
         void fastPath() {
             int e = end;
             CharSequence s = string;
             Subscriber<? super Integer> a = actual;
-            
+
             for (int i = index; i != e; i++) {
                 if (cancelled) {
                     return;
                 }
-                
+
                 a.onNext((int)s.charAt(i));
             }
-            
+
             if (!cancelled) {
                 a.onComplete();
             }
         }
-        
+
         void slowPath(long r) {
             long e = 0L;
             int i = index;
             int f = end;
             CharSequence s = string;
             Subscriber<? super Integer> a = actual;
-            
+
             for (;;) {
-                
+
                 while (e != r && i != f) {
                     if (cancelled) {
                         return;
                     }
-                    
+
                     a.onNext((int)s.charAt(i));
-                    
+
                     i++;
                     e++;
                 }
-                
+
                 if (i == f) {
                     if (!cancelled) {
                         a.onComplete();
                     }
                     return;
                 }
-                
+
                 r = requested;
                 if (e == r) {
                     index = i;
@@ -120,12 +120,12 @@ public final class FluxCharSequence extends Flux<Integer> {
                 }
             }
         }
-        
+
         @Override
         public int requestFusion(int requestedMode) {
             return requestedMode & Fuseable.SYNC;
         }
-        
+
         @Override
         public Integer poll() {
             int i = index;
@@ -135,17 +135,17 @@ public final class FluxCharSequence extends Flux<Integer> {
             }
             return null;
         }
-        
+
         @Override
         public boolean isEmpty() {
             return index != end;
         }
-        
+
         @Override
         public int size() {
             return end - index;
         }
-        
+
         @Override
         public void clear() {
             index = end;

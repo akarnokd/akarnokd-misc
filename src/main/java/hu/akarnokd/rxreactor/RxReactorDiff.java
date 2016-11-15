@@ -6,12 +6,14 @@ import java.util.*;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
-public class RxReactorDiff {
+public final class RxReactorDiff {
+
+    private RxReactorDiff() { }
 
     static void dumpClass(Class<?> cl) {
-        
+
         Method[] m = cl.getMethods();
-        
+
         Comparator<Method> c = (a, b) -> {
             int d = Modifier.isStatic(a.getModifiers()) ? 0 : 1;
             int e = Modifier.isStatic(b.getModifiers()) ? 0 : 1;
@@ -24,7 +26,7 @@ public class RxReactorDiff {
             }
             return f;
         };
-        
+
         Arrays.sort(m, c);
 
         int count = 0;
@@ -45,19 +47,19 @@ public class RxReactorDiff {
                 if (i >= 0) {
                     s = s.substring(i + str.length());
                 }
-                
+
                 s = s.replaceAll("java\\.util\\.concurrent\\.", "");
                 s = s.replaceAll("java\\.util\\.concurrent\\.", "");
-                
+
                 System.out.println(s);
                 count++;
             }
         }
-        
+
         System.out.println("---");
         System.out.println(count);
     }
-    
+
     public static void main(String[] args) {
         dumpClass(Observable.class);
         System.out.println("--");

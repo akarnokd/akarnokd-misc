@@ -16,10 +16,10 @@ import reactor.util.concurrent.QueueSupplier;
 @Fork(value = 1)
 @State(Scope.Thread)
 public class SubjectPerf {
-    
+
     @Param({"1", "10", "100", "1000", "10000", "100000", "1000000" })
     public int count;
-    
+
     final void run(rx.subjects.Subject<Integer, Integer> subject, Blackhole bh) {
         subject.subscribe(new PerfRxSubscriber(bh));
         int e = count;
@@ -44,19 +44,19 @@ public class SubjectPerf {
     public void rangeRxBehaviorSubject(Blackhole bh) {
         run(rx.subjects.BehaviorSubject.create(), bh);
     }
-    
+
     @Benchmark
     public void rangeRxReplaySubject(Blackhole bh) {
         run(rx.subjects.ReplaySubject.create(), bh);
     }
-    
+
     @Benchmark
     public void rangeRxUnicastSubject(Blackhole bh) {
         run(rx.subjects.UnicastSubject.create(), bh);
     }
-    
+
     // ************************************************************************
-    
+
     final void run(io.reactivex.subjects.Subject<Integer> subject, Blackhole bh) {
         subject.subscribe(new PerfConsumer(bh));
         int e = count;
@@ -66,7 +66,7 @@ public class SubjectPerf {
         subject.onComplete();
         bh.consume(subject);
     }
-    
+
     @Benchmark
     public void rangeRx2AsyncSubject(Blackhole bh) {
         run(io.reactivex.subjects.AsyncSubject.create(), bh);
@@ -81,19 +81,19 @@ public class SubjectPerf {
     public void rangeRx2BehaviorSubject(Blackhole bh) {
         run(io.reactivex.subjects.BehaviorSubject.create(), bh);
     }
-    
+
     @Benchmark
     public void rangeRx2ReplaySubject(Blackhole bh) {
         run(io.reactivex.subjects.ReplaySubject.create(), bh);
     }
-    
+
     @Benchmark
     public void rangeRx2UnicastSubject(Blackhole bh) {
         run(io.reactivex.subjects.UnicastSubject.create(), bh);
     }
-    
+
     // ************************************************************************
-    
+
     final void run(Processor<Integer, Integer> subject, Blackhole bh) {
         subject.subscribe(new PerfConsumer(bh));
         int e = count;
@@ -118,7 +118,7 @@ public class SubjectPerf {
     public void rangeRx2BehaviorProcessor(Blackhole bh) {
         run(io.reactivex.processors.BehaviorProcessor.create(), bh);
     }
-    
+
     @Benchmark
     public void rangeRx2ReplayProcessor(Blackhole bh) {
         run(io.reactivex.processors.ReplayProcessor.create(), bh);

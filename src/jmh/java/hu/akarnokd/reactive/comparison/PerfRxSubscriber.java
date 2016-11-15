@@ -5,11 +5,11 @@ import org.openjdk.jmh.infra.Blackhole;
 public final class PerfRxSubscriber extends rx.Subscriber<Object> {
 
     final Blackhole bh;
-    
+
     public PerfRxSubscriber(Blackhole bh) {
         this.bh = bh;
     }
-    
+
     @Override
     public void onStart() {
         bh.consume(true);
@@ -29,5 +29,5 @@ public final class PerfRxSubscriber extends rx.Subscriber<Object> {
     public void onNext(Object t) {
         bh.consume(t);
     }
-    
+
 }

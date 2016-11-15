@@ -28,7 +28,7 @@ public class IxPerf {
 
     @Param({"1", "10", "100", "1000", "10000", "100000", "1000000"})
     public int count;
-    
+
     Observable<Integer> rangeRx;
     Px<Integer> rangeRsc;
     Flux<Integer> rangeFx;
@@ -64,26 +64,26 @@ public class IxPerf {
     Flux<Integer> concatMapXRangeFx;
     Ix<Integer> concatMapXRangeIx;
     FluentIterable<Integer> concatMapXRangeGx;
-    
+
 
     @Setup
     public void setup() {
         Integer[] array = new Integer[count];
         Arrays.fill(array, 777);
-        
+
         rangeRx = Observable.from(array);
         rangeRsc = Px.fromArray(array);
         rangeFx = Flux.fromArray(array);
         rangeIx = Ix.fromArray(array);
         rangeGx = FluentIterable.from(array);
-        
+
         int half = Math.max(1, count >> 1);
         takeRx = rangeRx.take(half);
         takeRsc = rangeRsc.take(half);
         takeFx = rangeFx.take(half);
         takeIx = rangeIx.take(half);
         takeGx = rangeGx.limit(half);
-        
+
         flatMapRx = rangeRx.flatMap(Observable::just);
         flatMapRsc = rangeRsc.flatMap(Px::just);
         flatMapFx = rangeFx.flatMap(Flux::just);
@@ -97,10 +97,10 @@ public class IxPerf {
         concatMapGx = rangeGx.transformAndConcat(v -> FluentIterable.from(new Integer[] { v }));  // no just() in Guava...
 
         int inner = 1_000_000 / count;
-        
+
         Integer[] array2 = new Integer[inner];
         Arrays.fill(array2, 888);
-        
+
         flatMapXRangeRx = rangeRx.flatMap(v -> Observable.from(array2));
         flatMapXRangeRsc = rangeRsc.flatMap(v -> Px.fromArray(array2));
         flatMapXRangeFx = rangeFx.flatMap(v -> Flux.fromArray(array2));
@@ -114,7 +114,7 @@ public class IxPerf {
         concatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.from(array2));
 
     }
-    
+
 //    @Benchmark
     public void rangeRx(Blackhole bh) {
         rangeRx.subscribe(new LatchedObserver<>(bh));
@@ -129,7 +129,7 @@ public class IxPerf {
     public void flatMapRx(Blackhole bh) {
         flatMapRx.subscribe(new LatchedObserver<>(bh));
     }
-    
+
 //    @Benchmark
     public void concatMapRx(Blackhole bh) {
         concatMapRx.subscribe(new LatchedObserver<>(bh));
@@ -139,14 +139,14 @@ public class IxPerf {
     public void flatMapXRangeRx(Blackhole bh) {
         flatMapXRangeRx.subscribe(new LatchedObserver<>(bh));
     }
-    
+
 //    @Benchmark
     public void concatMapXRangeRx(Blackhole bh) {
         concatMapXRangeRx.subscribe(new LatchedObserver<>(bh));
     }
 
     // -----------------------------------------------------------
-    
+
 //    @Benchmark
     public void rangeRsc(Blackhole bh) {
         rangeRsc.subscribe(new LatchedRSObserver<>(bh));
@@ -161,7 +161,7 @@ public class IxPerf {
     public void flatMapRsc(Blackhole bh) {
         flatMapRsc.subscribe(new LatchedRSObserver<>(bh));
     }
-    
+
 //    @Benchmark
     public void concatMapRsc(Blackhole bh) {
         concatMapRsc.subscribe(new LatchedRSObserver<>(bh));
@@ -171,7 +171,7 @@ public class IxPerf {
     public void flatMapXRangeRsc(Blackhole bh) {
         flatMapXRangeRsc.subscribe(new LatchedRSObserver<>(bh));
     }
-    
+
 //    @Benchmark
     public void concatMapXRangeRsc(Blackhole bh) {
         concatMapXRangeRsc.subscribe(new LatchedRSObserver<>(bh));
@@ -193,7 +193,7 @@ public class IxPerf {
     public void flatMapFx(Blackhole bh) {
         flatMapFx.subscribe(new LatchedRSObserver<>(bh));
     }
-    
+
 //    @Benchmark
     public void concatMapFx(Blackhole bh) {
         concatMapFx.subscribe(new LatchedRSObserver<>(bh));
@@ -203,7 +203,7 @@ public class IxPerf {
     public void flatMapXRangeFx(Blackhole bh) {
         flatMapXRangeFx.subscribe(new LatchedRSObserver<>(bh));
     }
-    
+
 //    @Benchmark
     public void concatMapXRangeFx(Blackhole bh) {
         concatMapXRangeFx.subscribe(new LatchedRSObserver<>(bh));
@@ -225,7 +225,7 @@ public class IxPerf {
     public void flatMapIx(Blackhole bh) {
         flatMapIx.foreach((IxConsumer<Integer>)bh::consume);
     }
-    
+
 //    @Benchmark
     public void concatMapIx(Blackhole bh) {
         concatMapIx.foreach((IxConsumer<Integer>)bh::consume);
@@ -235,7 +235,7 @@ public class IxPerf {
     public void flatMapXRangeIx(Blackhole bh) {
         flatMapXRangeIx.foreach((IxConsumer<Integer>)bh::consume);
     }
-    
+
 //    @Benchmark
     public void concatMapXRangeIx(Blackhole bh) {
         concatMapXRangeIx.foreach((IxConsumer<Integer>)bh::consume);
@@ -257,7 +257,7 @@ public class IxPerf {
     public void flatMapGx(Blackhole bh) {
         flatMapGx.forEach(bh::consume);
     }
-    
+
 //    @Benchmark
     public void concatMapGx(Blackhole bh) {
         concatMapGx.forEach(bh::consume);
@@ -267,7 +267,7 @@ public class IxPerf {
     public void flatMapXRangeGx(Blackhole bh) {
         flatMapXRangeGx.forEach(bh::consume);
     }
-    
+
 //    @Benchmark
     public void concatMapXRangeGx(Blackhole bh) {
         concatMapXRangeGx.forEach(bh::consume);

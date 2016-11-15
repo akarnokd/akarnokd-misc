@@ -10,16 +10,16 @@ public interface SingletonIteratorBugged<E> extends Iterator<E>, Supplier<Suppli
     static <E> SingletonIteratorBugged<E> of(E e) {
         return () -> new Supplier[] { () -> e };
     }
-    
+
     static <E> Supplier<E> none() {
         return () -> { throw new NoSuchElementException(); };
     }
-    
+
     @Override
     default boolean hasNext() {
         return get()[0] == none();
     }
-    
+
     @Override
     default E next() {
         Supplier<E> current = get()[0];

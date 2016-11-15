@@ -26,27 +26,29 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Util {
+public final class Util {
 
-	public static Set<String> readScrabbleWords() {
-		Set<String> scrabbleWords = new HashSet<>() ;
+    private Util() { }
+
+    public static Set<String> readScrabbleWords() {
+        Set<String> scrabbleWords = new HashSet<>() ;
         try (Stream<String> scrabbleWordsStream = Files.lines(Paths.get("files", "ospd.txt"))) {
             scrabbleWords.addAll(scrabbleWordsStream.map(String::toLowerCase).collect(Collectors.toSet()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return scrabbleWords ;
-	}
-	
-	public static Set<String> readShakespeareWords() {
+    }
+
+    public static Set<String> readShakespeareWords() {
         Set<String> shakespeareWords = new HashSet<>() ;
         try (Stream<String> shakespeareWordsStream = Files.lines(Paths.get("files", "words.shakespeare.txt"))) {
             shakespeareWords.addAll(shakespeareWordsStream.map(String::toLowerCase).collect(Collectors.toSet()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return shakespeareWords ;
-	}
+    }
 }

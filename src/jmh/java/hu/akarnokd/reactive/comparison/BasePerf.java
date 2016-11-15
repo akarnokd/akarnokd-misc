@@ -12,11 +12,11 @@ import org.openjdk.jmh.infra.Blackhole;
 @Fork(value = 1)
 @State(Scope.Thread)
 public class BasePerf {
-    
+
     @Setup
     public void setup() {
     }
-    
+
     @Benchmark
     public void baseline(Blackhole bh) {
     }

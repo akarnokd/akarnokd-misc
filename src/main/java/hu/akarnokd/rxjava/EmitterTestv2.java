@@ -5,6 +5,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public final class EmitterTestv2 {
+    private EmitterTestv2() { }
   public static void main(String[] args) {
     Flowable<Integer> obs = Flowable.create(emitter -> {
       for (int i = 1; i < 1000; i++) {

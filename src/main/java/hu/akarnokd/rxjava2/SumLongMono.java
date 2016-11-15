@@ -15,10 +15,10 @@ public class SumLongMono extends MonoSource<Long, Long> implements Fuseable {
     public void subscribe(Subscriber<? super Long> observer) {
         source.subscribe(new SumLongSubscriber(observer));
     }
-    
+
     static final class SumLongSubscriber extends LongDeferredReducerCore {
 
-        public SumLongSubscriber(Subscriber<? super Long> actual) {
+        SumLongSubscriber(Subscriber<? super Long> actual) {
             super(actual);
         }
 
@@ -29,6 +29,6 @@ public class SumLongMono extends MonoSource<Long, Long> implements Fuseable {
             }
             accumulator += value.longValue();
         }
-        
+
     }
 }

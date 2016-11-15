@@ -26,13 +26,13 @@ public class IAsyncEnumerablePerf {
     public int count;
 
     Ax<Integer> axRange;
-    
+
     Ax<Integer> axAsync;
 
     Ax<Integer> axPipeline;
-    
+
     Px<Integer> pxRange;
-    
+
     Px<Integer> pxPipeline;
 
     Px<Integer> pxAsync;
@@ -40,22 +40,22 @@ public class IAsyncEnumerablePerf {
     Px<Integer> pxAsyncClassic;
 
     ExecutorService exec1;
-    
+
     ExecutorService exec2;
-    
+
     @Setup
     public void setup() {
         axRange = Ax.range(1, count);
         pxRange = Px.range(1, count);
-        
+
         exec1 = Executors.newSingleThreadExecutor();
-        
+
         exec2 = Executors.newSingleThreadExecutor();
 
         axAsync = axRange.observeOn(exec1);
-        
+
         axPipeline = axRange.subscribeOn(exec1).observeOn(exec2);
-        
+
         ExecutorServiceScheduler s1 = new ExecutorServiceScheduler(exec1, false);
         ExecutorServiceScheduler s2 = new ExecutorServiceScheduler(exec2, false);
 
@@ -65,14 +65,14 @@ public class IAsyncEnumerablePerf {
 
         pxPipeline = pxRange.subscribeOn(s1).observeOn(s2);
     }
-    
+
     @TearDown
     public void teardown() {
-        
+
         exec1.shutdown();
         exec2.shutdown();
     }
-    
+
     @Benchmark
     public void range_ax(Blackhole bh) {
         PerfSyncConsumer psc = new PerfSyncConsumer(bh, axRange.enumerator());
@@ -95,15 +95,17 @@ public class IAsyncEnumerablePerf {
     public void range_px(Blackhole bh) {
         pxRange.subscribe(new LatchedRSObserver<>(bh));
     }
-    
+
     @Benchmark
     public void rangePipeline_px(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> s = new LatchedRSObserver<>(bh);
-        
+
         pxPipeline.subscribe(s);
-        
+
         if (count <= 1000) {
-            while (s.latch.getCount() != 0) ;
+            while (s.latch.getCount() != 0) {
+                ;
+            }
         } else {
             s.latch.await();
         }
@@ -112,11 +114,13 @@ public class IAsyncEnumerablePerf {
     @Benchmark
     public void rangeAsync_px(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> s = new LatchedRSObserver<>(bh);
-        
+
         pxAsync.subscribe(s);
-        
+
         if (count <= 1000) {
-            while (s.latch.getCount() != 0) ;
+            while (s.latch.getCount() != 0) {
+                ;
+            }
         } else {
             s.latch.await();
         }
@@ -125,11 +129,13 @@ public class IAsyncEnumerablePerf {
     @Benchmark
     public void rangeAsyncClassic_px(Blackhole bh) throws InterruptedException {
         LatchedRSObserver<Integer> s = new LatchedRSObserver<>(bh);
-        
+
         pxAsyncClassic.subscribe(s);
-        
+
         if (count <= 1000) {
-            while (s.latch.getCount() != 0) ;
+            while (s.latch.getCount() != 0) {
+                ;
+            }
         } else {
             s.latch.await();
         }

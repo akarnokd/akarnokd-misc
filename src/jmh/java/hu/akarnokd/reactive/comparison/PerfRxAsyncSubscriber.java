@@ -9,12 +9,12 @@ public final class PerfRxAsyncSubscriber extends rx.Subscriber<Object> {
     final CountDownLatch cdl;
 
     final Blackhole bh;
-    
+
     public PerfRxAsyncSubscriber(Blackhole bh) {
         this.bh = bh;
         this.cdl = new CountDownLatch(1);
     }
-    
+
     @Override
     public void onStart() {
         bh.consume(true);
@@ -36,8 +36,8 @@ public final class PerfRxAsyncSubscriber extends rx.Subscriber<Object> {
     public void onNext(Object t) {
         bh.consume(t);
     }
-    
-    
+
+
     public void await(int count) {
         if (count <= 1000) {
             while (cdl.getCount() != 0) { }

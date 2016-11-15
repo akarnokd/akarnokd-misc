@@ -1,22 +1,24 @@
+package hu.akarnokd.io;
 import java.lang.reflect.Method;
 import java.util.*;
 
 import io.reactivex.Observable;
 
-public class LongClass {
+public final class LongClass {
+    private LongClass() { }
     public static void main(String[] args) {
         System.out.println("public class ManyMethods {");
-        
+
         Method[] ms = Observable.class.getDeclaredMethods();
-        
+
         Set<String> names = new HashSet<>();
-        
+
         for (int i = 0; i < ms.length; i++) {
             if (names.add(ms[i].getName())) {
                 System.out.println("    public static int " + ms[i].getName() + "(int i) { return i + " + i + "; }");
             }
         }
-        
+
         System.out.println("    public static void main(String[] args) {");
         int i = 0;
         for (String s : names) {
@@ -26,7 +28,7 @@ public class LongClass {
             i++;
         }
         System.out.println("    }");
-        
+
         System.out.println("}");
     }
 }

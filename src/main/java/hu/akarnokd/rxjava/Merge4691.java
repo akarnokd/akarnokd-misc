@@ -3,7 +3,8 @@ package hu.akarnokd.rxjava;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class Merge4691 {
+public final class Merge4691 {
+    private Merge4691() { }
     public static void main(String[] args) {
         Observable<Integer> o1 = Observable.just(1, 2, 3);
         Observable<Integer> o2 = Observable.merge(
@@ -26,7 +27,7 @@ public class Merge4691 {
             .doOnCompleted(() -> error("c"))
             .subscribe();
     }
-    
+
     static void error(String s) {
         System.err.println(s);
     }

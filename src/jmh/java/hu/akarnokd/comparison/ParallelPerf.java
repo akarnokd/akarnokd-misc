@@ -20,10 +20,10 @@ public class ParallelPerf {
 
     @Param({"1024" })
     public int count;
-    
+
     @Param({"1", "10", "100", "1000", "10000"})
     public int cost;
-    
+
     Flowable<Integer> flowable;
 
     Flowable<Integer> flowableFJ;
@@ -33,19 +33,19 @@ public class ParallelPerf {
         flowable = ParallelFlowable.from(Flowable.range(0, count)).runOn(Schedulers.computation())
         .filter(v -> { Blackhole.consumeCPU(cost); return false; })
         .sequential();
-        
+
         flowableFJ = ParallelFlowable.from(Flowable.range(0, count))
                 .runOn(Schedulers.from(ForkJoinPool.commonPool()))
         .filter(v -> { Blackhole.consumeCPU(cost); return false; })
         .sequential();
     }
-    
+
     @Benchmark
     public Object parallelStream() {
         return IntStream.range(0, count).parallel().filter(v -> { Blackhole.consumeCPU(cost); return false; })
         .findAny();
     }
-    
+
     @Benchmark
     public Object parallelFlowable() {
         return flowable.blockingLast(0);

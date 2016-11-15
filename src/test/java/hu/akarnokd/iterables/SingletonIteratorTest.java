@@ -11,13 +11,13 @@ public class SingletonIteratorTest {
     @Test
     public void contract() {
         Iterator<Integer> it = SingletonIterator.of(1);
-        
+
         assertTrue(it.hasNext());
-        
+
         assertEquals((Integer)1, it.next());
 
         assertFalse(it.hasNext());
-        
+
         try {
             it.next();
             fail("Should have thrown");

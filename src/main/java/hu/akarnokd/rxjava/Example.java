@@ -1,5 +1,8 @@
 package hu.akarnokd.rxjava;
-public class Example {
+public final class Example {
+
+    private Example() { }
+
     static String str;
 
     public static void main(String[] args) {

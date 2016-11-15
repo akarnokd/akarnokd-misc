@@ -10,11 +10,11 @@ public final class PerfConsumer implements Subscriber<Object>, Observer<Object>,
 CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
     final Blackhole bh;
-    
+
     public PerfConsumer(Blackhole bh) {
         this.bh = bh;
     }
-    
+
     @Override
     public void onSubscribe(Subscription s) {
         bh.consume(s);
@@ -45,7 +45,7 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     public void onSubscribe(Disposable d) {
         bh.consume(d);
     }
-    
+
     @Override
     public void onCompleted() {
         bh.consume(false);
@@ -54,5 +54,5 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     public void onSubscribe(rx.Subscription d) {
         bh.consume(d);
     }
-    
+
 }
