@@ -213,7 +213,6 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
                     )
                     .first() ;
 
-
 //        System.out.println(finalList2);
 
         return finalList2 ;

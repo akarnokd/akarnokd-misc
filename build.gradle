@@ -66,6 +66,7 @@ dependencies {
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
+	compile 'com.aol.simplereact:cyclops-react:+'
 
 //    compile('io.reactivex:rxjava-math:+') {
 //    	exclude group: "io.reactivex", module: "rxjava"
