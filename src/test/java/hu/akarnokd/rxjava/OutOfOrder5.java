@@ -12,14 +12,14 @@ import io.reactivex.functions.*;
 import io.reactivex.schedulers.Schedulers;
 
 public class OutOfOrder5 {
-    
+
     @Test
     public void loop() throws Exception {
         for (int i = 0; i < 1000; i++) {
             test();
         }
     }
-    
+
     @Test
     public void test() throws Exception {
         final int total = 1000;
@@ -37,7 +37,7 @@ public class OutOfOrder5 {
 
         CountDownLatch cdl = new CountDownLatch(1);
 
-        for(int i = 0; i < total; i++){
+        for (int i = 0; i < total; i++) {
             Observable.just(1)
                     .subscribeOn(subscribeScheduler)
                     .observeOn(mapScheduler)
@@ -54,7 +54,7 @@ public class OutOfOrder5 {
                         @Override
                         public void accept(Integer value) {
                             mReceiveValues.add(value);
-                            if(mCount.incrementAndGet() == total) {
+                            if (mCount.incrementAndGet() == total) {
                                 try {
                                     System.out.println("run complete");
                                     for (int i = 0; i < total; i++) {
@@ -65,22 +65,21 @@ public class OutOfOrder5 {
                                 } finally {
                                     cdl.countDown();
                                 }
-                                
                             }
                         }
                     });
         }
 
         cdl.await();
-        
+
         Thread.sleep(100);
-        
+
         ex1.shutdown();
         ex2.shutdown();
         ex3.shutdown();
-        
+
         System.out.println(new HashSet<>(mReceiveValues).size());
-        
+
         Assert.assertEquals(mEmitValues, mReceiveValues);
     }
 }

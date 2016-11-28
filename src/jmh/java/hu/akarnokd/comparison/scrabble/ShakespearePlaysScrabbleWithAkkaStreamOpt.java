@@ -173,7 +173,7 @@ public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysS
                     TreeMap<Integer, List<String>> map = new TreeMap<>(Comparator.reverseOrder());
                     return Source.from(shakespeareWords)
                                     .filter(scrabbleWords::contains)
-                                    .flatMapConcat((String word) -> 
+                                    .flatMapConcat((String word) ->
                                         checkBlanks.apply(word)
                                         .filter(v -> v)
                                         .map(v -> word)

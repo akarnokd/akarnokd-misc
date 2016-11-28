@@ -12,14 +12,14 @@ import rx.functions.*;
 import rx.schedulers.Schedulers;
 
 public class OutOfOrder {
-    
+
     @Test
     public void loop() throws Exception {
         for (int i = 0; i < 1000; i++) {
             test();
         }
     }
-    
+
     @Test
     public void test() throws Exception {
         final int total = 1000;
@@ -37,7 +37,7 @@ public class OutOfOrder {
 
         CountDownLatch cdl = new CountDownLatch(1);
 
-        for(int i = 0; i < total; i++){
+        for (int i = 0; i < total; i++) {
             int j = i;
             Observable.just(null)
                     .doOnRequest(v -> System.out.println(j))
@@ -56,7 +56,7 @@ public class OutOfOrder {
                         @Override
                         public void call(Integer value) {
                             mReceiveValues.add(value);
-                            if(mCount.incrementAndGet() == total) {
+                            if (mCount.incrementAndGet() == total) {
                                 try {
                                     System.out.println("run complete");
                                     for (int i = 0; i < total; i++) {
@@ -67,22 +67,21 @@ public class OutOfOrder {
                                 } finally {
                                     cdl.countDown();
                                 }
-                                
                             }
                         }
                     });
         }
 
         cdl.await();
-        
+
         Thread.sleep(100);
-        
+
         ex1.shutdown();
         ex2.shutdown();
         ex3.shutdown();
-        
+
         System.out.println(new HashSet<>(mReceiveValues).size());
-        
+
         Assert.assertEquals(mEmitValues, mReceiveValues);
     }
 }

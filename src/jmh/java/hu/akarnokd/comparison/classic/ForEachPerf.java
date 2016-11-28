@@ -18,7 +18,7 @@ import rx.Observable;
 public class ForEachPerf {
 
     List<Integer> list;
-    
+
     @Setup
     public void setup() {
         list = Ix.range(1, 1000).toList();
@@ -27,23 +27,23 @@ public class ForEachPerf {
     @Benchmark
     public long forLoop() {
         long total = 0;
-        
+
         for (Integer i : list) {
             total += i;
         }
         return total;
     }
-    
+
     @Benchmark
     public Object rx1() {
         return Observable.from(list).reduce(0, (a, b) -> a + b).toBlocking().single();
     }
-    
+
     @Benchmark
     public Object rx2Obs() {
         return io.reactivex.Observable.fromIterable(list).reduce(0, (a, b) -> a + b).blockingGet();
     }
-    
+
     @Benchmark
     public Object rx2ObsMath() {
         return MathObservable.sumInt(io.reactivex.Observable.fromIterable(list)).blockingSingle();

@@ -149,7 +149,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
                 .takeRight(1);
 
         Function<Function<String, ReactiveSeq<Integer>>, ReactiveSeq<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-                score -> 
+                score ->
                     ReactiveSeq.fromIterable(shakespeareWords)
                                 .filter(scrabbleWords::contains)
                                 .filter(word -> checkBlanks.apply(word).firstValue())
@@ -164,7 +164,6 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
                                     return map;
                                 })
                                 .takeRight(1);
-                                
                 ;
 
         // best key / value pairs
@@ -181,7 +180,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
 
 
 //        System.out.println(finalList2);
-        
+
         return finalList2 ;
     }
 

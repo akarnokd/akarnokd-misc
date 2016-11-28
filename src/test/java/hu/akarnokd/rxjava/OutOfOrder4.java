@@ -11,14 +11,14 @@ import io.reactivex.functions.*;
 import io.reactivex.internal.schedulers.SingleScheduler;
 
 public class OutOfOrder4 {
-    
+
     @Test
     public void loop() throws Exception {
         for (int i = 0; i < 1000; i++) {
             test();
         }
     }
-    
+
     @Test
     public void test() throws Exception {
         final int total = 1000;
@@ -50,7 +50,7 @@ public class OutOfOrder4 {
                         @Override
                         public void accept(Integer value) {
                             mReceiveValues.add(value);
-                            if(mCount.incrementAndGet() == total) {
+                            if (mCount.incrementAndGet() == total) {
                                 try {
                                     System.out.println("run complete");
                                     for (int i = 0; i < total; i++) {
@@ -61,22 +61,21 @@ public class OutOfOrder4 {
                                 } finally {
                                     cdl.countDown();
                                 }
-                                
                             }
                         }
                     });
         }
 
         cdl.await();
-        
+
         Thread.sleep(100);
 
         subscribeScheduler.shutdown();
         mapScheduler.shutdown();
         observeScheduler.shutdown();
-        
+
         System.out.println(new HashSet<>(mReceiveValues).size());
-        
+
         Assert.assertEquals(mEmitValues, mReceiveValues);
     }
 }
