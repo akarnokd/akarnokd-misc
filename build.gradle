@@ -96,6 +96,11 @@ dependencies {
     	exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
 
+    compile('com.github.akarnokd:rxjava2-jdk8-interop:+') {
+    	exclude group: "com.github.akarnokd", module: "rxjava"
+    	exclude group: "io.reactivex.rxjava2", module: "rxjava2-extensions"
+    }
+
     // -------------------------------------------------------------------
     
     compile 'com.google.guava:guava:20.0'
