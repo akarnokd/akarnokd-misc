@@ -19,18 +19,17 @@
 package hu.akarnokd.comparison.scrabble;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.function.IntUnaryOperator;
 import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -46,8 +45,9 @@ import com.aol.cyclops.control.ReactiveSeq;
  * Shakespeare plays Scrabble with Ix optimized.
  * @author José
  * @author akarnokd
+ * @johnmcclean-aol
  */
-public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithCyclopsReactOpt2 extends ShakespearePlaysScrabble {
 
     static ReactiveSeq<Integer> chars(String word) {
         return ReactiveSeq.range(0, word.length()).map(i -> (int)word.charAt(i));
@@ -64,55 +64,37 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
     )
     @Fork(1)
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
+                                               
+         // Histogram of the letters in a given word
+        Function<String, ReactiveSeq<Map.Entry<Integer, Long>>> histoOfLetters =
+                word -> ReactiveSeq.fromStream(word.chars().<HashMap<Integer, Long>>collect(
+                                                            () -> new HashMap<Integer,Long>(),
+                                                            (HashMap<Integer, Long> map, int value) ->
+                                                            {
+                                                                Long newValue = map.get(value) ;
+                                                                if (newValue == null) {
+                                                                    newValue = 0L ;
+                                                                }
+                                                                map.put(value, newValue+1) ;
+                                                            }, (a,b)->{}
 
-        // Function to compute the score of a given word
-        IntUnaryOperator scoreOfALetter = letter -> letterScores[letter - 'a'];
+                                                       
+                            ).entrySet().stream());
 
-        // score of the same letters in a word
-        ToIntFunction<Entry<Integer, Long>> letterScore =
-                entry ->
-                    letterScores[entry.getKey() - 'a'] *
-                    Integer.min(
-                        entry.getValue().intValue(),
-                        scrabbleAvailableLetters[entry.getKey() - 'a']
-                    );
-
-
-        // Histogram of the letters in a given word
-        Function<String, Map<Integer, Long>> histoOfLetters =
-                word -> ReactiveSeq.fromIntStream(word.chars())
-                            .collect(
-                                Collectors.groupingBy(
-                                    Function.identity(),
-                                    Collectors.counting()
-                                )
-                            );
-
-        // number of blanks for a given letter
-        ToLongFunction<Entry<Integer, Long>> blank =
-                entry ->
-                    Long.max(
-                        0L,
-                        entry.getValue() -
-                        scrabbleAvailableLetters[entry.getKey() - 'a']
-                    );
-
+    
         // number of blanks for a given word
-        Function<String, Long> nBlanks =
-                word -> ReactiveSeq.fromIterable(histoOfLetters.apply(word)
-                            .entrySet())
-                            .mapToLong(blank)
-                            .sum();
+        Function<String, ReactiveSeq<Long>> nBlanks =
+                word -> histoOfLetters.apply(word)
+                                      .coflatMap(s->s.sumLong(e ->Long.max(0L,e.getValue() -scrabbleAvailableLetters[e.getKey() - 'a'])));
 
         // can a word be written with 2 blanks?
-        Predicate<String> checkBlanks = word -> nBlanks.apply(word) <= 2;
+        Predicate<String> checkBlanks = word -> nBlanks.apply(word).single() <= 2;
 
         // score taking blanks into account
-        Function<String, Integer> score2 =
-                word -> ReactiveSeq.fromIterable(histoOfLetters.apply(word)
-                            .entrySet())
-                            .mapToInt(letterScore)
-                            .sum();
+        Function<String, ReactiveSeq<Integer>> score2 = word -> histoOfLetters.apply(word)
+                                                                              .coflatMap(s -> s.sumInt(entry -> letterScores[entry.getKey() - 'a']
+                                                                                                                 * Integer.min(entry.getValue().intValue(),
+                                                                                                                   scrabbleAvailableLetters[entry.getKey() - 'a'])));
 
         // Placing the word on the board
         // Building the streams of first and last letters
@@ -121,54 +103,64 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
 
         // Stream to be maxed
         Function<String, IntStream> toBeMaxed =
-            word -> ReactiveSeq.of(first3.apply(word), last3.apply(word))
-                               .flatMapToInt(Function.identity());
+            word -> IntStream.concat(first3.apply(word), last3.apply(word));
+                       
 
         // Bonus for double letter
-        ToIntFunction<String> bonusForDoubleLetter =
-            word -> toBeMaxed.apply(word)
-                        .map(scoreOfALetter)
-                        .max()
-                        .orElse(0);
+        Function<String,ReactiveSeq<Integer>> bonusForDoubleLetter =
+            word ->  ReactiveSeq.fromStream(Stream.of(toBeMaxed.apply(word)
+                                                               .map(letter -> letterScores[letter - 'a'])
+                                                               .reduce(0,(a,b)->a>b?a:b)));
 
         // score of the word put on the board
-        Function<String, Integer> score3 =
-            word ->
-               (score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
-               + (score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
-               + (word.length() == 7 ? 50 : 0);
-               
-       Function<Function<String, Integer>, Map<Integer, List<String>>> buildHistoOnScore =
+           
+                    
+        Function<String, ReactiveSeq<Integer>> score3 = word -> ReactiveSeq.fromStream(Stream.of(score2.apply(word)
+                                                                                                       .single()
+                                                                                                 + bonusForDoubleLetter.apply(word)
+                                                                                                                       .single()
+                                                                                                 + score2.apply(word)
+                                                                                                          .single()
+                                                                                                 + bonusForDoubleLetter.apply(word)
+                                                                                                                       .single()
+                                                                                                 + (word.length() == 7 ? 50 : 0)));
+        
+              
+       Function<Function<String, ReactiveSeq<Integer>>, ReactiveSeq<Map<Integer, List<String>>>> buildHistoOnScore =
                         score -> ReactiveSeq.fromIterable(shakespeareWords)
-                                        .filter(scrabbleWords::contains)
-                                        // .filter(canWrite)    // filter out the words that needs blanks
-                                        .filter(checkBlanks) // filter out the words that needs more than 2 blanks
-                                        .collect(
+                                        .filter(t->scrabbleWords.contains(t) && checkBlanks.test(t))                                       
+                                        .coflatMap(s->s.collect(
                                            Collectors.groupingBy(
-                                              score,
+                                              score.andThen(ReactiveSeq::single),
                                               () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()),
                                               Collectors.toList()
                                            )
-                                        );
+                                        ));
         
-                ;
-
+                
+                
         // best key / value pairs
       List<Entry<Integer, List<String>>> finalList2 =
-                        ReactiveSeq.fromIterable(buildHistoOnScore.apply(score3).entrySet())
-                                    .limit(3)
-                            .collect(Collectors.toList()) ;
+                        buildHistoOnScore.apply(score3)
+                                        .flatMap(m->m.entrySet().stream())
+                                        .limit(3)
+                                        .collect(Collectors.toList());
+                                      
         
 
-//        System.out.println(finalList2);
+
         
         return finalList2 ;
     }
 
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithCyclopsReactOpt s = new ShakespearePlaysScrabbleWithCyclopsReactOpt();
-        s.init();
-        System.out.println(s.measureThroughput());
         
+        ShakespearePlaysScrabbleWithCyclopsReactOpt2 s = new ShakespearePlaysScrabbleWithCyclopsReactOpt2();
+        s.init();
+        Long time = System.currentTimeMillis();
+        for(int i=0;i<100;i++){
+            System.out.println(s.measureThroughput());
+        }
+        System.out.println( System.currentTimeMillis()-time);
     }
 }
