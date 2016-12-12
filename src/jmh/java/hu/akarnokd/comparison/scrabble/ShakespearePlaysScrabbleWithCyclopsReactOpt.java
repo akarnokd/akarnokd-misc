@@ -18,6 +18,9 @@
 
 package hu.akarnokd.comparison.scrabble;
 
+import static com.aol.cyclops.control.ReactiveSeq.fromIterable;
+import static com.aol.cyclops.control.ReactiveSeq.fromString;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +32,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -47,10 +49,10 @@ import com.aol.cyclops.control.ReactiveSeq;
  * @author akarnokd
  * @johnmcclean-aol
  */
-public class ShakespearePlaysScrabbleWithCyclopsReactOpt2 extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlaysScrabble {
 
     static ReactiveSeq<Integer> chars(String word) {
-        return ReactiveSeq.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return ReactiveSeq.fromString(word);
     }
 
     @Benchmark
@@ -67,7 +69,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt2 extends ShakespearePla
                                                
          // Histogram of the letters in a given word
         Function<String, ReactiveSeq<Map.Entry<Integer, Long>>> histoOfLetters =
-                word -> ReactiveSeq.fromStream(word.chars().<HashMap<Integer, Long>>collect(
+                word -> fromIterable(fromString(word).foldInt(i->i,s->s.<HashMap<Integer, Long>>collect(
                                                             () -> new HashMap<Integer,Long>(),
                                                             (HashMap<Integer, Long> map, int value) ->
                                                             {
@@ -79,7 +81,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt2 extends ShakespearePla
                                                             }, (a,b)->{}
 
                                                        
-                            ).entrySet().stream());
+                            )).entrySet());
 
     
         // number of blanks for a given word
@@ -98,32 +100,28 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt2 extends ShakespearePla
 
         // Placing the word on the board
         // Building the streams of first and last letters
-        Function<String, IntStream> first3 = word -> word.chars().limit(3);
-        Function<String, IntStream> last3 = word -> word.chars().skip(Integer.max(0, word.length() - 4));
+        Function<String, ReactiveSeq<Integer>> first3 = word -> fromString(word).ints(i->i,s->s.limit(3));
+        Function<String, ReactiveSeq<Integer>> last3 = word -> fromString(word).ints(i->i,s->s.skip(Integer.max(0, word.length() - 4)));
 
         // Stream to be maxed
-        Function<String, IntStream> toBeMaxed =
-            word -> IntStream.concat(first3.apply(word), last3.apply(word));
+        Function<String, ReactiveSeq<Integer>> toBeMaxed =
+            word -> first3.apply(word).ints(i->i,s1-> last3.apply(word).foldInt(i->i,s2->IntStream.concat(s1, s2)));
                        
 
         // Bonus for double letter
         Function<String,ReactiveSeq<Integer>> bonusForDoubleLetter =
-            word ->  ReactiveSeq.fromStream(Stream.of(toBeMaxed.apply(word)
-                                                               .map(letter -> letterScores[letter - 'a'])
-                                                               .reduce(0,(a,b)->a>b?a:b)));
+            word ->  ReactiveSeq.ofInts(toBeMaxed.apply(word)
+                                                 .foldInt(i->i,s-> s.map(letter -> letterScores[letter - 'a'])
+                                                                    .reduce(0,(a,b)->a>b?a:b)));
 
         // score of the word put on the board
            
                     
-        Function<String, ReactiveSeq<Integer>> score3 = word -> ReactiveSeq.fromStream(Stream.of(score2.apply(word)
-                                                                                                       .single()
-                                                                                                 + bonusForDoubleLetter.apply(word)
-                                                                                                                       .single()
-                                                                                                 + score2.apply(word)
-                                                                                                          .single()
-                                                                                                 + bonusForDoubleLetter.apply(word)
-                                                                                                                       .single()
-                                                                                                 + (word.length() == 7 ? 50 : 0)));
+        Function<String, ReactiveSeq<Integer>> score3 = word -> ReactiveSeq.of(score2.apply(word).single()
+                                                                               + bonusForDoubleLetter.apply(word).single()
+                                                                               + score2.apply(word).single()
+                                                                               + bonusForDoubleLetter.apply(word).single()
+                                                                               + (word.length() == 7 ? 50 : 0));
         
               
        Function<Function<String, ReactiveSeq<Integer>>, ReactiveSeq<Map<Integer, List<String>>>> buildHistoOnScore =
@@ -155,7 +153,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt2 extends ShakespearePla
 
     public static void main(String[] args) throws Exception {
         
-        ShakespearePlaysScrabbleWithCyclopsReactOpt2 s = new ShakespearePlaysScrabbleWithCyclopsReactOpt2();
+        ShakespearePlaysScrabbleWithCyclopsReactOpt s = new ShakespearePlaysScrabbleWithCyclopsReactOpt();
         s.init();
         Long time = System.currentTimeMillis();
         for(int i=0;i<100;i++){
