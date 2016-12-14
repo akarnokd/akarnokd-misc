@@ -34,35 +34,6 @@ import ix.*;
  */
 public class ShakespearePlaysScrabbleWithIx extends ShakespearePlaysScrabble {
 
-    /*
-    Result: 12,690 ±(99.9%) 0,148 s/op [Average]
-              Statistics: (min, avg, max) = (12,281, 12,690, 12,784), stdev = 0,138
-              Confidence interval (99.9%): [12,543, 12,838]
-              Samples, N = 15
-                    mean =     12,690 ±(99.9%) 0,148 s/op
-                     min =     12,281 s/op
-              p( 0,0000) =     12,281 s/op
-              p(50,0000) =     12,717 s/op
-              p(90,0000) =     12,784 s/op
-              p(95,0000) =     12,784 s/op
-              p(99,0000) =     12,784 s/op
-              p(99,9000) =     12,784 s/op
-              p(99,9900) =     12,784 s/op
-              p(99,9990) =     12,784 s/op
-              p(99,9999) =     12,784 s/op
-                     max =     12,784 s/op
-
-
-            # Run complete. Total time: 00:06:26
-
-            Benchmark                                               Mode  Cnt   Score   Error  Units
-            ShakespearePlaysScrabbleWithRxJava.measureThroughput  sample   15  12,690 ± 0,148   s/op
-
-            Benchmark                                              Mode  Cnt       Score      Error  Units
-            ShakespearePlaysScrabbleWithRxJava.measureThroughput   avgt   15  250074,776 ± 7736,734  us/op
-            ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
-
-    */
     @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)

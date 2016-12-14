@@ -68,6 +68,8 @@ dependencies {
 
 	compile 'com.aol.simplereact:cyclops-react:+'
 
+    compile 'org.jooq:jool:+'
+
 //    compile('io.reactivex:rxjava-math:+') {
 //    	exclude group: "io.reactivex", module: "rxjava"
 //    }
@@ -161,7 +163,7 @@ apply plugin: 'license'
 apply from: file('gradle/license.gradle')
 
 jmh {
-    jmhVersion = '1.16'
+    jmhVersion = '1.17.2'
     humanOutputFile = null
     if (project.hasProperty('jmh')) {
         include = ".*" + project.jmh + ".*"
