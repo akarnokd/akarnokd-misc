@@ -79,6 +79,7 @@ public final class ObservableConflate<T> implements OnSubscribe<T>, Transformer<
             this.request(Long.MAX_VALUE);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void onNext(T t) {
             if (!gate) {
@@ -89,6 +90,15 @@ public final class ObservableConflate<T> implements OnSubscribe<T>, Transformer<
                 }
             } else {
                 current.lazySet(t);
+                if (!gate) {
+                    Object o = current.getAndSet(EMPTY);
+                    if (o != EMPTY) {
+                        gate = true;
+                        if (emit((T)o)) {
+                            worker.schedule(this, timeout, unit);
+                        }
+                    }
+                }
             }
         }
 
