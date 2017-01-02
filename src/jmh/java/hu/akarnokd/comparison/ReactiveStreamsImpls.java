@@ -197,8 +197,8 @@ public class ReactiveStreamsImpls {
     public void teardown() {
         actorSystem.terminate();
 
-        singleRa1.shutdown();
-        singleRa2.shutdown();
+        singleRa1.dispose();
+        singleRa2.dispose();
 
         exec1.shutdownNow();
         exec2.shutdownNow();

@@ -140,8 +140,8 @@ public class WindmillPerf {
 
         @TearDown
         public void teardown() {
-            sg1.shutdown();
-            sg2.shutdown();
+            sg1.dispose();
+            sg2.dispose();
         }
     }
 
