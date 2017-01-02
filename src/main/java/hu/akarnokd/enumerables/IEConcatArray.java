@@ -58,4 +58,62 @@ final class IEConcatArray<T> implements IEnumerable<T> {
             return false;
         }
     }
+    
+    @Override
+    public IEnumerable<Integer> sumInt() {
+        return new ConcatArraySumInt<>(sources);
+    }
+    
+    static final class ConcatArraySumInt<T> implements IEnumerable<Integer> {
+        
+        final IEnumerable<? extends T>[] sources;
+        
+        ConcatArraySumInt(IEnumerable<? extends T>[] sources) {
+            this.sources = sources;
+        }
+        
+        @Override
+        public IEnumerator<Integer> enumerator() {
+            return new ConcatArraySumIntEnumerator<>(sources);
+        }
+        
+        static final class ConcatArraySumIntEnumerator<T> extends BasicEnumerator<Integer> {
+
+            final IEnumerable<? extends T>[] sources;
+
+            boolean once;
+            
+            ConcatArraySumIntEnumerator(IEnumerable<? extends T>[] sources) {
+                this.sources = sources;
+            }
+
+            @Override
+            public boolean moveNext() {
+                if (!once) {
+                    once = true;
+                    
+                    if (sources.length != 0) {
+                        int c = 0;
+                        boolean nonEmpty = false;
+                        for (IEnumerable<? extends T> s : sources) {
+                            IEnumerator<? extends T> en = s.enumerator();
+                            if (en.moveNext()) {
+                                nonEmpty = true;
+                                c += ((Number)en.current()).intValue();
+                                while (en.moveNext()) {
+                                    c += ((Number)en.current()).intValue();
+                                }
+                            }
+                        }
+                        if (nonEmpty) {
+                            value = c;
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                return false;
+            }
+        }
+    }
 }

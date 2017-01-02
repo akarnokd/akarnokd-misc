@@ -133,12 +133,17 @@ public class ShakespearePlaysScrabbleWithIEOpt extends ShakespearePlaysScrabble 
         // score of the word put on the board
         Function<String, IEnumerable<Integer>> score3 =
             word ->
+//        IEnumerable.concatArray(
+//                        score2.apply(word).map(v -> v * 2),
+//                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
+//                        IEnumerable.just(word.length() == 7 ? 50 : 0)
+//                )
+//                .sumInt();
         IEnumerable.concatArray(
-                        score2.apply(word).map(v -> v * 2),
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
-                        IEnumerable.just(word.length() == 7 ? 50 : 0)
-                )
-                .sumInt();
+                score2.apply(word),
+                bonusForDoubleLetter.apply(word)
+        )
+        .sumInt().map(v -> 2 * v + (word.length() == 7 ? 50 : 0));
 
         Function<Function<String, IEnumerable<Integer>>, IEnumerable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> IEnumerable.fromIterable(shakespeareWords)

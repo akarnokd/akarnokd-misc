@@ -1,11 +1,18 @@
 package hu.akarnokd.enumerables;
 
-final class IEJust<T> implements IEnumerable<T> {
+import io.reactivex.internal.fuseable.ScalarCallable;
+
+final class IEJust<T> implements IEnumerable<T>, ScalarCallable<T> {
 
     final T value;
     
     IEJust(T value) {
         this.value = value;
+    }
+    
+    @Override
+    public T call() {
+        return value;
     }
     
     @Override
