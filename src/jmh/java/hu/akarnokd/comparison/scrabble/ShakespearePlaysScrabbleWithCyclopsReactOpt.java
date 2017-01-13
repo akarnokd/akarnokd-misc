@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 import org.openjdk.jmh.annotations.*;
 
-import com.aol.cyclops.control.ReactiveSeq;
+import cyclops.stream.ReactiveSeq;
 
 /**
  * Shakespeare plays Scrabble with Ix optimized.
@@ -96,7 +96,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
         Function<String, ReactiveSeq<Long>> nBlanks =
                 word -> {
                     return histoOfLetters.apply(word)
-                            .flatMapIterable(map -> map.entrySet())
+                            .flatMapI(map -> map.entrySet())
                             .map(blank)
                             .scanLeft(0L, (a, b) -> a + b)
                             .takeRight(1);
@@ -112,7 +112,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
         Function<String, ReactiveSeq<Integer>> score2 =
                 word ->
                     histoOfLetters.apply(word)
-                    .flatMapIterable(map -> map.entrySet())
+                    .flatMapI(map -> map.entrySet())
                     .map(letterScore)
                     .scanLeft(0, (a, b) -> a + b)
                     .takeRight(1);
@@ -128,7 +128,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
 
         // Stream to be maxed
         Function<String, ReactiveSeq<Integer>> toBeMaxed =
-            word -> first3.apply(word).appendStream(last3.apply(word))
+            word -> first3.apply(word).append(last3.apply(word))
             ;
 
         // Bonus for double letter
@@ -143,8 +143,8 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
         Function<String, ReactiveSeq<Integer>> score3 =
             word ->
                 score2.apply(word).map(v -> v * 2)
-                .appendStream(bonusForDoubleLetter.apply(word).map(v -> v * 2))
-                .concat(word.length() == 7 ? 50 : 0)
+                .append(bonusForDoubleLetter.apply(word).map(v -> v * 2))
+                .append(word.length() == 7 ? 50 : 0)
                 .scanLeft(0, (a, b) -> a + b)
                 .takeRight(1);
 
@@ -169,7 +169,7 @@ public class ShakespearePlaysScrabbleWithCyclopsReactOpt extends ShakespearePlay
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
                 buildHistoOnScore.apply(score3)
-                    .flatMapIterable(map -> map.entrySet())
+                    .flatMapI(map -> map.entrySet())
                     .take(3)
                     .scanLeft(new ArrayList<Entry<Integer, List<String>>>(), (list, entry) -> {
                         list.add(entry);
