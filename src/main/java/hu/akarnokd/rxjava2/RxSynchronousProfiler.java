@@ -98,40 +98,20 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
                     ;
         }
         
+        String tf(long time, long count) {
+            return String.format("     time = %10d ns, count = %7d, cost = %6d ns/call\r\n", time, count, count != 0 ? time / count : -1L);
+        }
+        
         public String print() {
             return key + "\r\n"
-                + "    subscribe()\r\n"
-                + "        time  = " + subscribeTime + " ns\r\n"
-                + "        count = " + subscribeCount + "\r\n"
-                + "        cost  = " + div(subscribeTime, subscribeCount) + " ns/call\r\n"
-                + "    onSubscribe()\r\n"
-                + "        time  = " + onSubscribeTime + " ns\r\n"
-                + "        count = " + onSubscribeCount + "\r\n"
-                + "        cost  = " + div(onSubscribeTime, onSubscribeCount) + " ns/call\r\n"
-                + "    onNext()\r\n"
-                + "        time  = " + onNextTime + " ns\r\n"
-                + "        count = " + onNextCount + "\r\n"
-                + "        cost  = " + div(onNextTime, onNextCount) + " ns/call\r\n"
-                + "    tryOnNext()\r\n"
-                + "        time  = " + tryOnNextTime + " ns\r\n"
-                + "        count = " + tryOnNextCount + "\r\n"
-                + "        cost  = " + div(tryOnNextTime, tryOnNextCount) + " ns/call\r\n"
-                + "    onError()\r\n"
-                + "        time  = " + onErrorTime + " ns\r\n"
-                + "        count = " + onErrorCount + "\r\n"
-                + "        cost  = " + div(onErrorTime, onErrorCount) + " ns/call\r\n"
-                + "    onComplete()\r\n"
-                + "        time  = " + onCompleteTime + " ns\r\n"
-                + "        count = " + onCompleteCount + "\r\n"
-                + "        cost  = " + div(onCompleteTime, onCompleteCount) + " ns/call\r\n"
-                + "    poll()\r\n"
-                + "        time  = " + pollTime + " ns\r\n"
-                + "        count = " + pollCount + "\r\n"
-                + "        cost  = " + div(pollTime, pollCount) + " ns/call\r\n"
-                + "    request()\r\n"
-                + "        time  = " + requestTime + " ns\r\n"
-                + "        count = " + requestCount + "\r\n"
-                + "        cost  = " + div(requestTime, requestCount) + " ns/call\r\n"
+                + "    subscribe()  " + tf(subscribeTime, subscribeCount)
+                + "    onSubscribe()" + tf(onSubscribeTime, onSubscribeCount)
+                + "    onNext()     " + tf(onNextTime, onNextCount)
+                + "    tryOnNext()  " + tf(tryOnNextTime, tryOnNextCount)
+                + "    onError()    " + tf(onErrorTime, onErrorCount)
+                + "    onComplete() " + tf(onCompleteTime, onCompleteCount)
+                + "    poll()       " + tf(pollTime, requestCount)
+                + "    request()    " + tf(requestTime, requestCount)
                 ;
         }
         

@@ -185,7 +185,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
         s.init();
         RxSynchronousProfiler p = new RxSynchronousProfiler();
         p.start();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             System.out.println(s.measureThroughput());
         }
         p.clear();
