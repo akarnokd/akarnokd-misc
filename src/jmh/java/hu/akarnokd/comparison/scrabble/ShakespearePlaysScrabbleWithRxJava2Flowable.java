@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.comparison.IterableSpliterator;
+import hu.akarnokd.rxjava2.RxSynchronousProfiler;
 import io.reactivex.*;
 import io.reactivex.functions.Function;
 
@@ -177,5 +178,21 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
 //        System.out.println(finalList2);
 
         return finalList2 ;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        ShakespearePlaysScrabbleWithRxJava2Flowable s = new ShakespearePlaysScrabbleWithRxJava2Flowable();
+        s.init();
+        RxSynchronousProfiler p = new RxSynchronousProfiler();
+        p.start();
+        for (int i = 0; i < 100; i++) {
+            System.out.println(s.measureThroughput());
+        }
+        p.clear();
+        
+        System.out.println(s.measureThroughput());
+
+        p.stop();
+        p.print();
     }
 }
