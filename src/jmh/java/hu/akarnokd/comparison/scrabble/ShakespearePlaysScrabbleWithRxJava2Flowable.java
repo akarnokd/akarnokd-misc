@@ -179,7 +179,7 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
 
         return finalList2 ;
     }
-    
+
     public static void main(String[] args) throws Exception {
         ShakespearePlaysScrabbleWithRxJava2Flowable s = new ShakespearePlaysScrabbleWithRxJava2Flowable();
         s.init();
@@ -189,10 +189,13 @@ public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlay
             System.out.println(s.measureThroughput());
         }
         p.clear();
-        
+
         System.out.println(s.measureThroughput());
 
         p.stop();
+
+        System.out.println();
+
         p.print();
     }
 }
