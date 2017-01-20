@@ -18,9 +18,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Control;
 
-import rx.internal.util.atomic.SpscLinkedArrayQueue;
-import rx.internal.util.unsafe.SpscArrayQueue;
-
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
@@ -28,16 +25,10 @@ import rx.internal.util.unsafe.SpscArrayQueue;
 @Fork(1)
 @Threads(2)
 @State(Scope.Group)
-public class MpscLinkedArrayQueueXPerf {
+public class MpmcLinkedArrayQueuePerf {
 
     @Param({ "1", "16", "128", "1024" })
     public int capacity;
-
-    MpscLinkedArrayQueue<Integer> queue;
-
-    SpscLinkedArrayQueue<Integer> q2;
-
-    SpscArrayQueue<Integer> q3;
 
     FAAArrayQueue<Integer> q4;
 
@@ -45,68 +36,8 @@ public class MpscLinkedArrayQueueXPerf {
 
     @Setup(Level.Iteration)
     public void setup() {
-        queue = new MpscLinkedArrayQueue<>(capacity);
-        q2 = new SpscLinkedArrayQueue<>(capacity);
-        q3 = new SpscArrayQueue<>(capacity);
         q4 = new FAAArrayQueue<>(capacity);
         q5 = new FAAArrayQueueV2<>(capacity);
-    }
-
-    @Group("mpsc")
-    @GroupThreads(1)
-    @Benchmark
-    public void send1(Control control) {
-        final MpscLinkedArrayQueue<Integer> q = queue;
-        while (!q.offer(1) && !control.stopMeasurement) {
-        }
-    }
-
-    @Group("mpsc")
-    @GroupThreads(1)
-    @Benchmark
-    public void recv1(Control control) {
-        final MpscLinkedArrayQueue<Integer> q = queue;
-        while (!control.stopMeasurement && q.poll() == null) {
-            ;
-        }
-    }
-
-    @Group("spscLinked")
-    @GroupThreads(1)
-    @Benchmark
-    public void send2(Control control) {
-        final SpscLinkedArrayQueue<Integer> q = q2;
-        while (!q.offer(1) && !control.stopMeasurement) {
-        }
-    }
-
-    @Group("spscLinked")
-    @GroupThreads(1)
-    @Benchmark
-    public void recv2(Control control) {
-        final SpscLinkedArrayQueue<Integer> q = q2;
-        while (!control.stopMeasurement && q.poll() == null) {
-            ;
-        }
-    }
-
-    @Group("spsc")
-    @GroupThreads(1)
-    @Benchmark
-    public void send3(Control control) {
-        final SpscArrayQueue<Integer> q = q3;
-        while (!q.offer(1) && !control.stopMeasurement) {
-        }
-    }
-
-    @Group("spsc")
-    @GroupThreads(1)
-    @Benchmark
-    public void recv3(Control control) {
-        final SpscArrayQueue<Integer> q = q3;
-        while (!control.stopMeasurement && q.poll() == null) {
-            ;
-        }
     }
 
     @Group("mpmca")

@@ -52,13 +52,18 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
     static class Node<E> extends AtomicReferenceArray<E> {
         private static final long serialVersionUID = 2042748845260823937L;
 
-        final AtomicInteger deqidx = new AtomicInteger(0);
-        final AtomicInteger enqidx = new AtomicInteger(1);
+        volatile int deqidx;
+        volatile int enqidx;
         volatile Node<E> next = null;
         // Start with the first entry pre-filled and enqidx at 1
         Node (final int bufferSize, final E item) {
-            super(bufferSize);
+            this(bufferSize);
+            UNSAFE.putOrderedInt(this, enqOffset, 1);
             lazySet(0, item);
+        }
+        // Start with the first entry pre-filled and enqidx at 1
+        Node (final int bufferSize) {
+            super(bufferSize);
         }
 
         /**
@@ -70,9 +75,19 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
             return UNSAFE.compareAndSwapObject(this, nextOffset, cmp, val);
         }
 
+        int getAndIncrementEnqueue() {
+            return UNSAFE.getAndAddInt(this, enqOffset, 1);
+        }
+
+        int getAndIncrementDequeue() {
+            return UNSAFE.getAndAddInt(this, deqOffset, 1);
+        }
+
         // Unsafe mechanics
         private static final sun.misc.Unsafe UNSAFE;
         private static final long nextOffset;
+        static final long enqOffset;
+        static final long deqOffset;
 
         static {
             try {
@@ -80,6 +95,8 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
                 f.setAccessible(true);
                 UNSAFE = (sun.misc.Unsafe) f.get(null);
                 nextOffset = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("next"));
+                enqOffset = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("enqidx"));
+                deqOffset = UNSAFE.objectFieldOffset(Node.class.getDeclaredField("deqidx"));
             } catch (Exception e) {
                 throw new Error(e);
             }
@@ -98,10 +115,9 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
 
     public FAAArrayQueueV2(int size) {
         this.size = size;
-        final Node<E> sentinelNode = new Node<E>(size, null);
-        sentinelNode.enqidx.set(0);
-        head = sentinelNode;
-        tail = sentinelNode;
+        final Node<E> sentinelNode = new Node<E>(size);
+        UNSAFE.putOrderedObject(this, headOffset, sentinelNode);
+        UNSAFE.putOrderedObject(this, tailOffset, sentinelNode);
     }
 
     /**
@@ -114,7 +130,7 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
         final int BUFFER_SIZE = size;
         while (true) {
             final Node<E> ltail = tail;
-            final int idx = ltail.enqidx.getAndIncrement();
+            final int idx = ltail.getAndIncrementEnqueue();
             if (idx > BUFFER_SIZE-1) { // This node is full
                 if (ltail != tail) continue;
                 final Node<E> lnext = ltail.next;
@@ -129,7 +145,8 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
                 }
                 continue;
             }
-            if (ltail.compareAndSet(idx, null, item)) return;
+            ltail.lazySet(idx, item);
+            return;
         }
     }
 
@@ -140,15 +157,24 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
         final int BUFFER_SIZE = size;
         while (true) {
             Node<E> lhead = head;
-            if (lhead.deqidx.get() >= lhead.enqidx.get() && lhead.next == null) return null;
-            final int idx = lhead.deqidx.getAndIncrement();
+            if (lhead.deqidx >= lhead.enqidx && lhead.next == null) return null;
+            final int idx = lhead.getAndIncrementDequeue();
             if (idx > BUFFER_SIZE-1) { // This node has been drained, check if there is another one
                 if (lhead.next == null) return null;  // No more nodes in the queue
                 casHead(lhead, lhead.next);
                 continue;
             }
-            final E item = lhead.getAndSet(idx, taken); // We can use a CAS instead
-            if (item != null) return item;
+
+            for (;;) {
+                E item = lhead.get(idx);
+                if (item != null) {
+                    lhead.lazySet(idx, taken);
+                    return item;
+                }
+                if (lhead.enqidx < idx) {
+                    break;
+                }
+            }
         }
     }
 
@@ -161,9 +187,9 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
     }
 
     // Unsafe mechanics
-    private static final sun.misc.Unsafe UNSAFE;
-    private static final long tailOffset;
-    private static final long headOffset;
+    static final sun.misc.Unsafe UNSAFE;
+    static final long tailOffset;
+    static final long headOffset;
     static {
         try {
             Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
