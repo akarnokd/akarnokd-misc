@@ -30,19 +30,40 @@ public class MpmcLinkedArrayQueuePerf {
     @Param({ "1", "16", "128", "1024" })
     public int capacity;
 
+    MpscLinkedArrayQueueV2<Integer> q3;
+
     FAAArrayQueue<Integer> q4;
 
     FAAArrayQueueV2<Integer> q5;
 
     @Setup(Level.Iteration)
     public void setup() {
+        q3 = new MpscLinkedArrayQueueV2<>(capacity);
         q4 = new FAAArrayQueue<>(capacity);
         q5 = new FAAArrayQueueV2<>(capacity);
     }
 
-    @Group("mpmca")
+    @Group("mpscb")
     @GroupThreads(1)
     @Benchmark
+    public void send3(Control control) {
+        final MpscLinkedArrayQueueV2<Integer> q = q3;
+        q.enqueue(1);
+    }
+
+    @Group("mpscb")
+    @GroupThreads(1)
+    @Benchmark
+    public void recv3(Control control) {
+        final MpscLinkedArrayQueueV2<Integer> q = q3;
+        while (!control.stopMeasurement && q.dequeue() == null) {
+            ;
+        }
+    }
+
+    @Group("mpmca")
+    @GroupThreads(1)
+//    @Benchmark
     public void send4(Control control) {
         final FAAArrayQueue<Integer> q = q4;
         q.enqueue(1);
@@ -50,7 +71,7 @@ public class MpmcLinkedArrayQueuePerf {
 
     @Group("mpmca")
     @GroupThreads(1)
-    @Benchmark
+//    @Benchmark
     public void recv4(Control control) {
         final FAAArrayQueue<Integer> q = q4;
         while (!control.stopMeasurement && q.dequeue() == null) {
@@ -60,7 +81,7 @@ public class MpmcLinkedArrayQueuePerf {
 
     @Group("mpmcb")
     @GroupThreads(1)
-    @Benchmark
+//    @Benchmark
     public void send5(Control control) {
         final FAAArrayQueueV2<Integer> q = q5;
         q.enqueue(1);
@@ -68,7 +89,7 @@ public class MpmcLinkedArrayQueuePerf {
 
     @Group("mpmcb")
     @GroupThreads(1)
-    @Benchmark
+//    @Benchmark
     public void recv5(Control control) {
         final FAAArrayQueueV2<Integer> q = q5;
         while (!control.stopMeasurement && q.dequeue() == null) {
