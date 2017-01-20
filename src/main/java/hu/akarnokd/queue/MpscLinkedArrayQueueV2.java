@@ -62,6 +62,8 @@ abstract class Pad3<E> extends Head<E> {
 
 public final class MpscLinkedArrayQueueV2<E> extends Pad3<E> {
 
+    static final int SHIFT = 0;
+
     public MpscLinkedArrayQueueV2(int size) {
         super(size);
         Node<E> start = new Node<>(size);
@@ -88,7 +90,7 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3<E> {
                 continue;
             }
 
-            t.lazySet(offset, item);
+            t.lazySet(offset << SHIFT, item);
             return;
         }
     }
@@ -109,8 +111,9 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3<E> {
             return item;
         }
 
+        int idx = offset << SHIFT;
         for (;;) {
-            E item = h.get(offset);
+            E item = h.get(idx);
             if (item != null) {
                 return item;
             }
@@ -139,10 +142,12 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3<E> {
             return item;
         }
 
+        int idx = offset << SHIFT;
+
         for (;;) {
-            E item = h.get(offset);
+            E item = h.get(idx);
             if (item != null) {
-                h.lazySet(offset, null);
+                h.lazySet(idx, null);
                 pollIndex = offset + 1;
                 return item;
             }
@@ -181,11 +186,11 @@ final class Node<E> extends AtomicReferenceArray<E> {
             AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "next");
 
     Node(int itemCount) {
-        super(itemCount);
+        super(itemCount << MpscLinkedArrayQueueV2.SHIFT);
     }
 
     Node(int itemCount, E first) {
-        this(itemCount);
+        this(itemCount << MpscLinkedArrayQueueV2.SHIFT);
         lazySet(0, first);
         OFFER_INDEX.lazySet(this, 1);
     }
