@@ -32,12 +32,11 @@ import org.openjdk.jmh.annotations.*;
  * @author akarnokd
  */
 public class ShakespearePlaysScrabbleWithJOOLOpt extends ShakespearePlaysScrabble {
-    
+
     Seq<Integer> chars(String string) {
         return Seq.range(0, string.length()).map(v -> (int)string.charAt(v));
     }
-    
-    @SuppressWarnings({ "unused" })
+
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -71,7 +70,7 @@ public class ShakespearePlaysScrabbleWithJOOLOpt extends ShakespearePlaysScrabbl
                 word -> {
                     HashMap<Integer, MutableLong> map = new HashMap<>();
                     return charSeq.apply(word)
-                                .map(value -> 
+                                .map(value ->
                                         {
                                             MutableLong newValue = map.get(value) ;
                                             if (newValue == null) {

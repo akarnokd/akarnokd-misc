@@ -41,7 +41,6 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         return StringFlowable.characters(word);
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

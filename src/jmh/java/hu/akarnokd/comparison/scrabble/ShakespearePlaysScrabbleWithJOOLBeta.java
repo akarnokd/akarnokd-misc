@@ -34,8 +34,7 @@ import hu.akarnokd.comparison.IterableSpliterator;
  * @author akarnokd
  */
 public class ShakespearePlaysScrabbleWithJOOLBeta extends ShakespearePlaysScrabble {
-    
-    @SuppressWarnings({ "unused" })
+
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -70,7 +69,7 @@ public class ShakespearePlaysScrabbleWithJOOLBeta extends ShakespearePlaysScrabb
                 word -> {
                     HashMap<Integer, LongWrapper> map = new HashMap<>();
                     return toIntegerIx.apply(word)
-                                .map(value -> 
+                                .map(value ->
                                         {
                                             LongWrapper newValue = map.get(value) ;
                                             if (newValue == null) {

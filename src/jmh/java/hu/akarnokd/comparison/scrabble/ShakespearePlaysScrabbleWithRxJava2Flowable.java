@@ -35,7 +35,6 @@ import io.reactivex.functions.Function;
  * @author akarnokd
  */
 public class ShakespearePlaysScrabbleWithRxJava2Flowable extends ShakespearePlaysScrabble {
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

@@ -3,18 +3,18 @@ package hu.akarnokd.enumerables;
 final class IEMaxInt<T> implements IEnumerable<Integer> {
 
     final IEnumerable<T> source;
-    
+
     IEMaxInt(IEnumerable<T> source) {
         this.source = source;
     }
-    
+
     @Override
     public IEnumerator<Integer> enumerator() {
         return new MaxIntEnumerator<>(source.enumerator());
     }
-    
+
     static final class MaxIntEnumerator<T> extends BasicEnumerator<Integer> {
-        
+
         final IEnumerator<T> source;
 
         boolean once;

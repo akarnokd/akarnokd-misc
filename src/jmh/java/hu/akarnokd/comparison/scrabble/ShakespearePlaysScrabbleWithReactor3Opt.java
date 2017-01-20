@@ -51,7 +51,6 @@ public class ShakespearePlaysScrabbleWithReactor3Opt extends ShakespearePlaysScr
         return new FluxCharSequence(word);
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

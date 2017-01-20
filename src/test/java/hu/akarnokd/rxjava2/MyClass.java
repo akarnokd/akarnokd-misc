@@ -18,7 +18,7 @@ public class MyClass {
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException ex) {
-                            
+                            // ignored
                         }
                         return Observable.error(new IllegalStateException("example"));
                     }
@@ -40,7 +40,7 @@ public class MyClass {
             d.dispose();
         } catch (InterruptedException e) {
         }
-        
+
         Thread.sleep(1000);
     }
 }

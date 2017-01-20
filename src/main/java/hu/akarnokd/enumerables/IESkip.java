@@ -5,17 +5,17 @@ final class IESkip<T> implements IEnumerable<T> {
     final IEnumerable<T> source;
 
     final int n;
-    
+
     IESkip(IEnumerable<T> source, int n) {
         this.source = source;
         this.n = n;
     }
-    
+
     @Override
     public IEnumerator<T> enumerator() {
         return new SkipEnumerator<>(source.enumerator(), n);
     }
-    
+
     static final class SkipEnumerator<T> implements IEnumerator<T> {
 
         final IEnumerator<T> source;
@@ -26,7 +26,7 @@ final class IESkip<T> implements IEnumerable<T> {
             this.source = source;
             this.n = n;
         }
-        
+
         @Override
         public boolean moveNext() {
             int i = n;
@@ -42,7 +42,7 @@ final class IESkip<T> implements IEnumerable<T> {
             }
             return source.moveNext();
         }
-        
+
         @Override
         public T current() {
             return source.current();

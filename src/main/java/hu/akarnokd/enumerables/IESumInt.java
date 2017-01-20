@@ -3,18 +3,18 @@ package hu.akarnokd.enumerables;
 final class IESumInt<T> implements IEnumerable<Integer> {
 
     final IEnumerable<T> source;
-    
+
     IESumInt(IEnumerable<T> source) {
         this.source = source;
     }
-    
+
     @Override
     public IEnumerator<Integer> enumerator() {
         return new SumIntEnumerator<>(source.enumerator());
     }
-    
+
     static final class SumIntEnumerator<T> extends BasicEnumerator<Integer> {
-        
+
         final IEnumerator<T> source;
 
         boolean once;

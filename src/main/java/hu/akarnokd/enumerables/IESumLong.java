@@ -3,18 +3,18 @@ package hu.akarnokd.enumerables;
 final class IESumLong<T> implements IEnumerable<Long> {
 
     final IEnumerable<T> source;
-    
+
     IESumLong(IEnumerable<T> source) {
         this.source = source;
     }
-    
+
     @Override
     public IEnumerator<Long> enumerator() {
         return new SumLongEnumerator<>(source.enumerator());
     }
-    
+
     static final class SumLongEnumerator<T> extends BasicEnumerator<Long> {
-        
+
         final IEnumerator<T> source;
 
         boolean once;

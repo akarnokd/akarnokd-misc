@@ -13,6 +13,5 @@ public class SingleTakeUntilTest {
         Single.just(1).takeUntil(Flowable.just(1).take(1))
         .test()
         .assertFailure(CancellationException.class);
-        
     }
 }

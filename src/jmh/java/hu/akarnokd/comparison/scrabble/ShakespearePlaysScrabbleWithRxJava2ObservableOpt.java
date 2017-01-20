@@ -43,7 +43,6 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         return StringObservable.characters(word);
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

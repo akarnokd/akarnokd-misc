@@ -50,7 +50,6 @@ public class ShakespearePlaysScrabbleWithRscOpt extends ShakespearePlaysScrabble
         return Px.characters(word);
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

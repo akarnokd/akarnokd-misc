@@ -53,7 +53,6 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
         scheduler.dispose();
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

@@ -62,7 +62,7 @@ dependencies {
     
     compile 'com.typesafe.akka:akka-stream_2.11:2.4.16'
     
-    compile 'org.jctools:jctools-core:1.2'
+    compile 'org.jctools:jctools-core:2.+'
 
     compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 

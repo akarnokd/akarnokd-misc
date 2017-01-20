@@ -65,7 +65,6 @@ public class ShakespearePlaysScrabbleWithGuavaOpt extends ShakespearePlaysScrabb
         };
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

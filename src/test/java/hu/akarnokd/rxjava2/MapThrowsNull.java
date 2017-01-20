@@ -31,7 +31,7 @@ public class MapThrowsNull {
             }
         });
     }
-    
+
     private static Observable<String> mightThrowException(String name) {
         throw new NullPointerException();
     }

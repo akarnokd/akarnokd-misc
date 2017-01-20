@@ -35,7 +35,7 @@ import io.reactivex.functions.Function;
  * @author akarnokd
  */
 public class ShakespearePlaysScrabbleWithRxJava2ObservableBeta extends ShakespearePlaysScrabble {
-    @SuppressWarnings({ "unused", "unchecked" })
+    @SuppressWarnings({ "unchecked" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

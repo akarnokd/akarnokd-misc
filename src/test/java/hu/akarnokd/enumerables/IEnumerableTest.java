@@ -19,33 +19,33 @@ public class IEnumerableTest {
         IEnumerable.fromIterable(Arrays.asList())
         .assertResult();
     }
-    
+
     @Test
     public void take() {
         IEnumerable.fromIterable(Arrays.asList(1, 2, 3))
         .take(2)
         .assertResult(1, 2);
     }
-    
+
     @Test
     public void skip() {
         IEnumerable.fromIterable(Arrays.asList(1, 2, 3))
         .skip(2)
         .assertResult(3);
     }
-    
+
     @Test
     public void first() {
         Assert.assertEquals(1, IEnumerable.fromIterable(Arrays.asList(1, 2, 3))
         .first().intValue());
     }
-    
+
     @Test(expected = NoSuchElementException.class)
     public void firstEmpty() {
         IEnumerable.fromIterable(Arrays.asList())
         .first();
     }
-    
+
     @Test
     public void flatMapIterator() {
         IEnumerable.fromIterable(Ix.range(1, 3))

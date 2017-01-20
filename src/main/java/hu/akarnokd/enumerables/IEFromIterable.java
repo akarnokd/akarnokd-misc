@@ -5,7 +5,7 @@ import java.util.Iterator;
 final class IEFromIterable<T> implements IEnumerable<T> {
 
     final Iterable<T> source;
-    
+
     IEFromIterable(Iterable<T> source) {
         this.source = source;
     }

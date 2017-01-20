@@ -45,7 +45,6 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
 
     final Scheduler scheduler = Schedulers.computation(); // = new WeakParallelScheduler();
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

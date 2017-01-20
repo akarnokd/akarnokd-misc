@@ -65,7 +65,6 @@ public class ShakespearePlaysScrabbleWithRscParallelOpt extends ShakespearePlays
         scheduler.shutdown();
     }
 
-    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

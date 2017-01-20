@@ -5,17 +5,17 @@ final class IETake<T> implements IEnumerable<T> {
     final IEnumerable<T> source;
 
     final int n;
-    
+
     IETake(IEnumerable<T> source, int n) {
         this.source = source;
         this.n = n;
     }
-    
+
     @Override
     public IEnumerator<T> enumerator() {
         return new TakeEnumerator<>(source.enumerator(), n);
     }
-    
+
     static final class TakeEnumerator<T> implements IEnumerator<T> {
 
         final IEnumerator<T> source;
@@ -26,7 +26,7 @@ final class IETake<T> implements IEnumerable<T> {
             this.source = source;
             this.n = n;
         }
-        
+
         @Override
         public boolean moveNext() {
             int i = n;
@@ -39,7 +39,7 @@ final class IETake<T> implements IEnumerable<T> {
             }
             return false;
         }
-        
+
         @Override
         public T current() {
             return source.current();
