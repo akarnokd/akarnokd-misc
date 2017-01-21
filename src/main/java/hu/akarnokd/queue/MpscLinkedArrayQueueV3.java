@@ -3,72 +3,89 @@ package hu.akarnokd.queue;
 import java.util.Objects;
 import java.util.concurrent.atomic.*;
 
-abstract class ColdV2<E> {
+
+abstract class Cold {
     final int size;
 
-    final AtomicReference<NodeV2<E>> tail;
-
-    ColdV2(int size) {
+    Cold(int size) {
         this.size = size;
-        this.tail = new AtomicReference<>();
     }
 }
 
-abstract class Pad1V2<E> extends ColdV2<E> {
+abstract class Pad1 extends Cold {
     volatile long p0, p1, p2, p3, p4, p5, p6;
     volatile long q1, q2, q3, q4, q5, q6, q7, q8;
 
-    Pad1V2(int size) {
+    Pad1(int size) {
         super(size);
     }
 }
 
-abstract class HeadV2<E> extends Pad1V2<E> {
-    NodeV2<E> head;
+abstract class Tail<E> extends Pad1 {
+
+    volatile Node<E> tail;
+    @SuppressWarnings("rawtypes")
+    static final AtomicReferenceFieldUpdater<Tail, Node> TAIL =
+            AtomicReferenceFieldUpdater.newUpdater(Tail.class, Node.class, "tail");
+
+    Tail(int size) {
+        super(size);
+    }
+}
+abstract class Pad2<E> extends Tail<E> {
+    volatile long p0, p1, p2, p3, p4, p5, p6;
+    volatile long q1, q2, q3, q4, q5, q6, q7, q8;
+
+    Pad2(int size) {
+        super(size);
+    }
+}
+
+abstract class Head<E> extends Pad2<E> {
+    Node<E> head;
     int pollIndex;
 
-    HeadV2(int size) {
+    Head(int size) {
         super(size);
     }
 }
 
-abstract class Pad3V2<E> extends HeadV2<E> {
+abstract class Pad3<E> extends Head<E> {
     volatile long p0, p1, p2, p3, p4, p5, p6;
     volatile long q1, q2, q3, q4, q5, q6, q7, q8;
 
-    Pad3V2(int size) {
+    Pad3(int size) {
         super(size);
     }
 
 }
 
-public final class MpscLinkedArrayQueueV2<E> extends Pad3V2<E> {
+public final class MpscLinkedArrayQueueV3<E> extends Pad3<E> {
 
     static final int SHIFT = 0;
 
-    public MpscLinkedArrayQueueV2(int size) {
+    public MpscLinkedArrayQueueV3(int size) {
         super(size);
-        NodeV2<E> start = new NodeV2<>(size);
+        Node<E> start = new Node<>(size);
         head = start;
-        tail.lazySet(start);
+        TAIL.lazySet(this, start);
     }
 
     public void enqueue(E item) {
         Objects.requireNonNull(item, "item is null");
         int s = size;
-        AtomicReference<NodeV2<E>> ftail = tail;
-        NodeV2<E> t = ftail.get();
+        Node<E> t = tail;
         for (;;) {
             int offset = t.offer();
 
             if (offset >= s) {
-                NodeV2<E> n = new NodeV2<E>(s, item);
+                Node<E> n = new Node<E>(s, item);
                 if (t.casNext(n)) {
-                    ftail.compareAndSet(t, n);
+                    TAIL.compareAndSet(this, t, n);
                     return;
                 }
-                n = t.next.get();
-                ftail.compareAndSet(t, n);
+                n = t.next;
+                TAIL.compareAndSet(this, t, n);
                 t = n;
                 continue;
             }
@@ -79,12 +96,12 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3V2<E> {
     }
 
     public E peek() {
-        NodeV2<E> h = head;
+        Node<E> h = head;
         int s = size;
         int offset = pollIndex;
 
         if (s == offset) {
-            NodeV2<E> n = h.next.get();
+            Node<E> n = h.next;
             if (n == null) {
                 return null;
             }
@@ -100,19 +117,19 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3V2<E> {
             if (item != null) {
                 return item;
             }
-            if (h.offerIndex.get() == offset) {
+            if (h.offerIndex == offset) {
                 return null;
             }
         }
     }
 
     public E dequeue() {
-        NodeV2<E> h = head;
+        Node<E> h = head;
         int s = size;
         int offset = pollIndex;
 
         if (s == offset) {
-            NodeV2<E> n = h.next.get();
+            Node<E> n = h.next;
             if (n == null) {
                 return null;
             }
@@ -134,7 +151,7 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3V2<E> {
                 pollIndex = offset + 1;
                 return item;
             }
-            if (h.offerIndex.get() == offset) {
+            if (h.offerIndex == offset) {
                 return null;
             }
         }
@@ -150,35 +167,39 @@ public final class MpscLinkedArrayQueueV2<E> extends Pad3V2<E> {
     }
 
     public boolean isEmpty() {
-        NodeV2<E> h = head;
-        return h.offerIndex.get() == pollIndex && h.next == null;
+        Node<E> h = head;
+        return h.offerIndex == pollIndex && h.next == null;
     }
 }
 
-final class NodeV2<E> extends AtomicReferenceArray<E> {
+final class Node<E> extends AtomicReferenceArray<E> {
     private static final long serialVersionUID = 841157748592449297L;
 
-    final AtomicInteger offerIndex;
+    volatile int offerIndex;
+    @SuppressWarnings("rawtypes")
+    static final AtomicIntegerFieldUpdater<Node> OFFER_INDEX =
+            AtomicIntegerFieldUpdater.newUpdater(Node.class, "offerIndex");
 
-    final AtomicReference<NodeV2<E>> next;
+    volatile Node<E> next;
+    @SuppressWarnings("rawtypes")
+    static final AtomicReferenceFieldUpdater<Node, Node> NEXT =
+            AtomicReferenceFieldUpdater.newUpdater(Node.class, Node.class, "next");
 
-    NodeV2(int itemCount) {
+    Node(int itemCount) {
         super(itemCount << MpscLinkedArrayQueueV2.SHIFT);
-        offerIndex = new AtomicInteger();
-        next = new AtomicReference<>();
     }
 
-    NodeV2(int itemCount, E first) {
+    Node(int itemCount, E first) {
         this(itemCount << MpscLinkedArrayQueueV2.SHIFT);
         lazySet(0, first);
-        offerIndex.lazySet(1);
+        OFFER_INDEX.lazySet(this, 1);
     }
 
-    boolean casNext(NodeV2<E> next) {
-        return this.next.compareAndSet(null, next);
+    boolean casNext(Node<E> next) {
+        return NEXT.compareAndSet(this, null, next);
     }
 
     int offer() {
-        return offerIndex.getAndIncrement();
+        return OFFER_INDEX.getAndIncrement(this);
     }
 }
