@@ -163,7 +163,8 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
 
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score ->
-                ParallelFlowable.from(Flowable.fromIterable(shakespeareWords))
+                Flowable.fromIterable(shakespeareWords)
+                .parallel()
                 .runOn(scheduler)
                 .filter(scrabbleWords::contains)
                 .filter(word -> checkBlanks.apply(word).blockingFirst())
