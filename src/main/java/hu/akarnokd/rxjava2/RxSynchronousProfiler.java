@@ -109,7 +109,7 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
                 + "    tryOnNext()  " + tf(tryOnNextTime, tryOnNextCount)
                 + "    onError()    " + tf(onErrorTime, onErrorCount)
                 + "    onComplete() " + tf(onCompleteTime, onCompleteCount)
-                + "    poll()       " + tf(pollTime, requestCount)
+                + "    poll()       " + tf(pollTime, pollCount)
                 + "    request()    " + tf(requestTime, requestCount)
                 ;
         }
