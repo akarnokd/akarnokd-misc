@@ -34,7 +34,7 @@ import ix.*;
  */
 public class ShakespearePlaysScrabbleWithIx extends ShakespearePlaysScrabble {
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.*;
  *
  * <p>
  * Lock-Free Linked List as described in Maged Michael and Michael Scott's paper:
- * {@link http://www.cs.rochester.edu/~scott/papers/1996_PODC_queues.pdf}
+ * {@link "http://www.cs.rochester.edu/~scott/papers/1996_PODC_queues.pdf"}
  * <a href="http://www.cs.rochester.edu/~scott/papers/1996_PODC_queues.pdf">
  * Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms</a>
  * <p>
@@ -46,6 +46,8 @@ import java.util.concurrent.atomic.*;
  *
  * @author Pedro Ramalhete
  * @author Andreia Correia
+ * 
+ * @param <E> element type
  */
 public class FAAArrayQueueV2<E> implements IQueue<E> {
 
@@ -115,7 +117,7 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
 
     public FAAArrayQueueV2(int size) {
         this.size = size;
-        final Node<E> sentinelNode = new Node<E>(size);
+        final Node<E> sentinelNode = new Node<>(size);
         UNSAFE.putOrderedObject(this, headOffset, sentinelNode);
         UNSAFE.putOrderedObject(this, tailOffset, sentinelNode);
     }
@@ -125,6 +127,7 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
      * 
      * @param item must not be null
      */
+    @Override
     public void enqueue(E item) {
         if (item == null) throw new NullPointerException();
         final int BUFFER_SIZE = size;
@@ -135,7 +138,7 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
                 if (ltail != tail) continue;
                 final Node<E> lnext = ltail.next;
                 if (lnext == null) {
-                    final Node<E> newNode = new Node<E>(BUFFER_SIZE, item);
+                    final Node<E> newNode = new Node<>(BUFFER_SIZE, item);
                     if (ltail.casNext(null, newNode)) {
                         casTail(ltail, newNode);
                         return;
@@ -153,6 +156,7 @@ public class FAAArrayQueueV2<E> implements IQueue<E> {
     /**
      * Progress condition: lock-free
      */
+    @Override
     public E dequeue() {
         final int BUFFER_SIZE = size;
         while (true) {

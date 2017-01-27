@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.rxjava2.math.MathFlowable;
-import hu.akarnokd.rxjava2.parallel.ParallelFlowable;
 import hu.akarnokd.rxjava2.string.StringFlowable;
 import io.reactivex.*;
 import io.reactivex.functions.Function;
@@ -55,6 +54,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
         iterations = 5, time = 1
     )
     @Fork(1)
+    @SuppressWarnings("unused")
     public List<Entry<Integer, List<String>>> measureThroughput() throws Exception {
 
         //  to compute the score of a given word

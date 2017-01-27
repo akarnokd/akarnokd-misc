@@ -48,6 +48,7 @@ import org.openjdk.jmh.annotations.Warmup;
 public abstract class ShakespearePlaysScrabbleWithStreams extends ShakespearePlaysScrabble {
 
 
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

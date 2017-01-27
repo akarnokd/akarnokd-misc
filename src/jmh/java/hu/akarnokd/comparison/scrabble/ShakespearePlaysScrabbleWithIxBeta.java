@@ -73,7 +73,7 @@ public class ShakespearePlaysScrabbleWithIxBeta extends ShakespearePlaysScrabble
             ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
 
     */
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

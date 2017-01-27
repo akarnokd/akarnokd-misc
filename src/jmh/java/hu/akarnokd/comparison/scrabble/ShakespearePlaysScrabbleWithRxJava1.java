@@ -73,6 +73,7 @@ public class ShakespearePlaysScrabbleWithRxJava1 extends ShakespearePlaysScrabbl
             ShakespearePlaysScrabbleWithStreams.measureThroughput  avgt   15   29389,903 ± 1115,836  us/op
 
     */
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

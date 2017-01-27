@@ -69,7 +69,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
         return Ix.characters(word);
     }
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

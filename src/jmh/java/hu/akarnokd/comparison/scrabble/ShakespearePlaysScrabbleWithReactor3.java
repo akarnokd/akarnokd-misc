@@ -44,6 +44,7 @@ import reactor.core.publisher.*;
  * @author akarnokd
  */
 public class ShakespearePlaysScrabbleWithReactor3 extends ShakespearePlaysScrabble {
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

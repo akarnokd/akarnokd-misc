@@ -6,8 +6,8 @@ import java.util.stream.IntStream;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import hu.akarnokd.rxjava2.parallel.ParallelFlowable;
 import io.reactivex.Flowable;
+import io.reactivex.parallel.ParallelFlowable;
 import io.reactivex.schedulers.Schedulers;
 
 @BenchmarkMode(Mode.Throughput)

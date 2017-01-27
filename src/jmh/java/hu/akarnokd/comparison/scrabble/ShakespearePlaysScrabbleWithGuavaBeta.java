@@ -36,6 +36,7 @@ import hu.akarnokd.comparison.IterableSpliterator;
  */
 public class ShakespearePlaysScrabbleWithGuavaBeta extends ShakespearePlaysScrabble {
 
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

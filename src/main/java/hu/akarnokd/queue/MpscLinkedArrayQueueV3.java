@@ -79,7 +79,7 @@ public final class MpscLinkedArrayQueueV3<E> extends Pad3<E> {
             int offset = t.offer();
 
             if (offset >= s) {
-                Node<E> n = new Node<E>(s, item);
+                Node<E> n = new Node<>(s, item);
                 if (t.casNext(n)) {
                     TAIL.compareAndSet(this, t, n);
                     return;

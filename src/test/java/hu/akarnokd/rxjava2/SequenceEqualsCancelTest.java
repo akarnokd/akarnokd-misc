@@ -2,10 +2,9 @@ package hu.akarnokd.rxjava2;
 
 import org.junit.*;
 
-import hu.akarnokd.rxjava2.subjects.*;
 import io.reactivex.*;
 import io.reactivex.processors.PublishProcessor;
-import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.*;
 
 public class SequenceEqualsCancelTest {
 

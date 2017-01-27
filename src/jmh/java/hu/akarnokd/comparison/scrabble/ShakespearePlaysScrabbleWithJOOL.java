@@ -181,7 +181,7 @@ public class ShakespearePlaysScrabbleWithJOOL extends ShakespearePlaysScrabble {
 
         Function<Function<String, Seq<Integer>>, Seq<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> {
-                    TreeMap<Integer, List<String>> map = new TreeMap<Integer, List<String>>(Comparator.reverseOrder());
+                    TreeMap<Integer, List<String>> map = new TreeMap<>(Comparator.reverseOrder());
                     return Seq.seq(() -> shakespeareWords.iterator())
                                     .filter(scrabbleWords::contains)
                                     .filter(word -> checkBlanks.apply(word).findFirst().orElse(false))

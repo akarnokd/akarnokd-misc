@@ -34,6 +34,7 @@ import hu.akarnokd.enumerables.IEnumerable;
  */
 public class ShakespearePlaysScrabbleWithIEOpt extends ShakespearePlaysScrabble {
 
+    @SuppressWarnings("unused")
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
