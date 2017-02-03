@@ -104,6 +104,8 @@ dependencies {
     	exclude group: "com.github.akarnokd", module: "rxjava2-extensions"
     }
 
+    compile 'com.github.akarnokd:reactive4java:+'
+
     // -------------------------------------------------------------------
     
     compile 'com.google.guava:guava:20.0'
