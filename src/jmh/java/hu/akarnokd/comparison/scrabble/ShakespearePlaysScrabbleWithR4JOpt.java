@@ -133,7 +133,7 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
 
         // Stream to be maxed
         Func1<String, ObservableBuilder<Integer>> toBeMaxed =
-            word -> ObservableBuilder.from(concat(first3.invoke(word), last3.invoke(word)))
+            word -> ObservableBuilder.from(Reactive.concat(first3.invoke(word), last3.invoke(word)))
             ;
 
         // Bonus for double letter
@@ -145,7 +145,7 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
         // score of the word put on the board
         Func1<String, ObservableBuilder<Integer>> score3 =
             word ->
-                ObservableBuilder.from(concat(
+                ObservableBuilder.from(Reactive.concat(
                         score2.invoke(word).select(v -> v * 2),
                         bonusForDoubleLetter.invoke(word).select(v -> v * 2),
                         Reactive.just(word.length() == 7 ? 50 : 0)
@@ -187,54 +187,6 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
 //        System.out.println(finalList2);
 
         return finalList2 ;
-    }
-
-    @SafeVarargs
-    static <T> Observable<T> concat(Observable<T>... sources) {
-        return o -> {
-            CompositeCloseable cc = new CompositeCloseable();
-
-            final AtomicInteger wip = new AtomicInteger();
-            Observer<T> obs = new Observer<T>() {
-                volatile boolean active;
-                int index;
-
-                @Override
-                public void error(Throwable ex) {
-                    o.error(ex);
-                }
-
-                @Override
-                public void finish() {
-                    active = false;
-                    if (wip.getAndIncrement() == 0) {
-                        
-                        do {
-                            if (!active) {
-                                int i = index;
-                                if (i == sources.length) {
-                                    o.finish();
-                                    return;
-                                }
-                                Observable<T> src = sources[i];
-                                index = i + 1;
-                                active = true;
-                                cc.add(src.register(this));
-                            }
-                        } while (wip.decrementAndGet() != 0);
-                    }
-                }
-
-                @Override
-                public void next(T value) {
-                    o.next(value);
-                }
-            };
-
-            obs.finish();
-            
-            return cc;
-        };
     }
     
     public static void main(String[] args) throws Exception {

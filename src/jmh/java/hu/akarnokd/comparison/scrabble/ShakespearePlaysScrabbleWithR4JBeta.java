@@ -18,20 +18,17 @@
 
 package hu.akarnokd.comparison.scrabble;
 
-import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.*;
 
 import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.comparison.IterableSpliterator;
 import hu.akarnokd.reactive4java.base.Func1;
 import hu.akarnokd.reactive4java.base.Observable;
-import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.query.ObservableBuilder;
-import hu.akarnokd.reactive4java.util.*;
+import hu.akarnokd.reactive4java.util.Functions;
 
 /**
  * Shakespeare plays Scrabble with Reactive4Java (slightly modified).
@@ -87,6 +84,7 @@ public class ShakespearePlaysScrabbleWithR4JBeta extends ShakespearePlaysScrabbl
                                   }
 
                           )
+                          .takeLast(1)
                           ;
 
       // number of blanks for a given letter
@@ -102,22 +100,22 @@ public class ShakespearePlaysScrabbleWithR4JBeta extends ShakespearePlaysScrabbl
 
       // number of blanks for a given word
       Func1<String, ObservableBuilder<Long>> nBlanks =
-              word -> selectMany(
-                          selectMany(histoOfLetters.invoke(word), (Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
-                          , blank)
+              word -> histoOfLetters.invoke(word)
+                          .selectMany((Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
+                          .selectMany(blank)
                           .sumLong();
 
 
       // can a word be written with 2 blanks?
       Func1<String, ObservableBuilder<Boolean>> checkBlanks =
-              word -> selectMany(nBlanks.invoke(word)
-                          , (Func1<Long, Observable<Boolean>>)l -> ObservableBuilder.from(l <= 2L)) ;
+              word -> nBlanks.invoke(word)
+                          .selectMany((Func1<Long, Observable<Boolean>>)l -> ObservableBuilder.from(l <= 2L)) ;
 
       // score taking blanks into account letterScore1
       Func1<String, ObservableBuilder<Integer>> score2 =
-              word -> selectMany(
-                          selectMany(histoOfLetters.invoke(word), (Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
-                          , letterScore)
+              word -> histoOfLetters.invoke(word)
+                          .selectMany((Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
+                          .selectMany(letterScore)
                           .sumInt();
 
       // Placing the word on the board
@@ -130,24 +128,24 @@ public class ShakespearePlaysScrabbleWithR4JBeta extends ShakespearePlaysScrabbl
 
       // Stream to be maxed
       Func1<String, ObservableBuilder<Integer>> toBeMaxed =
-          word -> selectMany(ObservableBuilder.from(first3.invoke(word), last3.invoke(word))
-                      , Functions.identity()) ;
+          word -> ObservableBuilder.from(first3.invoke(word), last3.invoke(word))
+                      .selectMany(Functions.identity()) ;
 
       // Bonus for double letter
       Func1<String, ObservableBuilder<Integer>> bonusForDoubleLetter =
-          word -> selectMany(toBeMaxed.invoke(word)
-                      , scoreOfALetter)
+          word -> toBeMaxed.invoke(word)
+                      .selectMany(scoreOfALetter)
                       .max();
 
       // score of the word put on the board
       Func1<String, ObservableBuilder<Integer>> score3 =
-          word -> selectMany(
+          word ->
               ObservableBuilder.from(
                       score2.invoke(word).select(v -> v * 2),
                       bonusForDoubleLetter.invoke(word).select(v -> v * 2),
                       ObservableBuilder.from(word.length() == 7 ? 50 : 0)
               )
-              , Functions.identity())
+              .selectMany(Functions.identity())
               .sumInt() ;
 
       Func1<Func1<String, ObservableBuilder<Integer>>, ObservableBuilder<TreeMap<Integer, List<String>>>> buildHistoOnScore =
@@ -166,12 +164,13 @@ public class ShakespearePlaysScrabbleWithR4JBeta extends ShakespearePlaysScrabbl
                                       list.add(word) ;
                                       return map;
                                   }
-                              );
+                              ) 
+                              .takeLast(1);
 
       // best key / value pairs
       List<Entry<Integer, List<String>>> finalList2 =
-              selectMany(buildHistoOnScore.invoke(score3)
-                  , (Func1<TreeMap<Integer, List<String>>, Observable<Entry<Integer, List<String>>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
+              buildHistoOnScore.invoke(score3)
+                  .selectMany((Func1<TreeMap<Integer, List<String>>, Observable<Entry<Integer, List<String>>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
                   .take(3)
                   .aggregate(
                       new ArrayList<Entry<Integer, List<String>>>(),
@@ -180,6 +179,7 @@ public class ShakespearePlaysScrabbleWithR4JBeta extends ShakespearePlaysScrabbl
                           return list;
                       }
                   )
+                  .takeLast(1)
                   .first() ;
 
 
@@ -187,92 +187,6 @@ public class ShakespearePlaysScrabbleWithR4JBeta extends ShakespearePlaysScrabbl
 
       return finalList2 ;
     }
-
-    <T, R> ObservableBuilder<R> selectMany(Observable<T> source, Func1<? super T, ? extends Observable<R>> mapper) {
-        Observable<R> o = actual -> {
-            CompositeCloseable cc = new CompositeCloseable();
-            
-            class Main implements Observer<T> {
-                
-                AtomicInteger wip = new AtomicInteger(1);
-                
-                Closeable closed = () -> { };
-
-                @Override
-                public void error(Throwable ex) {
-                    synchronized (this) {
-                        actual.error(ex);
-                    }
-                    cc.closeSilently();
-                }
-
-                @Override
-                public void finish() {
-                    if (wip.decrementAndGet() == 0) {
-                        actual.finish();
-                    }
-                }
-                
-                void innerNext(R v) {
-                    synchronized (this) {
-                        actual.next(v);
-                    }
-                }
-
-                @Override
-                public void next(T value) {
-                    Observable<R> obs = mapper.invoke(value);
-
-                    Inner inner = new Inner();
-                    cc.add(inner);
-                    
-                    Closeable c = obs.register(inner);
-                    inner.setCloseable(c);
-                }
-                
-                class Inner extends AtomicReference<Closeable> implements Observer<R>, Closeable {
-
-                    private static final long serialVersionUID = 5850767581654640520L;
-
-                    @Override
-                    public void error(Throwable ex) {
-                        Main.this.error(ex);
-                    }
-
-                    @Override
-                    public void finish() {
-                        Main.this.finish();
-                        cc.delete(this);
-                    }
-
-                    @Override
-                    public void next(R value) {
-                        Main.this.innerNext(value);
-                    }
-                    
-                    @Override
-                    public void close() throws IOException {
-                        Closeable c = getAndSet(closed);
-                        if (c != null) {
-                            c.close();
-                        }
-                    }
-                    
-                    void setCloseable(Closeable c) {
-                        if (!compareAndSet(null, c)) {
-                            Closeables.closeSilently(c);
-                        }
-                    }
-                }
-            };
-
-            cc.add(source.register(new Main()));
-            
-            return cc;
-        };
-        return ObservableBuilder.from(o);
-    }
-    
     
     public static void main(String[] args) throws Exception {
         ShakespearePlaysScrabbleWithR4JBeta s = new ShakespearePlaysScrabbleWithR4JBeta();
