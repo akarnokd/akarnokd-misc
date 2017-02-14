@@ -6,7 +6,7 @@ import rx.schedulers.Schedulers;
 public final class EmitterTest {
     private EmitterTest() { }
   public static void main(String[] args) {
-    Observable<Integer> obs = Observable.fromEmitter(emitter -> {
+    Observable<Integer> obs = Observable.create(emitter -> {
       for (int i = 1; i < 1000; i++) {
         if (i % 5 == 0) {
           sleep(300L);

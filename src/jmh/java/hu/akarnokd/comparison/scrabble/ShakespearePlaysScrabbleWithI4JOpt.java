@@ -39,7 +39,7 @@ public class ShakespearePlaysScrabbleWithI4JOpt extends ShakespearePlaysScrabble
         return IterableBuilder.range(0, word.length()).select(i -> (int)word.charAt(i));
     }
 
-    @SuppressWarnings({ "unchecked", "unused" })
+//    @SuppressWarnings({ "unchecked", "unused" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

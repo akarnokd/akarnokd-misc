@@ -37,7 +37,7 @@ import hu.akarnokd.reactive4java.util.Functions;
  */
 public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
 
-    @SuppressWarnings({ "unchecked", "unused" })
+    @SuppressWarnings({ "unchecked" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

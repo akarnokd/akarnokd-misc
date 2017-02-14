@@ -21,16 +21,12 @@ package hu.akarnokd.comparison.scrabble;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.reactive4java.base.Func1;
-import hu.akarnokd.reactive4java.base.Observable;
-import hu.akarnokd.reactive4java.base.Observer;
 import hu.akarnokd.reactive4java.query.ObservableBuilder;
 import hu.akarnokd.reactive4java.reactive.Reactive;
-import hu.akarnokd.reactive4java.util.*;
 
 /**
  * Shakespeare plays Scrabble with Reactive4Java optimized.
@@ -43,7 +39,7 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
         return ObservableBuilder.range(0, word.length()).select(i -> (int)word.charAt(i));
     }
 
-    @SuppressWarnings({ "unchecked", "unused" })
+    @SuppressWarnings({ "unchecked" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)

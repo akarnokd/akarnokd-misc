@@ -79,7 +79,7 @@ public final class OperatorMinMax {
 
     private static <T> Observable<T> minMax(Observable<T> source,
             final Comparator<? super T> comparator, final int flag) {
-        return Observable.create(new OnSubscribeMinMax<>(source, comparator, flag));
+        return Observable.unsafeCreate(new OnSubscribeMinMax<>(source, comparator, flag));
     }
 
     private static <T, R extends Comparable<? super R>> Observable<List<T>> minMaxBy(
