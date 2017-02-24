@@ -22,11 +22,17 @@ public class ItemManagerPerf {
 
     LazyItemManager<Integer> v1;
     CowItemManager<Integer> v2;
+    FreelistItemManager<Integer> v3;
+    
+    IndexedItem<Integer>[] iitems;
 
+    @SuppressWarnings("unchecked")
     @Setup
     public void setup() {
         v1 = new LazyItemManager<>(128);
         v2 = new CowItemManager<>();
+        v3 = new FreelistItemManager<>(128);
+        iitems = new IndexedItem[128];
     }
 
     @Benchmark
@@ -62,6 +68,25 @@ public class ItemManagerPerf {
         
         for (int j = 128 - s; j < 128; j++) {
             a.remove(j);
+        }
+    }
+
+    @Benchmark
+    public void offerRemoveV3() {
+        int s = shift;
+        FreelistItemManager<Integer> a = v3;
+        IndexedItem<Integer>[] b = iitems;
+        
+        for (int i = 0; i < 128; i++) {
+            b[i] = a.offer(i);
+            int j = i - s;
+            if (j >= 0) {
+                a.remove(b[j]);
+            }
+        }
+        
+        for (int j = 128 - s; j < 128; j++) {
+            a.remove(b[j]);
         }
     }
 }
