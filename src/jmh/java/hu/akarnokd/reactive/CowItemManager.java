@@ -13,7 +13,6 @@ public class CowItemManager<T> extends AtomicReference<Object[]>{
         for (;;) {
             Object[] a = get();
             if (a == TERMINATED) {
-                onRemove(item);
                 return false;
             }
             int n = a.length;
@@ -58,12 +57,8 @@ public class CowItemManager<T> extends AtomicReference<Object[]>{
         }
     }
 
-//    @SuppressWarnings("unchecked")
     public void clear() {
         getAndSet(EMPTY);
-//        for (Object o : getAndSet(EMPTY)) {
-//            onRemove((T)o);
-//        }
     }
 
     @SuppressWarnings("unchecked")
