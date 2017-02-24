@@ -42,7 +42,9 @@ public class ItemManagerPerf {
             }
         }
 
-        a.clear();
+        for (int j = 128 - s; j < 128; j++) {
+            a.remove(j);
+        }
     }
 
     @Benchmark
@@ -57,7 +59,9 @@ public class ItemManagerPerf {
                 a.remove(j);
             }
         }
-
-        a.clear();
+        
+        for (int j = 128 - s; j < 128; j++) {
+            a.remove(j);
+        }
     }
 }

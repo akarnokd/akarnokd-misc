@@ -9,6 +9,10 @@ public class CowItemManager<T> extends AtomicReference<Object[]>{
     static final Object[] EMPTY = new Object[0];
     static final Object[] TERMINATED = new Object[0];
     
+    public CowItemManager() {
+        lazySet(EMPTY);
+    }
+    
     public boolean offer(T item) {
         for (;;) {
             Object[] a = get();
