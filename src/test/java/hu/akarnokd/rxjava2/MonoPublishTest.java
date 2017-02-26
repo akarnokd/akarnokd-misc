@@ -1,7 +1,6 @@
 package hu.akarnokd.rxjava2;
 
 import io.reactivex.Flowable;
-import reactor.core.publisher.*;
 
 public class MonoPublishTest {
 

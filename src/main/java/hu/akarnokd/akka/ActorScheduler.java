@@ -56,7 +56,6 @@ implements reactor.core.scheduler.Scheduler {
             return wr;
         }
 
-        @SuppressWarnings("deprecation")
         @Override
         public void shutdown() {
             HashSet<WorkerRunnable> set;

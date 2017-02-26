@@ -1,7 +1,6 @@
 package hu.akarnokd.rxjava2;
 
 import io.reactivex.*;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 public class MaybeConcatTest {
@@ -20,7 +19,7 @@ public class MaybeConcatTest {
                 e.onSuccess("m2");
             }
         });
-        Disposable subscribe = Maybe.concat(m1, m2)
+        /*Disposable subscribe = */Maybe.concat(m1, m2)
                 .firstElement()
                 .subscribe(new Consumer<String>() {
 
