@@ -17,8 +17,7 @@ import java.util.concurrent.atomic.*;
 
 import org.reactivestreams.*;
 
-import io.reactivex.Scheduler;
-import io.reactivex.disposables.*;
+import hu.akarnokd.reactive.ResourceScheduler.ResourceTask;
 import io.reactivex.functions.Consumer;
 import io.reactivex.internal.queue.SpscArrayQueue;
 import io.reactivex.internal.subscriptions.SubscriptionHelper;
@@ -29,13 +28,13 @@ final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
 
     final ResourceFlowable<T> source;
 
-    final Scheduler scheduler;
+    final ResourceScheduler scheduler;
 
     final int bufferSize;
 
     final Consumer<? super T> release;
 
-    ResourceFlowableObserveOn(ResourceFlowable<T> source, Scheduler scheduler, int bufferSize) {
+    ResourceFlowableObserveOn(ResourceFlowable<T> source, ResourceScheduler scheduler, int bufferSize) {
         this.source = source;
         this.scheduler = scheduler;
         this.bufferSize = bufferSize;
@@ -53,13 +52,13 @@ final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
     }
 
     static final class RFObserveOnSubscriber<T> extends AtomicInteger
-    implements Subscriber<T>, Subscription, Runnable {
+    implements Subscriber<T>, Subscription, ResourceTask {
 
         private static final long serialVersionUID = -436873336763533104L;
 
         final Subscriber<? super T> actual;
 
-        final Scheduler.Worker worker;
+        final ResourceScheduler.ResourceWorker worker;
 
         final Consumer<? super T> release;
 
@@ -82,7 +81,7 @@ final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
 
         long consumed;
 
-        RFObserveOnSubscriber(Subscriber<? super T> actual, Scheduler.Worker worker, Consumer<? super T> release, int bufferSize) {
+        RFObserveOnSubscriber(Subscriber<? super T> actual, ResourceScheduler.ResourceWorker worker, Consumer<? super T> release, int bufferSize) {
             this.actual = actual;
             this.worker = worker;
             this.release = release;
@@ -142,21 +141,20 @@ final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
 
         void schedule() {
             if (getAndIncrement() == 0) {
-                Disposable d = worker.schedule(this);
-                if (d == Disposables.disposed()) {
-                    do {
-                        clearQueue(this.queue, this.release);
-                    } while (decrementAndGet() != 0);
-                }
+                worker.schedule(this);
             }
         }
 
         void cleanup() {
             if (getAndIncrement() == 0) {
-                do {
-                    clearQueue(this.queue, this.release);
-                } while (decrementAndGet() != 0);
+                clearQueueWip();
             }
+        }
+
+        void clearQueueWip() {
+            do {
+                clearQueue(this.queue, this.release);
+            } while (decrementAndGet() != 0);
         }
 
         void clearQueue(SpscArrayQueue<T> queue, Consumer<? super T> release) {
@@ -171,6 +169,11 @@ final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
                     RxJavaPlugins.onError(ex);
                 }
             }
+        }
+
+        @Override
+        public void onCancel() {
+            clearQueueWip();
         }
 
         @Override

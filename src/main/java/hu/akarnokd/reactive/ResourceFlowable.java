@@ -73,12 +73,12 @@ public abstract class ResourceFlowable<T> {
 
     // --------------------------------------------------------------------------------
 
-    public final ResourceFlowable<T> subscribeOn(Scheduler scheduler) {
+    public final ResourceFlowable<T> subscribeOn(ResourceScheduler scheduler) {
         // TODO
         throw new UnsupportedOperationException();
     }
 
-    public final ResourceFlowable<T> observeOn(Scheduler scheduler) {
+    public final ResourceFlowable<T> observeOn(ResourceScheduler scheduler) {
         return new ResourceFlowableObserveOn<>(this, scheduler, Flowable.bufferSize());
     }
 
@@ -117,7 +117,7 @@ public abstract class ResourceFlowable<T> {
         throw new UnsupportedOperationException();
     }
 
-    public final Flowable<T> toFlowable() {
+    public final <R> Flowable<R> toFlowable(Function<? super T, ? extends R> extract) {
         // TODO
         throw new UnsupportedOperationException();
     }
