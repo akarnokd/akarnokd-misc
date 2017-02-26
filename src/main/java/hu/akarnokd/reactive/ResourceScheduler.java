@@ -28,6 +28,11 @@ public abstract class ResourceScheduler {
 
     public void shutdown() { }
 
+    /**
+     * Represents a FIFO worker that executes the submitted tasks in
+     * order and honors the resource cleanup requirements of the
+     * ResourceTasks submitted.
+     */
     public abstract static class ResourceWorker implements Disposable {
 
         public abstract Disposable schedule(ResourceTask task);

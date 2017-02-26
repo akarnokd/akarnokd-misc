@@ -22,7 +22,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.internal.queue.SpscArrayQueue;
 import io.reactivex.internal.subscriptions.SubscriptionHelper;
 import io.reactivex.internal.util.BackpressureHelper;
-import io.reactivex.plugins.RxJavaPlugins;
 
 final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
 
@@ -163,11 +162,7 @@ final class ResourceFlowableObserveOn<T> extends ResourceFlowable<T> {
                 if (v == null) {
                     break;
                 }
-                try {
-                    release.accept(v);
-                } catch (Throwable ex) {
-                    RxJavaPlugins.onError(ex);
-                }
+                releaseItem(v, release);
             }
         }
 
