@@ -6,7 +6,9 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class MyClass {
+public final class MyClass {
+
+    private MyClass() { }
 
     public static void main(String[] args) throws Exception {
 
@@ -25,13 +27,13 @@ public class MyClass {
                 })
                 .subscribeWith(new DisposableObserver<Integer>() {
                     @Override
-                    public void onError(Throwable e) {}
+                    public void onError(Throwable e) { }
 
                     @Override
-                    public void onComplete() {}
+                    public void onComplete() { }
 
                     @Override
-                    public void onNext(Integer integer) {}
+                    public void onNext(Integer integer) { }
                 });
 
 

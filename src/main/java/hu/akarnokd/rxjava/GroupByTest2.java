@@ -6,7 +6,9 @@ import java.util.Random;
 
 import static rx.Observable.range;
 
-public class GroupByTest2 {
+public final class GroupByTest2 {
+    private GroupByTest2() { }
+
     public static void main(String[] args) throws Exception {
         Observable<Integer> source = range(1, 10000);
         source

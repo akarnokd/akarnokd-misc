@@ -147,6 +147,6 @@ public abstract class ShakespearePlaysScrabbleWithLSABeta extends ShakespearePla
     IntStream chars(String s) {
         return IntStream.range(0, s.length()).map(i -> s.charAt(i));
     }
-    
+
     abstract Stream<String> buildShakerspeareWordsStream() ;
 }

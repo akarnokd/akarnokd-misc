@@ -1,12 +1,14 @@
 package hu.akarnokd.reactor;
 
     import java.time.Duration;
-    import java.util.*;
-    
-    import reactor.core.publisher.*;
-    
-    public class DelayedBuffer {
-    
+import java.util.List;
+
+import reactor.core.publisher.*;
+
+    public final class DelayedBuffer {
+
+        private DelayedBuffer() { }
+
         public static void main(String[] args) {
             Flux.just(1, 2, 3, 6, 7, 10)
             .flatMap(v -> Mono.delayMillis(v * 1000).doOnNext(w -> System.out.println("T=" + v)).map(w -> v))
@@ -14,7 +16,7 @@ package hu.akarnokd.reactor;
             .doOnNext(System.out::println)
             .blockLast();
         }
-        
+
         public static <T> Flux<List<T>> delayedBufferAfterFirst(Flux<T> source, Duration d) {
             return source
             .publish(f -> {

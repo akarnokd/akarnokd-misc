@@ -4,7 +4,9 @@ import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;
 import rx.Observable;
 
-public class StackOverflowDepth {
+public final class StackOverflowDepth {
+
+    private StackOverflowDepth() { }
 
     static void rxjava() {
         for (int i = 1; i < 100000; i += 1) {
@@ -12,7 +14,7 @@ public class StackOverflowDepth {
             for (int j = 1; j <= i; j++) {
                 source = source.doOnNext(e -> { System.out.print(""); });
             }
-            
+
             try {
                 source.test();
             } catch (StackOverflowError ex) {
@@ -21,14 +23,14 @@ public class StackOverflowDepth {
             }
         }
     }
-    
+
     static void rxjava2() {
         for (int i = 1; i < 100000; i += 1) {
             Flowable<Integer> source = Flowable.just(1);
             for (int j = 1; j <= i; j++) {
                 source = source.doOnNext(e -> { System.out.print(""); });
             }
-            
+
             try {
                 source.test();
             } catch (StackOverflowError ex) {
@@ -38,14 +40,14 @@ public class StackOverflowDepth {
             }
         }
     }
-    
+
     static void reactor3() {
         for (int i = 1; i < 100000; i += 1) {
             Flux<Integer> source = Flux.just(1);
             for (int j = 1; j <= i; j++) {
                 source = source.doOnNext(e -> { System.out.print(""); });
             }
-            
+
             try {
                 source.subscribe();
             } catch (StackOverflowError ex) {
@@ -55,7 +57,7 @@ public class StackOverflowDepth {
             }
         }
     }
-    
+
     public static void main(String[] args) {
         System.out.println("RxJava");
         rxjava();

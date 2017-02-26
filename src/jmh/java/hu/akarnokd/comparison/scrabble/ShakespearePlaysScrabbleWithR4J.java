@@ -72,7 +72,7 @@ public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
         // Histogram of the letters in a given word
         Func1<String, ObservableBuilder<HashMap<Integer, LongWrapper>>> histoOfLetters =
                 word -> toIntegerIx.invoke(word)
-                            .aggregate(new HashMap<>(), 
+                            .aggregate(new HashMap<>(),
                                 (HashMap<Integer, LongWrapper> map, Integer value) ->
                                     {
                                         LongWrapper newValue = map.get(value) ;
@@ -166,7 +166,7 @@ public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
                                         list.add(word) ;
                                         return map;
                                     }
-                                ) 
+                                )
                                 .takeLast(1);
 
         // best key / value pairs

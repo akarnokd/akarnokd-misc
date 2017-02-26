@@ -3,7 +3,10 @@ package hu.akarnokd.rxjava2;
 import io.reactivex.*;
 import io.reactivex.functions.Consumer;
 
-public class MaybeConcatTest {
+public final class MaybeConcatTest {
+
+    private MaybeConcatTest() { }
+
     public static void main(String[] args) {
         Maybe<String> m1 = Maybe.create(new MaybeOnSubscribe<String>() {
 

@@ -29,7 +29,7 @@ public class CompletableConcat1 {
                     System.out.println("Finished Completable.concat");
                 }, Throwable::printStackTrace
         );
-        
+
         Thread.sleep(2000);
     }
 }

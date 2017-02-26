@@ -183,11 +183,11 @@ public class ShakespearePlaysScrabbleWithI4JOpt extends ShakespearePlaysScrabble
 
         return finalList2 ;
     }
-    
+
     <T> IterableBuilder<T> skip(Iterable<T> source, int count) {
         return IterableBuilder.<T>from(() -> {
             Iterator<T> it = source.iterator();
-            
+
             return new Iterator<T>() {
                 int c = count;
                 @Override
@@ -209,7 +209,6 @@ public class ShakespearePlaysScrabbleWithI4JOpt extends ShakespearePlaysScrabble
                     }
                     throw new NoSuchElementException();
                 }
-                
             };
         });
     }

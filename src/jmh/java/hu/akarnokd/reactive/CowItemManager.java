@@ -2,17 +2,17 @@ package hu.akarnokd.reactive;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-public class CowItemManager<T> extends AtomicReference<Object[]>{
+public class CowItemManager<T> extends AtomicReference<Object[]> {
 
     private static final long serialVersionUID = 873320459854565358L;
 
     static final Object[] EMPTY = new Object[0];
     static final Object[] TERMINATED = new Object[0];
-    
+
     public CowItemManager() {
         lazySet(EMPTY);
     }
-    
+
     public boolean offer(T item) {
         for (;;) {
             Object[] a = get();
@@ -28,7 +28,7 @@ public class CowItemManager<T> extends AtomicReference<Object[]>{
             }
         }
     }
-    
+
     public void remove(T item) {
         for (;;) {
             Object[] a = get();
@@ -36,7 +36,7 @@ public class CowItemManager<T> extends AtomicReference<Object[]>{
             if (n == 0) {
                 break;
             }
-            
+
             int j = -1;
             for (int i = 0; i < n; i++) {
                 if (a[i] == item) {
@@ -71,8 +71,8 @@ public class CowItemManager<T> extends AtomicReference<Object[]>{
             onRemove((T)o);
         }
     }
-    
+
     public void onRemove(T item) {
-        
+
     }
 }

@@ -6,10 +6,12 @@ import rx.*;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-public class RetryWhenCompile {
-    static int retryCount = 0;
+public final class RetryWhenCompile {
+    private RetryWhenCompile() { }
+
+    static int retryCount;
     public static void main(String[] args) throws Exception {
-        
+
         final int maxRetries = 3;
 
         Observable.unsafeCreate(new Observable.OnSubscribe<Integer>() {

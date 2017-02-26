@@ -3,7 +3,10 @@ import java.util.Collections;
 
 import io.reactivex.*;
 
-public class RxJava2Test {
+public final class RxJava2Test {
+
+    private RxJava2Test() { }
+
     public static void main(String... args) {
         Flowable<Integer> source = Flowable.create((e) -> {
             for (int i = 0; i < 300; i++) {

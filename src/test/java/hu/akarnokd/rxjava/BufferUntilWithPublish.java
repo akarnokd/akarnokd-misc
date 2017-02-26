@@ -6,7 +6,8 @@ import rx.Observable;
 import rx.functions.*;
 import rx.subjects.PublishSubject;
 
-public class BufferUntilWithPublish {
+public final class BufferUntilWithPublish {
+    private BufferUntilWithPublish() { }
     public static <T extends Object> Observable<List<T>> bufferUntil(
             Observable<T> source,
             final Func1<T, Boolean> bufferClosingCriteria) {
@@ -28,7 +29,7 @@ public class BufferUntilWithPublish {
                     })).filter(list -> !list.isEmpty());
         });
     }
-    
+
     public static void main(String[] args) throws Exception {
         Character[] arr = {'a','b','c','d','e','c'};
 
@@ -41,11 +42,12 @@ public class BufferUntilWithPublish {
             @Override
             public void call(List<Character> o) {
                 System.out.println(o);
-                for (int i = 0; i < o.size(); ++i)
+                for (int i = 0; i < o.size(); ++i) {
                    System.out.println("LL " + o.get(i).toString());
+                }
             }
         });
-        
+
         Thread.sleep(2000);
     }
 }

@@ -12,7 +12,7 @@ public class FreelistItemManagerTest {
         for (int i = 0; i < 128; i++) {
             mgr.offer(i);
         }
-        
+
         for (int i = 0; i < 128; i++) {
             assertEquals(i + 1, mgr.get(i).index, i + 1);
             assertEquals(i, mgr.get(i).item.intValue());

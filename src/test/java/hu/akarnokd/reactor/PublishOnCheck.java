@@ -62,7 +62,7 @@ public class PublishOnCheck {
                     );
         }
     }
-    
+
     @Test
     public void test() {
         final int groupMemberDelaySeconds = 3;
@@ -80,7 +80,7 @@ public class PublishOnCheck {
                         31, 32, 33, 34, 35, 31, 32, 33, 34, 35,
                         41, 42, 43, 44, 45, 41, 42, 43, 44, 45
                 });
-                
+
                 groupsAndDelays = new GroupsAndDelays();
                         groupsAndDelays.groupMemberDelaySeconds = groupMemberDelaySeconds;
                         groupsAndDelays.maxRetries = maxRetryCount;
@@ -88,7 +88,7 @@ public class PublishOnCheck {
 
                         groupByFn = i -> i % 10;
                         responseMapper = i -> i;
-                        
+
                 groupsAndDelays.doStuff(src, groupByFn, responseMapper)
                         .collectList()
                         .block();

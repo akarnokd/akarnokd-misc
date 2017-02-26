@@ -8,11 +8,11 @@ public class LazyItemManager<T> extends AtomicReference<AtomicReferenceArray<T>>
 
     @SuppressWarnings("rawtypes")
     static final AtomicReferenceArray TERMINATED = new AtomicReferenceArray(0);
-    
+
     public LazyItemManager(int capacity) {
         lazySet(new AtomicReferenceArray<T>(capacity));
     }
-    
+
     public boolean offer(T item) {
         AtomicReferenceArray<T> a = get();
         if (a != TERMINATED) {
@@ -30,7 +30,7 @@ public class LazyItemManager<T> extends AtomicReference<AtomicReferenceArray<T>>
         }
         return false;
     }
-    
+
     public void remove(T item) {
         AtomicReferenceArray<T> a = get();
         int n = a.length();
@@ -40,7 +40,7 @@ public class LazyItemManager<T> extends AtomicReference<AtomicReferenceArray<T>>
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public void close() {
         AtomicReferenceArray<T> a = get();
@@ -57,7 +57,7 @@ public class LazyItemManager<T> extends AtomicReference<AtomicReferenceArray<T>>
             }
         }
     }
-    
+
     public void clear() {
         AtomicReferenceArray<T> a = get();
         int n = a.length();
@@ -65,9 +65,8 @@ public class LazyItemManager<T> extends AtomicReference<AtomicReferenceArray<T>>
             a.lazySet(i, null);
         }
     }
-    
+
     public void onRemove(T item) {
-        
+
     }
-    
 }

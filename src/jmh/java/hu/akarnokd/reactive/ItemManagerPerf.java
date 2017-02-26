@@ -23,7 +23,7 @@ public class ItemManagerPerf {
     LazyItemManager<Integer> v1;
     CowItemManager<Integer> v2;
     FreelistItemManager<Integer> v3;
-    
+
     IndexedItem<Integer>[] iitems;
 
     @SuppressWarnings("unchecked")
@@ -39,7 +39,7 @@ public class ItemManagerPerf {
     public void offerRemoveV1() {
         int s = shift;
         LazyItemManager<Integer> a = v1;
-        
+
         for (int i = 0; i < 128; i++) {
             a.offer(i);
             int j = i - s;
@@ -57,7 +57,7 @@ public class ItemManagerPerf {
     public void offerRemoveV2() {
         int s = shift;
         CowItemManager<Integer> a = v2;
-        
+
         for (int i = 0; i < 128; i++) {
             a.offer(i);
             int j = i - s;
@@ -65,7 +65,7 @@ public class ItemManagerPerf {
                 a.remove(j);
             }
         }
-        
+
         for (int j = 128 - s; j < 128; j++) {
             a.remove(j);
         }
@@ -76,7 +76,7 @@ public class ItemManagerPerf {
         int s = shift;
         FreelistItemManager<Integer> a = v3;
         IndexedItem<Integer>[] b = iitems;
-        
+
         for (int i = 0; i < 128; i++) {
             b[i] = a.offer(i);
             int j = i - s;
@@ -84,7 +84,7 @@ public class ItemManagerPerf {
                 a.remove(b[j]);
             }
         }
-        
+
         for (int j = 128 - s; j < 128; j++) {
             a.remove(b[j]);
         }

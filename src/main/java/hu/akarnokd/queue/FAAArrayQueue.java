@@ -55,7 +55,7 @@ public class FAAArrayQueue<E> implements IQueue<E> {
         final AtomicInteger deqidx = new AtomicInteger(0);
         final AtomicReferenceArray<E> items;
         final AtomicInteger enqidx = new AtomicInteger(1);
-        volatile Node<E> next = null;
+        volatile Node<E> next;
         // Start with the first entry pre-filled and enqidx at 1
         Node (final int bufferSize, final E item) {
             items = new AtomicReferenceArray<>(bufferSize);
@@ -112,13 +112,17 @@ public class FAAArrayQueue<E> implements IQueue<E> {
      */
     @Override
     public void enqueue(E item) {
-        if (item == null) throw new NullPointerException();
+        if (item == null) {
+            throw new NullPointerException();
+        }
         final int BUFFER_SIZE = size;
         while (true) {
             final Node<E> ltail = tail;
             final int idx = ltail.enqidx.getAndIncrement();
-            if (idx > BUFFER_SIZE-1) { // This node is full
-                if (ltail != tail) continue;
+            if (idx > BUFFER_SIZE - 1) { // This node is full
+                if (ltail != tail) {
+                    continue;
+                }
                 final Node<E> lnext = ltail.next;
                 if (lnext == null) {
                     final Node<E> newNode = new Node<>(BUFFER_SIZE, item);
@@ -131,7 +135,9 @@ public class FAAArrayQueue<E> implements IQueue<E> {
                 }
                 continue;
             }
-            if (ltail.items.compareAndSet(idx, null, item)) return;
+            if (ltail.items.compareAndSet(idx, null, item)) {
+                return;
+            }
         }
     }
 
@@ -143,15 +149,21 @@ public class FAAArrayQueue<E> implements IQueue<E> {
         final int BUFFER_SIZE = size;
         while (true) {
             Node<E> lhead = head;
-            if (lhead.deqidx.get() >= lhead.enqidx.get() && lhead.next == null) return null;
+            if (lhead.deqidx.get() >= lhead.enqidx.get() && lhead.next == null) {
+                return null;
+            }
             final int idx = lhead.deqidx.getAndIncrement();
-            if (idx > BUFFER_SIZE-1) { // This node has been drained, check if there is another one
-                if (lhead.next == null) return null;  // No more nodes in the queue
+            if (idx > BUFFER_SIZE - 1) { // This node has been drained, check if there is another one
+                if (lhead.next == null) {
+                    return null;  // No more nodes in the queue
+                }
                 casHead(lhead, lhead.next);
                 continue;
             }
             final E item = lhead.items.getAndSet(idx, taken); // We can use a CAS instead
-            if (item != null) return item;
+            if (item != null) {
+                return item;
+            }
         }
     }
 

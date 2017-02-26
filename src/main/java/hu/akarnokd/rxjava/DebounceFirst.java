@@ -4,7 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
 
-public class DebounceFirst {
+public final class DebounceFirst {
+
+    private DebounceFirst() { }
 
     public static void main(String[] args) {
         Observable.just(0, 100, 200, 1500, 1600, 1800, 2000, 10000)
@@ -14,9 +16,9 @@ public class DebounceFirst {
         .toBlocking()
         .subscribe(v -> System.out.println("Debounced: " + v));
     }
-    
+
     static <T> Observable.Transformer<T, T> debounceFirst(long timeout, TimeUnit unit) {
-        return f -> 
+        return f ->
             f.publish(g ->
                 g.take(1)
                 .concatWith(

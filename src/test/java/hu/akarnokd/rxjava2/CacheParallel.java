@@ -45,13 +45,13 @@ public class CacheParallel {
         Assert.assertEquals("Multithreaded threads", 3, threadNames.size());
     }
 
-    private void tryToSleep(long value) 
+    private void tryToSleep(long value)
     {
         try
         {
             Thread.sleep(value);
         }
-        catch(InterruptedException e) 
+        catch (InterruptedException e)
         {
             e.printStackTrace();
         }

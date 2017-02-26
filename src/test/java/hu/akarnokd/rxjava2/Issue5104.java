@@ -6,14 +6,16 @@ import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
-public class Issue5104 {
+public final class Issue5104 {
+    private Issue5104() { }
+
     public static void main(String[] args) throws Exception {
 PublishSubject<String> vehicleToFetch = PublishSubject.create();
 vehicleToFetch
         .delay(2,TimeUnit.SECONDS)
         .window(10, TimeUnit.SECONDS, 5)
         .observeOn(Schedulers.io())
-        .subscribe(w-> w.toList().subscribe(ws-> {
+        .subscribe(w -> w.toList().subscribe(ws -> {
             ws.forEach(v -> {
                 System.out.println(String.format("%s %d", v, Thread.currentThread().getId()));
                 vehicleToFetch.onNext(v);

@@ -184,7 +184,7 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
 
         return finalList2 ;
     }
-    
+
     public static void main(String[] args) throws Exception {
         ShakespearePlaysScrabbleWithR4JOpt s = new ShakespearePlaysScrabbleWithR4JOpt();
         s.init();

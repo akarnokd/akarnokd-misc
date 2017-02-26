@@ -7,7 +7,10 @@ import io.reactivex.Flowable;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
 
-public class ParallelInterrupt {
+public final class ParallelInterrupt {
+
+    private ParallelInterrupt() { }
+
     public static void main(String[] args) {
         RxJavaPlugins.setErrorHandler(e -> { });
         Flowable.range(1, 10)

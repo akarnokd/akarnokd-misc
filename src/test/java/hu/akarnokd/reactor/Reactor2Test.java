@@ -3,7 +3,9 @@ import java.util.Collections;
 
 import reactor.core.publisher.Flux;
 
-public class Reactor2Test {
+public final class Reactor2Test {
+    private Reactor2Test() { }
+
     public static void main(String... args) {
         Flux<Integer> source = Flux.create((e) -> {
             for (int i = 0; i < 300; i++) {

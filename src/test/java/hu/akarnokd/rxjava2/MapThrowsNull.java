@@ -3,7 +3,9 @@ package hu.akarnokd.rxjava2;
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 
-public class MapThrowsNull {
+public final class MapThrowsNull {
+
+    private MapThrowsNull() { }
 
     public static void main(String[] args) {
         Observable.just("some name")

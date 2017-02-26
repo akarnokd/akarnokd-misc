@@ -13,6 +13,8 @@
 
 package hu.akarnokd.reactive;
 
+import java.util.concurrent.Callable;
+
 import org.reactivestreams.*;
 
 import com.annimon.stream.Objects;
@@ -93,6 +95,11 @@ public abstract class ResourceFlowable<T> {
         return new ResourceFlowablePublisher<>(source, release);
     }
 
+    public static <T> ResourceFlowable<T> defer(Callable<? extends ResourceFlowable<? extends T>> call) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
     // --------------------------------------------------------------------------------
 
     public final ResourceFlowable<T> observeOn(ResourceScheduler scheduler) {
@@ -103,6 +110,20 @@ public abstract class ResourceFlowable<T> {
     public final ResourceFlowable<T> withRelease(Consumer<? super T> release) {
         ObjectHelper.requireNonNull(release, "release is null");
         return new ResourceFlowableWithRelease<>(this, release);
+    }
+
+    public final <R> ResourceFlowable<R> compose(Function<? super ResourceFlowable<T>, ? extends ResourceFlowable<R>> composer) {
+        return to(composer);
+    }
+
+    public final <R> Flowable<R> toFlowable(Function<? super T, ? extends R> extract) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public final <R> R to(Function<? super ResourceFlowable<T>, ? extends R> composer) {
+        // TODO
+        throw new UnsupportedOperationException();
     }
 
     public final ResourceFlowable<T> subscribeOn(ResourceScheduler scheduler) {
@@ -142,11 +163,6 @@ public abstract class ResourceFlowable<T> {
     }
 
     public final <R> ResourceFlowable<R> flatMapIterable(Function<? super T, ? extends Iterable<? extends R>> mapper, Consumer<? super R> release) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public final <R> Flowable<R> toFlowable(Function<? super T, ? extends R> extract) {
         // TODO
         throw new UnsupportedOperationException();
     }

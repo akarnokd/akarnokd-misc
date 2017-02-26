@@ -6,7 +6,9 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.*;
 
-public class Loading {
+public final class Loading {
+
+    private Loading() { }
 
     public static void main(String[] args) throws Exception {
         Subject<Object> loadingQueue = PublishSubject.<Object>create().toSerialized();
@@ -35,7 +37,7 @@ public class Loading {
         loadingQueue.onNext(true);
         loadingQueue.onNext(true);
         loadingQueue.onNext(true);
-        
+
         Thread.sleep(10000);
     }
 }
