@@ -22,6 +22,7 @@ import com.annimon.stream.Objects;
 import io.reactivex.Flowable;
 import io.reactivex.functions.*;
 import io.reactivex.internal.functions.ObjectHelper;
+import io.reactivex.internal.util.ExceptionHelper;
 import io.reactivex.plugins.RxJavaPlugins;
 
 /**
@@ -95,9 +96,10 @@ public abstract class ResourceFlowable<T> {
         return new ResourceFlowablePublisher<>(source, release);
     }
 
-    public static <T> ResourceFlowable<T> defer(Callable<? extends ResourceFlowable<? extends T>> call) {
-        // TODO
-        throw new UnsupportedOperationException();
+    public static <T> ResourceFlowable<T> defer(Callable<? extends ResourceFlowable<T>> call, Consumer<? super T> release) {
+        ObjectHelper.requireNonNull(call, "call is null");
+        ObjectHelper.requireNonNull(release, "release is null");
+        return new ResourceFlowableDefer<>(call, release);
     }
 
     // --------------------------------------------------------------------------------
@@ -117,13 +119,27 @@ public abstract class ResourceFlowable<T> {
     }
 
     public final <R> Flowable<R> toFlowable(Function<? super T, ? extends R> extract) {
-        // TODO
-        throw new UnsupportedOperationException();
+        ObjectHelper.requireNonNull(extract, "extract is null");
+        return new ResourceFlowableToFlowable<>(this, extract);
     }
 
     public final <R> R to(Function<? super ResourceFlowable<T>, ? extends R> composer) {
-        // TODO
-        throw new UnsupportedOperationException();
+        try {
+            return composer.apply(this);
+        } catch (Throwable ex) {
+            throw ExceptionHelper.wrapOrThrow(ex);
+        }
+    }
+
+    public final <R> ResourceFlowable<R> map(Function<? super T, ? extends R> mapper, Consumer<? super R> release) {
+        ObjectHelper.requireNonNull(mapper, "mapper is null");
+        ObjectHelper.requireNonNull(release, "release is null");
+        return new ResourceFlowableMap<>(this, mapper, release);
+    }
+
+    public final ResourceFlowable<T> doOnNext(Consumer<? super T> onNext) {
+        ObjectHelper.requireNonNull(onNext, "onNext is null");
+        return new ResourceFlowableDoOnNext<>(this, onNext);
     }
 
     public final ResourceFlowable<T> subscribeOn(ResourceScheduler scheduler) {
@@ -132,37 +148,45 @@ public abstract class ResourceFlowable<T> {
         throw new UnsupportedOperationException();
     }
 
-    public final ResourceFlowable<T> doOnNext(Consumer<? super T> onNext) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
-    public final <R> ResourceFlowable<R> map(Function<? super T, ? extends R> mapper, Consumer<? super R> release) {
-        // TODO
-        throw new UnsupportedOperationException();
-    }
-
     public final <R> ResourceFlowable<R> flatMap(Function<? super T, ? extends ResourceFlowable<? extends R>> mapper) {
+        ObjectHelper.requireNonNull(mapper, "mapper is null");
         // TODO
         throw new UnsupportedOperationException();
     }
 
     public final <R> ResourceFlowable<R> flatMap(Function<? super T, ? extends ResourceFlowable<? extends R>> mapper, int maxConcurrency) {
+        ObjectHelper.requireNonNull(mapper, "mapper is null");
         // TODO
         throw new UnsupportedOperationException();
     }
 
     public final <R> ResourceFlowable<R> flatMapPublisher(Function<? super T, ? extends Publisher<? extends R>> mapper, Consumer<? super R> release) {
+        ObjectHelper.requireNonNull(mapper, "mapper is null");
+        ObjectHelper.requireNonNull(release, "release is null");
         // TODO
         throw new UnsupportedOperationException();
     }
 
     public final <R> ResourceFlowable<R> flatMapPublisher(Function<? super T, ? extends Publisher<? extends R>> mapper, int maxConcurrency, Consumer<? super R> release) {
+        ObjectHelper.requireNonNull(mapper, "mapper is null");
+        ObjectHelper.requireNonNull(release, "release is null");
         // TODO
         throw new UnsupportedOperationException();
     }
 
     public final <R> ResourceFlowable<R> flatMapIterable(Function<? super T, ? extends Iterable<? extends R>> mapper, Consumer<? super R> release) {
+        ObjectHelper.requireNonNull(mapper, "mapper is null");
+        ObjectHelper.requireNonNull(release, "release is null");
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public final ResourceFlowable<T> take(long n) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public final ResourceFlowable<T> skip(long n) {
         // TODO
         throw new UnsupportedOperationException();
     }

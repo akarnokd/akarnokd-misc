@@ -15,30 +15,37 @@ package hu.akarnokd.reactive;
 
 import org.reactivestreams.*;
 
-import io.reactivex.Flowable;
 import io.reactivex.functions.*;
 import io.reactivex.internal.functions.ObjectHelper;
 import io.reactivex.plugins.RxJavaPlugins;
 import rsc.subscriber.SubscriptionHelper;
 import rx.exceptions.Exceptions;
 
-final class ResourceFlowableTo<T, R> extends Flowable<R> {
+final class ResourceFlowableMap<T, R> extends ResourceFlowable<R> {
 
     final ResourceFlowable<T> source;
 
     final Function<? super T, ? extends R> mapper;
 
-    ResourceFlowableTo(ResourceFlowable<T> source, Function<? super T, ? extends R> mapper) {
+    final Consumer<? super R> release;
+
+    ResourceFlowableMap(ResourceFlowable<T> source, Function<? super T, ? extends R> mapper, Consumer<? super R> release) {
         this.source = source;
         this.mapper = mapper;
+        this.release = release;
+    }
+
+    @Override
+    public Consumer<? super R> release() {
+        return release;
     }
 
     @Override
     protected void subscribeActual(Subscriber<? super R> s) {
-        source.subscribe(new RFToSubscriber<>(s, mapper, source.release()));
+        source.subscribe(new RFMapSubscriber<>(s, mapper, source.release()));
     }
 
-    static final class RFToSubscriber<T, R> implements Subscriber<T>, Subscription {
+    static final class RFMapSubscriber<T, R> implements Subscriber<T>, Subscription {
 
         final Subscriber<? super R> actual;
 
@@ -50,7 +57,7 @@ final class ResourceFlowableTo<T, R> extends Flowable<R> {
 
         boolean done;
 
-        RFToSubscriber(Subscriber<? super R> actual, Function<? super T, ? extends R> mapper, Consumer<? super T> release) {
+        RFMapSubscriber(Subscriber<? super R> actual, Function<? super T, ? extends R> mapper, Consumer<? super T> release) {
             this.actual = actual;
             this.mapper = mapper;
             this.release = release;
