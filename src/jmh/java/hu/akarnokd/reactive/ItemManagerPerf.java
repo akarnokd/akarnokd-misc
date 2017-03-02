@@ -17,7 +17,7 @@ import org.openjdk.jmh.annotations.*;
 @State(Scope.Thread)
 public class ItemManagerPerf {
 
-    @Param({ "0", "1", "2", "4", "8", "16", "32", "64", "96" })
+    @Param({ /*"0", "1", "2", "4", "8", "16", "32", "64",*/ "96" })
     public int shift;
 
     LazyItemManager<Integer> v1;

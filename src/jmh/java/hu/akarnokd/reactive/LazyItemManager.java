@@ -19,7 +19,7 @@ public class LazyItemManager<T> extends AtomicReference<AtomicReferenceArray<T>>
             int n = a.length();
             for (int i = 0; i < n; i++) {
                 if (a.get(i) == null) {
-                    a.lazySet(i, item);
+                    a.set(i, item);
                     if (get() == TERMINATED) {
                         onRemove(item);
                         return false;

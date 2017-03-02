@@ -30,8 +30,8 @@ public class FreelistItemManager<T> extends AtomicReferenceArray<IndexedItem<T>>
                 idx = ci + 1;
             }
             IndexedItem<T> iitem = new IndexedItem<>(idx, item);
-            lazySet(idx - 1, iitem);
             soConsumerIndex(ci + 1, length());
+            set(idx - 1, iitem);
             if (closed) {
                 lazySet(idx - 1, null);
             } else {
