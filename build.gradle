@@ -74,7 +74,7 @@ dependencies {
 //    	exclude group: "io.reactivex", module: "rxjava"
 //    }
 
-    compile 'com.annimon:stream:1.1.5'
+    compile 'com.annimon:stream:+'
 
     // -------------------------------------------------------------------
 
@@ -111,6 +111,7 @@ dependencies {
     // -------------------------------------------------------------------
     
     compile 'com.google.guava:guava:20.0'
+    compile group: 'com.google.oauth-client', name: 'google-oauth-client', version:'1.18.0-rc'
     
     compile 'javax.servlet:javax.servlet-api:3.1.0'
     
@@ -127,9 +128,9 @@ dependencies {
     
     compile 'it.unimi.dsi:fastutil:7.0.12'
     
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
-    compile('com.squareup.retrofit2:adapter-rxjava:2.1.0') {
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.2.0'
+    compile('com.squareup.retrofit2:adapter-rxjava2:2.2.0') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
 }

@@ -8,7 +8,7 @@ import com.google.common.base.Charsets;
 import com.sun.net.httpserver.HttpServer;
 
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import rx.Observable;
@@ -72,7 +72,7 @@ public final class RetrofitStreaming {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("http://localhost:8181")
                     .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build();
 
             Ints service = retrofit.create(Ints.class);
