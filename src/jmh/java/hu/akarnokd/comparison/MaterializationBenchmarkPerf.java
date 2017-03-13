@@ -31,6 +31,8 @@ public class MaterializationBenchmarkPerf {
     
     Flowable<Integer> flowableMap;
 
+    Flowable<Integer> flowable;
+
     Flowable<Integer> flowableMapAkkaScheduler;
 
     Flowable<Integer> flowableMapSync;
@@ -79,6 +81,15 @@ public class MaterializationBenchmarkPerf {
 
         
         flowableMapAkkaScheduler = h;
+        
+        Flowable<Integer> k = Flowable.just(1).subscribeOn(Schedulers.computation());
+
+        for (int i = 0; i < complexity; i++) {
+            k = k.observeOn(Schedulers.computation(), true, 1);
+        }
+
+        
+        flowable = k;
     }
     
     @TearDown
@@ -86,22 +97,27 @@ public class MaterializationBenchmarkPerf {
         actorSystem.terminate();
     }
     
-    @Benchmark
+//    @Benchmark
     public Object akkaMap() {
         return akkaMap.run(materializer);
     }
 
-    @Benchmark
+//    @Benchmark
     public Object flowableMap() {
         return flowableMap.blockingLast();
     }
 
     @Benchmark
+    public Object flowable() {
+        return flowable.blockingLast();
+    }
+
+//    @Benchmark
     public Object flowableMapAkkaScheduler() {
         return flowableMapAkkaScheduler.blockingLast();
     }
 
-    @Benchmark
+//    @Benchmark
     public Object flowableMapSync() {
         return flowableMapSync.blockingLast();
     }
