@@ -3,12 +3,12 @@ package hu.akarnokd.reactive.comparison;
 import java.util.concurrent.*;
 
 import org.openjdk.jmh.infra.Blackhole;
-import org.reactivestreams.*;
+import org.reactivestreams.Subscription;
 
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 
-public final class PerfAsyncConsumer implements Subscriber<Object>, Observer<Object>, SingleObserver<Object>,
+public final class PerfAsyncConsumer implements FlowableSubscriber<Object>, Observer<Object>, SingleObserver<Object>,
 CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
     final CountDownLatch cdl;

@@ -3,6 +3,7 @@ package hu.akarnokd.comparison;
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 
 import com.typesafe.config.*;
 
@@ -12,6 +13,7 @@ import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
 import akka.stream.scaladsl.Sink;
 import hu.akarnokd.akka.ActorScheduler2;
+import hu.akarnokd.reactive.comparison.PerfAsyncConsumer;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -36,6 +38,8 @@ public class MaterializationBenchmarkPerf {
     Flowable<Integer> flowableMapAkkaScheduler;
 
     Flowable<Integer> flowableMapSync;
+
+    Flowable<Integer> flowableMap2;
 
     ActorSystem actorSystem;
 
@@ -63,7 +67,16 @@ public class MaterializationBenchmarkPerf {
 
         
         flowableMap = f;
+
+        Flowable<Integer> f2 = Flowable.just(1).subscribeOn(Schedulers.computation());
+
+        for (int i = 0; i < complexity; i++) {
+            f2 = f2.map(v -> v);
+        }
+
         
+        flowableMap2 = f2;
+
         Flowable<Integer> g = Flowable.just(1);
 
         for (int i = 0; i < complexity; i++) {
@@ -105,6 +118,14 @@ public class MaterializationBenchmarkPerf {
     @Benchmark
     public Object flowableMap() {
         return flowableMap.blockingLast();
+    }
+
+    @Benchmark
+    public Object flowableMap2(Blackhole bh) {
+        PerfAsyncConsumer pc = new PerfAsyncConsumer(bh);
+        flowableMap2.subscribe(pc);
+        pc.await(1);
+        return pc;
     }
 
     @Benchmark
