@@ -28,9 +28,9 @@ public class MaterializationBenchmarkPerf {
 
     @Param({"1", "10"})
     int complexity;
-    
+
     RunnableGraph<NotUsed> akkaMap;
-    
+
     Flowable<Integer> flowableMap;
 
     Flowable<Integer> flowable;
@@ -44,28 +44,28 @@ public class MaterializationBenchmarkPerf {
     ActorSystem actorSystem;
 
     ActorMaterializer materializer;
-    
+
     @Setup
     public void setup() {
         Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
 
         materializer = ActorMaterializer.create(actorSystem);
-        
+
         Source<Integer, NotUsed> src = Source.single(1);
-        
+
         for (int i = 0; i < complexity; i++) {
             src = src.map(v -> v);
         }
         akkaMap = src.to((Sink)Sink.ignore());
-        
+
         Flowable<Integer> f = Flowable.just(1).subscribeOn(Schedulers.computation());
 
         for (int i = 0; i < complexity; i++) {
             f = f.map(v -> v).observeOn(Schedulers.computation(), true, 1);
         }
 
-        
+
         flowableMap = f;
 
         Flowable<Integer> f2 = Flowable.just(1).subscribeOn(Schedulers.computation());
@@ -74,7 +74,7 @@ public class MaterializationBenchmarkPerf {
             f2 = f2.map(v -> v);
         }
 
-        
+
         flowableMap2 = f2;
 
         Flowable<Integer> g = Flowable.just(1);
@@ -82,34 +82,34 @@ public class MaterializationBenchmarkPerf {
         for (int i = 0; i < complexity; i++) {
             g = g.map(v -> v);
         }
-        
+
         flowableMapSync = g;
-        
+
         ActorScheduler2 as = new ActorScheduler2(actorSystem, true);
-        
+
         Flowable<Integer> h = Flowable.just(1).subscribeOn(as);
         for (int i = 0; i < complexity; i++) {
             h = h.map(v -> v).observeOn(as, true, 1);
         }
 
-        
+
         flowableMapAkkaScheduler = h;
-        
+
         Flowable<Integer> k = Flowable.just(1).subscribeOn(Schedulers.computation());
 
         for (int i = 0; i < complexity; i++) {
             k = k.observeOn(Schedulers.computation(), true, 1);
         }
 
-        
+
         flowable = k;
     }
-    
+
     @TearDown
     public void teardown() {
         actorSystem.terminate();
     }
-    
+
     @Benchmark
     public Object akkaMap() {
         return akkaMap.run(materializer);
@@ -142,27 +142,27 @@ public class MaterializationBenchmarkPerf {
     public Object flowableMapSync() {
         return flowableMapSync.blockingLast();
     }
-    
+
     public static void main(String[] args) {
         MaterializationBenchmarkPerf bench = new MaterializationBenchmarkPerf();
         bench.complexity = 10;
         bench.setup();
-        
+
         for (int i = 0; i < 100000; i++) {
             bench.flowableMapAkkaScheduler();
         }
-        
+
         Source<Integer, NotUsed> src = Source.single(1);
-        
+
         for (int i = 0; i < 10; i++) {
             src = src.map(v -> {
                 System.out.println(Thread.currentThread());
                 return v;
             });
         }
-        
+
         src.to((Sink)Sink.ignore()).run(bench.materializer);
-        
+
         bench.teardown();
     }
 }

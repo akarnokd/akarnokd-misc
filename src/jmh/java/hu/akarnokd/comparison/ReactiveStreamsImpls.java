@@ -23,8 +23,7 @@ import org.reactivestreams.Publisher;
 import com.typesafe.config.*;
 
 import akka.actor.ActorSystem;
-import akka.stream.*;
-import akka.stream.impl.fusing.Fusing;
+import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
 import io.reactivex.*;
 import io.reactivex.Observable;
@@ -188,9 +187,9 @@ public class ReactiveStreamsImpls {
         ak2RangePipeline = ak2Range;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    static <V> Source<Integer, V> optimize(Graph g) {
-        return Source.fromGraph(Fusing.aggressive(g));
+//    @SuppressWarnings({ "rawtypes", "unchecked" })
+    static <V> Source<Integer, V> optimize(Source<Integer, V> g) {
+        return g; //Source.fromGraph(Fusing.aggressive(g));
     }
 
     @TearDown
