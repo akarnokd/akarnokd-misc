@@ -60,7 +60,7 @@ dependencies {
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
     
-    compile 'com.typesafe.akka:akka-stream_2.11:2.4.16'
+    compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
     
     compile 'org.jctools:jctools-core:2.+'
 

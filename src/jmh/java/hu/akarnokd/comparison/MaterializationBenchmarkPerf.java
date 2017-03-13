@@ -97,12 +97,12 @@ public class MaterializationBenchmarkPerf {
         actorSystem.terminate();
     }
     
-//    @Benchmark
+    @Benchmark
     public Object akkaMap() {
         return akkaMap.run(materializer);
     }
 
-//    @Benchmark
+    @Benchmark
     public Object flowableMap() {
         return flowableMap.blockingLast();
     }
@@ -112,12 +112,12 @@ public class MaterializationBenchmarkPerf {
         return flowable.blockingLast();
     }
 
-//    @Benchmark
+    @Benchmark
     public Object flowableMapAkkaScheduler() {
         return flowableMapAkkaScheduler.blockingLast();
     }
 
-//    @Benchmark
+    @Benchmark
     public Object flowableMapSync() {
         return flowableMapSync.blockingLast();
     }
@@ -130,6 +130,17 @@ public class MaterializationBenchmarkPerf {
         for (int i = 0; i < 100000; i++) {
             bench.flowableMapAkkaScheduler();
         }
+        
+        Source<Integer, NotUsed> src = Source.single(1);
+        
+        for (int i = 0; i < 10; i++) {
+            src = src.map(v -> {
+                System.out.println(Thread.currentThread());
+                return v;
+            });
+        }
+        
+        src.to((Sink)Sink.ignore()).run(bench.materializer);
         
         bench.teardown();
     }

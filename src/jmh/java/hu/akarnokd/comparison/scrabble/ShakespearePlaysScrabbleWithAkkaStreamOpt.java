@@ -54,10 +54,9 @@ public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysS
 
     }
 
-    @SuppressWarnings("deprecation")
     @TearDown
     public void teardown() {
-        actorSystem.shutdown();
+        actorSystem.terminate();
     }
 
     static Source<Integer, NotUsed> chars(String word) {

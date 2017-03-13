@@ -159,6 +159,7 @@ implements reactor.core.scheduler.Scheduler {
 //        actorSystem.terminate();
 //    }
 
+    @SuppressWarnings("deprecation")
     static final class ActorExecutor extends UntypedActor {
 
         @Override
