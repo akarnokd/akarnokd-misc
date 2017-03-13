@@ -46,7 +46,7 @@ public class ExceptionAfterDispose {
                 disposable.dispose();
             }
         });
-        
+
         Thread.sleep(3000);
     }
 }

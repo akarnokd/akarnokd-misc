@@ -12,7 +12,7 @@ public class ActorScheduler2
 extends io.reactivex.Scheduler {
 
     final ActorRef actor;
-    
+
     final ActorSystem system;
 
     public ActorScheduler2(ActorSystem system, boolean freshWorker) {
@@ -39,9 +39,9 @@ extends io.reactivex.Scheduler {
     static final class ActorWorker extends Worker {
 
         final ActorRef actor;
-        
+
         final ActorSystem ctx;
-        
+
         HashSet<WorkerRunnable> tasks;
 
         ActorWorker(ActorRef actor, ActorSystem ctx) {
@@ -81,7 +81,7 @@ extends io.reactivex.Scheduler {
                     wr.delete();
                 }
             }
-            
+
             if (ctx != null) {
                 ctx.stop(actor);
             }

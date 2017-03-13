@@ -13,7 +13,7 @@ public class FlatMapMonoVoid {
         .flatMap(v -> Mono.fromRunnable(() -> { c[0]++; }))
         .ignoreElements()
         .block();
-        
+
         Assert.assertEquals(1000, c[0]);
     }
 }

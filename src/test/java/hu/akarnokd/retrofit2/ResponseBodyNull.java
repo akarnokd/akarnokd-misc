@@ -11,11 +11,11 @@ public class ResponseBodyNull {
 
 @Test
 public void responseBodyNull() throws Exception {
-    
+
     Response<Integer> response = Response.success(null);
-    
+
     Assert.assertNull(response.body());
-    
+
     Class<?> clazz = Class.forName("retrofit2.adapter.rxjava2.BodyObservable");
     Constructor<?> c = clazz.getDeclaredConstructor(Observable.class);
     c.setAccessible(true);

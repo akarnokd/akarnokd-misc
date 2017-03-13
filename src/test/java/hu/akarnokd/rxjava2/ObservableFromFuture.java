@@ -8,7 +8,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 
 import io.reactivex.*;
 
-public class ObservableFromFuture {
+public final class ObservableFromFuture {
+    private ObservableFromFuture() { }
     public static void main(String[] args) {
         ExecutorService myExecutor = Executors.newCachedThreadPool();
         HttpTransport httpTransport = new NetHttpTransport();
