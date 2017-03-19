@@ -72,9 +72,9 @@ dependencies {
 
     compile 'org.jooq:jool:+'
 
-//    compile('io.reactivex:rxjava-math:+') {
-//    	exclude group: "io.reactivex", module: "rxjava"
-//    }
+    compile('io.reactivex:rxjava-math:+') {
+    	exclude group: "io.reactivex", module: "rxjava"
+    }
 
     compile 'com.annimon:stream:+'
 
