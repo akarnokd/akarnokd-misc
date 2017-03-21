@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava2.SingleFlatMapIterableFlowable;
 import hu.akarnokd.rxjava2.math.MathFlowable;
+import hu.akarnokd.rxjava2.operators.FlowableTransformers;
 import hu.akarnokd.rxjava2.string.StringFlowable;
 import io.reactivex.*;
 import io.reactivex.functions.Function;
@@ -34,14 +36,14 @@ import io.reactivex.functions.Function;
  * @author José
  * @author akarnokd
  */
-public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespearePlaysScrabble {
+public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt2 extends ShakespearePlaysScrabble {
     static Flowable<Integer> chars(String word) {
 //        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
         return StringFlowable.characters(word);
     }
 
     @SuppressWarnings("unused")
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
@@ -150,41 +152,43 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         // score of the word put on the board
         Function<String, Flowable<Integer>> score3 =
             word ->
-//                MathFlowable.sumInt(Flowable.concat(
-//                        score2.apply(word).map(v -> v * 2),
-//                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
-//                        Flowable.just(word.length() == 7 ? 50 : 0)
-//                  ));
-                MathFlowable.sumInt(Flowable.concat(
-                    score2.apply(word),
-                    bonusForDoubleLetter.apply(word)
-                )).map(v -> v * 2 + (word.length() == 7 ? 50 : 0))
-//                new FlowableSumIntArray<Integer>(
+//                Flowable.fromArray(
 //                        score2.apply(word),
-//                        bonusForDoubleLetter.apply(word)
-//                ).map(v -> 2 * v + (word.length() == 7 ? 50 : 0))
-                ;
+//                        score2.apply(word),
+//                        bonusForDoubleLetter.apply(word),
+//                        bonusForDoubleLetter.apply(word),
+//                        Flowable.just(word.length() == 7 ? 50 : 0)
+//                )
+//                .flatMap(Flowable -> Flowable)
+                MathFlowable.sumInt(Flowable.concat(
+                        score2.apply(word).map(v -> v * 2),
+                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
+                        Flowable.just(word.length() == 7 ? 50 : 0)
+                )
+                ) ;
 
         Function<Function<String, Flowable<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> Flowable.fromIterable(shakespeareWords)
                                 .filter(scrabbleWords::contains)
-                                .filter(word -> checkBlanks.apply(word).blockingFirst())
+                                .compose(FlowableTransformers.filterAsync(checkBlanks))
+                                //.filter(word -> checkBlanks.apply(word).blockingFirst())
+                                .compose(FlowableTransformers.mapAsync(score, (word, key) -> new Object[] { word, key }))
                                 .collect(
                                     () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()),
-                                    (TreeMap<Integer, List<String>> map, String word) -> {
-                                        Integer key = score.apply(word).blockingFirst() ;
+                                    (TreeMap<Integer, List<String>> map, Object[] o) -> {
+                                        Integer key = (Integer)o[1];//score.apply(word).blockingFirst() ;
                                         List<String> list = map.get(key) ;
                                         if (list == null) {
                                             list = new ArrayList<>() ;
                                             map.put(key, list) ;
                                         }
-                                        list.add(word) ;
+                                        list.add((String)o[0]) ;
                                     }
                                 ) ;
 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                    buildHistoOnScore.apply(score3).flattenAsFlowable(
+                    new SingleFlatMapIterableFlowable<>(buildHistoOnScore.apply(score3),
                             map -> map.entrySet()
                     )
                     .take(3)
@@ -203,7 +207,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
     }
 
     public static void main(String[] args) throws Exception {
-        ShakespearePlaysScrabbleWithRxJava2FlowableOpt s = new ShakespearePlaysScrabbleWithRxJava2FlowableOpt();
+        ShakespearePlaysScrabbleWithRxJava2FlowableOpt2 s = new ShakespearePlaysScrabbleWithRxJava2FlowableOpt2();
         s.init();
         System.out.println(s.measureThroughput());
     }
