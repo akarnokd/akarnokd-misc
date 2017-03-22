@@ -163,15 +163,14 @@ public class ShakespearePlaysScrabbleWithJOOLOpt extends ShakespearePlaysScrabbl
                 {
                     int[] sum = { 0 };
                     return Seq.concat(
-                            score2.apply(word).map(v -> v * 2),
-                            bonusForDoubleLetter.apply(word).map(v -> v * 2),
-                            Seq.of(word.length() == 7 ? 50 : 0)
+                            score2.apply(word),
+                            bonusForDoubleLetter.apply(word)
                     )
                     .map(v -> sum[0] += v)
                     .skip(Long.MAX_VALUE)
                     .append(0)
                     .map(v -> {
-                        return sum[0];
+                        return sum[0] * 2 + (word.length() == 7 ? 50 : 0);
                     });
                 }
         ;

@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.reactive4java.base.Func1;
-import hu.akarnokd.reactive4java.interactive.Interactive;
 import hu.akarnokd.reactive4java.query.IterableBuilder;
 
 /**
@@ -140,10 +139,10 @@ public class ShakespearePlaysScrabbleWithI4JOpt extends ShakespearePlaysScrabble
         // score of the word put on the board
         Func1<String, IterableBuilder<Integer>> score3 =
             word ->
-                score2.invoke(word).select(v -> v * 2)
-                .concat(bonusForDoubleLetter.invoke(word).select(v -> v * 2))
-                .concat(Interactive.singleton(word.length() == 7 ? 50 : 0))
-                .sumInt();
+                score2.invoke(word)
+                .concat(bonusForDoubleLetter.invoke(word))
+                .sumInt()
+                .select(v -> 2 * v + (word.length() == 7 ? 50 : 0));
 
         Func1<Func1<String, IterableBuilder<Integer>>, IterableBuilder<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> IterableBuilder.from(shakespeareWords)

@@ -165,10 +165,10 @@ public class ShakespearePlaysScrabbleWithGuavaOpt extends ShakespearePlaysScrabb
         Function<String, FluentIterable<Integer>> score3 =
             word ->
                 sumInt(
-                    score2.apply(word).transform(v -> v * 2)
-                    .append(bonusForDoubleLetter.apply(word).transform(v -> v * 2))
-                    .append(word.length() == 7 ? 50 : 0)
-                );
+                    score2.apply(word)
+                    .append(bonusForDoubleLetter.apply(word))
+                )
+                .transform(v -> 2 * v + (word.length() == 7 ? 50 : 0));
 
         Function<Function<String, FluentIterable<Integer>>, FluentIterable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> collect(FluentIterable.from(shakespeareWords)

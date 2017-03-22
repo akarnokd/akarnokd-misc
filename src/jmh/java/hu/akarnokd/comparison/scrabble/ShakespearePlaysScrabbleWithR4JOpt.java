@@ -39,7 +39,6 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
         return ObservableBuilder.range(0, word.length()).select(i -> (int)word.charAt(i));
     }
 
-    @SuppressWarnings({ "unchecked" })
     @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -142,11 +141,11 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
         Func1<String, ObservableBuilder<Integer>> score3 =
             word ->
                 ObservableBuilder.from(Reactive.concat(
-                        score2.invoke(word).select(v -> v * 2),
-                        bonusForDoubleLetter.invoke(word).select(v -> v * 2),
-                        Reactive.just(word.length() == 7 ? 50 : 0)
+                        score2.invoke(word),
+                        bonusForDoubleLetter.invoke(word)
                 ))
-                .sumInt();
+                .sumInt()
+                .select(v -> 2 * v + (word.length() == 7 ? 50 : 0));
 
         Func1<Func1<String, ObservableBuilder<Integer>>, ObservableBuilder<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> ObservableBuilder.from(shakespeareWords)

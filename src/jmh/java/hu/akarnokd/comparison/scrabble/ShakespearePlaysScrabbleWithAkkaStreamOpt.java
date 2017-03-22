@@ -162,10 +162,9 @@ public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysS
         // score of the word put on the board
         Function<String, Source<Integer, NotUsed>> score3 =
             word ->
-                score2.apply(word).map(v -> v * 2)
-                .concat(bonusForDoubleLetter.apply(word).map(v -> v * 2))
-                .concat(Source.single(word.length() == 7 ? 50 : 0))
-                .reduce((a, b) -> a + b);
+                score2.apply(word)
+                .concat(bonusForDoubleLetter.apply(word))
+                .reduce((a, b) -> a + b).map(v -> v * 2 + (word.length() == 7 ? 50 : 0));
 
         Function<Function<String, Source<Integer, NotUsed>>, Source<TreeMap<Integer, List<String>>, NotUsed>> buildHistoOnScore =
                 score -> {

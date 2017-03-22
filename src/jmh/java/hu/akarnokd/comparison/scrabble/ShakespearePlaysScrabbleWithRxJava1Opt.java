@@ -179,20 +179,11 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
         // score of the word put on the board
         Func1<String, Observable<Integer>> score3 =
             word ->
-//                Observable.fromArray(
-//                        score2.call(word),
-//                        score2.call(word),
-//                        bonusForDoubleLetter.call(word),
-//                        bonusForDoubleLetter.call(word),
-//                        Observable.just(word.length() == 7 ? 50 : 0)
-//                )
-//                .flatMap(Observable -> Observable)
                 MathObservable.sumInteger(Observable.concat(
-                        score2.call(word).map(v -> v * 2),
-                        bonusForDoubleLetter.call(word).map(v -> v * 2),
-                        Observable.just(word.length() == 7 ? 50 : 0)
+                        score2.call(word),
+                        bonusForDoubleLetter.call(word)
                 )
-                ) ;
+                ).map(v -> 2 * v + (word.length() == 7 ? 50 : 0)) ;
 
         Func1<Func1<String, Observable<Integer>>, Observable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> Observable.from(shakespeareWords)

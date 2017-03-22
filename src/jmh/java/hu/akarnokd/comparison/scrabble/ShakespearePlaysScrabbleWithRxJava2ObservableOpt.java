@@ -145,11 +145,10 @@ public class ShakespearePlaysScrabbleWithRxJava2ObservableOpt extends Shakespear
         Function<String, Observable<Integer>> score3 =
             word ->
                 MathObservable.sumInt(Observable.concat(
-                        score2.apply(word).map(v -> v * 2),
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
-                        Observable.just(word.length() == 7 ? 50 : 0)
+                        score2.apply(word),
+                        bonusForDoubleLetter.apply(word)
                 )
-                ) ;
+                ).map(v -> 2 * v + (word.length() == 7 ? 50 : 0)) ;
 
         Function<Function<String, Observable<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> Observable.fromIterable(shakespeareWords)

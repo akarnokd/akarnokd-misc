@@ -164,20 +164,11 @@ public class ShakespearePlaysScrabbleWithRscParallelOpt extends ShakespearePlays
         // score of the word put on the board
         Function<String, Px<Integer>> score3 =
             word ->
-//                Px.fromArray(
-//                        score2.apply(word),
-//                        score2.apply(word),
-//                        bonusForDoubleLetter.apply(word),
-//                        bonusForDoubleLetter.apply(word),
-//                        Px.just(word.length() == 7 ? 50 : 0)
-//                )
-//                .flatMap(Px -> Px)
                 Px.concatArray(
-                        score2.apply(word).map(v -> v * 2),
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
-                        Px.just(word.length() == 7 ? 50 : 0)
+                        score2.apply(word),
+                        bonusForDoubleLetter.apply(word)
                 )
-                .sumInt() ;
+                .sumInt().map(v -> 2 * v + (word.length() == 7 ? 50 : 0)) ;
 
         Function<Function<String, Px<Integer>>, Px<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> Px.fromIterable(shakespeareWords)

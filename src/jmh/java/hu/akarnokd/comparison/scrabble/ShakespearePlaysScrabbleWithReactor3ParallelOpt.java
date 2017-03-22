@@ -152,20 +152,11 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
         // score of the word put on the board
         Function<String, Mono<Integer>> score3 =
             word ->
-//                Flux.fromArray(
-//                        score2.apply(word),
-//                        score2.apply(word),
-//                        bonusForDoubleLetter.apply(word),
-//                        bonusForDoubleLetter.apply(word),
-//                        Flux.just(word.length() == 7 ? 50 : 0)
-//                )
-//                .flatMap(Flux -> Flux)
                 Rx2Math.sumInt(Flux.concat(
-                        score2.apply(word).map(v -> v * 2),
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
-                        Flux.just(word.length() == 7 ? 50 : 0)
+                        score2.apply(word),
+                        bonusForDoubleLetter.apply(word)
                 )
-                );
+                ).map(v -> 2 * v + (word.length() == 7 ? 50 : 0));
 
         Function<Function<String, Mono<Integer>>, Mono<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> Flux.fromIterable(shakespeareWords)

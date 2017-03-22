@@ -146,20 +146,11 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
         // score of the word put on the board
         Function<String, Flowable<Integer>> score3 =
             word ->
-//                Flowable.fromArray(
-//                        score2.apply(word),
-//                        score2.apply(word),
-//                        bonusForDoubleLetter.apply(word),
-//                        bonusForDoubleLetter.apply(word),
-//                        Flowable.just(word.length() == 7 ? 50 : 0)
-//                )
-//                .flatMap(Flowable -> Flowable)
                 MathFlowable.sumInt(Flowable.concat(
-                        score2.apply(word).map(v -> v * 2),
-                        bonusForDoubleLetter.apply(word).map(v -> v * 2),
-                        Flowable.just(word.length() == 7 ? 50 : 0)
+                        score2.apply(word),
+                        bonusForDoubleLetter.apply(word)
                 )
-                ) ;
+                ).map(v -> 2 * v + (word.length() == 7 ? 50 : 0));
 
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score ->
