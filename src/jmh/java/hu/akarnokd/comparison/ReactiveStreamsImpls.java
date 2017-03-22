@@ -22,6 +22,7 @@ import org.reactivestreams.Publisher;
 
 import com.typesafe.config.*;
 
+import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
@@ -170,14 +171,14 @@ public class ReactiveStreamsImpls {
 
         ak2RangeFlatMapJust = s ->
                 optimize(Source.range(1, times)
-                .flatMapMerge(2, v -> Source.single(v)))
+                .<Integer, NotUsed>flatMapMerge(2, v -> Source.single(v)))
                 .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
                 .subscribe(s)
                 ;
 
         ak2RangeFlatMapRange = s -> {
             optimize(Source.from(values)
-            .flatMapMerge(2, v -> Source.range(v, v + 1)))
+            .<Integer, NotUsed>flatMapMerge(2, v -> Source.range(v, v + 1)))
             .runWith(Sink.asPublisher(AsPublisher.WITHOUT_FANOUT), materializer)
             .subscribe(s)
             ;
