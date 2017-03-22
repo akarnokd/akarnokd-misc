@@ -292,8 +292,8 @@ public final class AddCanonical {
 
     public static void main(String[] args) throws IOException {
         init();
-        //process(new File("..\\RxJava11\\javadoc\\rx"));
-        //process(new File("..\\RxJava11\\1.x\\javadoc\\rx"));
+        process(new File("..\\RxJava11\\javadoc\\rx"));
+        process(new File("..\\RxJava11\\1.x\\javadoc\\rx"));
     }
 
 }
