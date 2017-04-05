@@ -32,7 +32,7 @@ public class PublishOnCheck {
 
         private Flux<Integer> call(List<Integer> values) {
             return Flux.fromIterable(values)
-                    .zipWith(Flux.intervalMillis(1000 * groupMemberDelaySeconds, Schedulers.newTimer("par-grp")),
+                    .zipWith(Flux.interval(Duration.ofMillis(1000 * groupMemberDelaySeconds), Schedulers.newSingle("par-grp")),
                             (x, delay) -> x)
                     .flatMap(this::even);
         }

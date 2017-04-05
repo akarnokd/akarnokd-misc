@@ -57,7 +57,7 @@ implements reactor.core.scheduler.Scheduler {
         }
 
         @Override
-        public void shutdown() {
+        public void dispose() {
             HashSet<WorkerRunnable> set;
 
             synchronized (this) {

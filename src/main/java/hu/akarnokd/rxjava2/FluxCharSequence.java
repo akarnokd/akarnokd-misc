@@ -21,10 +21,10 @@ public final class FluxCharSequence extends Flux<Integer> {
     }
 
     @Override
-    public void subscribe(Subscriber<? super Integer> s) {
-        s.onSubscribe(new CharSequenceSubscription(s, string));
+    public void subscribe(Subscriber<? super Integer> actual) {
+        actual.onSubscribe(new CharSequenceSubscription(actual, string));
     }
-
+    
     static final class CharSequenceSubscription
     implements Fuseable.QueueSubscription<Integer> {
         final Subscriber<? super Integer> actual;

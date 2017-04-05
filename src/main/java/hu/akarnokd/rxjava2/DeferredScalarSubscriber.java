@@ -15,9 +15,7 @@ import reactor.core.publisher.Operators;
  * @param <I> The upstream sequence type
  * @param <O> The downstream sequence type
  */
-class DeferredScalarSubscriber<I, O> implements Subscriber<I>, Loopback,
-Trackable,
-Receiver, Producer,
+class DeferredScalarSubscriber<I, O> implements Subscriber<I>,
 Fuseable.QueueSubscription<O> {
 
     static final int SDS_NO_REQUEST_NO_VALUE   = 0;
@@ -54,7 +52,7 @@ Fuseable.QueueSubscription<O> {
                 }
                 if (s == SDS_NO_REQUEST_HAS_VALUE) {
                     if (STATE.compareAndSet(this, SDS_NO_REQUEST_HAS_VALUE, SDS_HAS_REQUEST_HAS_VALUE)) {
-                        Subscriber<? super O> a = downstream();
+                        Subscriber<? super O> a = subscriber;
                         a.onNext(value);
                         a.onComplete();
                     }
@@ -93,16 +91,6 @@ Fuseable.QueueSubscription<O> {
         subscriber.onComplete();
     }
 
-    @Override
-    public final boolean isCancelled() {
-        return state == SDS_HAS_REQUEST_HAS_VALUE;
-    }
-
-    @Override
-    public final Subscriber<? super O> downstream() {
-        return subscriber;
-    }
-
     public void setValue(O value) {
         this.value = value;
     }
@@ -126,7 +114,7 @@ Fuseable.QueueSubscription<O> {
                     setValue(value); // make sure poll sees it
                     outputFused = OUTPUT_HAS_VALUE;
                 }
-                Subscriber<? super O> a = downstream();
+                Subscriber<? super O> a = subscriber;
                 a.onNext(value);
                 if (state != SDS_HAS_REQUEST_HAS_VALUE) {
                     a.onComplete();
@@ -138,26 +126,6 @@ Fuseable.QueueSubscription<O> {
                 return;
             }
         }
-    }
-
-    @Override
-    public boolean isStarted() {
-        return state != SDS_NO_REQUEST_NO_VALUE;
-    }
-
-    @Override
-    public Object connectedOutput() {
-        return value;
-    }
-
-    @Override
-    public boolean isTerminated() {
-        return isCancelled();
-    }
-
-    @Override
-    public Object upstream() {
-        return value;
     }
 
     @Override
