@@ -63,6 +63,20 @@ public class WhichThread {
                     }
                 }
             }
+            System.out.println(n);
+            for (int j = 0; j < 4; j++) {
+                System.out.print(j);
+                System.out.print(" -> ");
+                Ix.from(names.get(j)).groupBy(v -> {
+                    if (v.contains("Single")) {
+                        return "main";
+                    }
+                    return "io";
+                })
+                .flatMap(v -> v.count().map(c -> v.key() + ": " + c))
+                .join()
+                .foreach(System.out::println);
+            }
         }
     }
 }
