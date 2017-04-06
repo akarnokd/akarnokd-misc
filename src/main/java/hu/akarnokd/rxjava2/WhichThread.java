@@ -13,10 +13,10 @@ public class WhichThread {
     public static void main(String[] args) throws Exception {
         
         List<Observable<Integer>> sources = new ArrayList<>();
+        sources.add(Observable.just(1));
         sources.add(Observable.just(1).delay(1, TimeUnit.MINUTES));
         sources.add(Observable.<Integer>empty());
         sources.add(Observable.<Integer>empty().delay(1, TimeUnit.MINUTES));
-        sources.add(Observable.just(1));
         
         for (Observable<Integer> source : sources) {
             List<List<String>> names = new ArrayList<>();
@@ -46,7 +46,7 @@ public class WhichThread {
                 
                 Thread.sleep(100);
                 
-                if (i % 10 == 0) {
+                if (i % 100 == 0) {
                     System.out.println(i);
                     for (int j = 0; j < 4; j++) {
                         System.out.print(j);
