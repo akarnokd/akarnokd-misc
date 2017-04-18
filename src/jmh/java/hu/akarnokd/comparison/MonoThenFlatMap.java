@@ -21,17 +21,17 @@ public class MonoThenFlatMap {
 
     @Benchmark
     public Object monoThen() {
-        return Mono.just("").then(v -> Mono.just(v)).block();
+        return Mono.just("").flatMap(v -> Mono.just(v)).block();
     }
 
     @Benchmark
     public Object monoFlatMapLast() {
-        return Mono.just("").flatMap(v -> Mono.just(v)).blockLast();
+        return Mono.just("").flatMap(v -> Mono.just(v)).block();
     }
 
     @Benchmark
     public Object monoFlatMapFirst() {
-        return Mono.just("").flatMap(v -> Mono.just(v)).blockFirst();
+        return Mono.just("").flatMap(v -> Mono.just(v)).block();
     }
 
     @Benchmark
