@@ -135,6 +135,8 @@ dependencies {
     compile('com.squareup.retrofit2:adapter-rxjava2:2.2.0') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
+    
+    compile 'net.objecthunter:exp4j:+'
 }
 
 processResources {
