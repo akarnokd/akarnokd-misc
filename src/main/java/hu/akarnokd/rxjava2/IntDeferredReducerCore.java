@@ -1,9 +1,11 @@
 package hu.akarnokd.rxjava2;
 
-import org.reactivestreams.*;
+import org.reactivestreams.Subscription;
+
+import reactor.core.CoreSubscriber;
 
 public abstract class IntDeferredReducerCore extends DeferredScalarSubscriber<Integer, Integer>
-implements Subscriber<Integer> {
+implements CoreSubscriber<Integer> {
 
     Subscription s;
 
@@ -11,7 +13,7 @@ implements Subscriber<Integer> {
 
     boolean hasValue;
 
-    public IntDeferredReducerCore(Subscriber<? super Integer> actual) {
+    public IntDeferredReducerCore(CoreSubscriber<? super Integer> actual) {
         super(actual);
     }
 

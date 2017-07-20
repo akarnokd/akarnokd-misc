@@ -25,9 +25,10 @@ import java.util.function.Function;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava2.*;
+import hu.akarnokd.rxjava2.FluxCharSequence;
 import reactor.core.publisher.*;
 import reactor.core.scheduler.*;
+import reactor.math.MathFlux;
 
 /**
  * Shakespeare plays Scrabble with Reactor parallel.
@@ -112,7 +113,7 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
 
         // number of blanks for a given word
         Function<String, Mono<Long>> nBlanks =
-                word -> Rx2Math.sumLong(histoOfLetters.apply(word)
+                word -> MathFlux.sumLong(histoOfLetters.apply(word)
                             .flatMapIterable(map -> map.entrySet())
                             .map(blank)
                             );
@@ -125,7 +126,7 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
 
         // score taking blanks into account letterScore1
         Function<String, Mono<Integer>> score2 =
-                word -> Rx2Math.sumInt(histoOfLetters.apply(word)
+                word -> MathFlux.sumInt(histoOfLetters.apply(word)
                             .flatMapIterable(map -> map.entrySet())
                             .map(letterScore)
                             );
@@ -145,14 +146,14 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
 
         // Bonus for double letter
         Function<String, Mono<Integer>> bonusForDoubleLetter =
-            word -> Rx2Math.maxInt(toBeMaxed.apply(word)
+            word -> MathFlux.max(toBeMaxed.apply(word)
                         .map(scoreOfALetter)
                         );
 
         // score of the word put on the board
         Function<String, Mono<Integer>> score3 =
             word ->
-                Rx2Math.sumInt(Flux.concat(
+                MathFlux.sumInt(Flux.concat(
                         score2.apply(word),
                         bonusForDoubleLetter.apply(word)
                 )

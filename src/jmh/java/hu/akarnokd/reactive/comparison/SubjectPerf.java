@@ -7,7 +7,7 @@ import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Processor;
 
 import reactor.core.publisher.DirectProcessor;
-import reactor.util.concurrent.QueueSupplier;
+import reactor.util.concurrent.*;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -143,6 +143,6 @@ public class SubjectPerf {
 
     @Benchmark
     public void rangeReactorUnicastProcessor(Blackhole bh) {
-        run(reactor.core.publisher.UnicastProcessor.create(QueueSupplier.<Integer>unbounded(128).get()), bh);
+        run(reactor.core.publisher.UnicastProcessor.create(Queues.<Integer>unbounded(128).get()), bh);
     }
 }

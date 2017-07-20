@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.reactivestreams.Subscriber;
 
-import reactor.core.Fuseable;
+import reactor.core.*;
 import reactor.core.publisher.Flux;
 import rsc.subscriber.SubscriptionHelper;
 import rsc.util.BackpressureHelper;
@@ -21,13 +21,13 @@ public final class FluxCharSequence extends Flux<Integer> {
     }
 
     @Override
-    public void subscribe(Subscriber<? super Integer> actual) {
+    public void subscribe(CoreSubscriber<? super Integer> actual) {
         actual.onSubscribe(new CharSequenceSubscription(actual, string));
     }
     
     static final class CharSequenceSubscription
     implements Fuseable.QueueSubscription<Integer> {
-        final Subscriber<? super Integer> actual;
+        final CoreSubscriber<? super Integer> actual;
 
         final CharSequence string;
 
@@ -41,7 +41,7 @@ public final class FluxCharSequence extends Flux<Integer> {
         static final AtomicLongFieldUpdater<CharSequenceSubscription> REQUESTED =
                 AtomicLongFieldUpdater.newUpdater(CharSequenceSubscription.class, "requested");
 
-        CharSequenceSubscription(Subscriber<? super Integer> actual, CharSequence string) {
+        CharSequenceSubscription(CoreSubscriber<? super Integer> actual, CharSequence string) {
             this.actual = actual;
             this.string = string;
             this.end = string.length();
