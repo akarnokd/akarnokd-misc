@@ -44,7 +44,7 @@ repositories {
 	
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'http://repo.spring.io/libs-snapshot' }
-    maven { url 'http://repo.akka.io/snapshots' }
+    //maven { url 'http://repo.akka.io/snapshots' }
 }
 
 apply plugin: 'maven'
@@ -63,7 +63,7 @@ dependencies {
     compile group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
-    compile 'com.typesafe.akka:akka-stream_2.11:2.5-SNAPSHOT'
+    compile 'com.typesafe.akka:akka-stream_2.11:2.5.3'
     
     compile 'org.jctools:jctools-core:2.+'
 
