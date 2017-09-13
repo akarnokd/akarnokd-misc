@@ -1,9 +1,6 @@
 package hu.akarnokd.rxjava2;
 
-import org.junit.Assert;
-
 import io.reactivex.Flowable;
-import io.reactivex.exceptions.CompositeException;
 import io.reactivex.flowables.ConnectableFlowable;
 
 public class DoOnErrorFusion {
@@ -17,7 +14,7 @@ public class DoOnErrorFusion {
                     throw new IllegalStateException(e);
                 }).publish();
         f.subscribe(
-                i -> Assert.fail(), 
+                i -> { throw new AssertionError(); }, 
                 e -> e.printStackTrace());
         f.connect();
     }
