@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import akka.actor.*;
-import reactor.core.Disposable;
+import reactor.core.*;
 
 public class ActorScheduler
 implements reactor.core.scheduler.Scheduler {
@@ -46,7 +46,7 @@ implements reactor.core.scheduler.Scheduler {
             synchronized (this) {
                 HashSet<WorkerRunnable> set = tasks;
                 if (set == null) {
-                    return REJECTED;
+                    return Disposables.disposed();
                 }
                 set.add(wr);
             }

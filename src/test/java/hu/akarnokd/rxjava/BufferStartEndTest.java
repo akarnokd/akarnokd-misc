@@ -1,4 +1,4 @@
-package hu.akarnokd.rxjava2;
+package hu.akarnokd.rxjava;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -19,10 +19,16 @@ public class BufferStartEndTest {
 
         Function<Flowable<String>, Flowable<List<String>>> f = o -> 
                 o.buffer(o.filter(v -> v.contains("Start")), 
-                         v -> Flowable.merge(o.filter(w -> w.contains("End")), 
+                         v -> Flowable.merge(o.filter(w -> w.contains("Start")), 
                                              Flowable.timer(5, TimeUnit.MINUTES, scheduler))); 
 
         pp.publish(f)
+        .doOnNext(v -> {
+            int s = v.size();
+            if (s > 1 && v.get(s - 1).contains("Start")) {
+                v.remove(s - 1);
+            }
+        })
         .subscribe(System.out::println);
 
         pp.onNext("Start");

@@ -4,8 +4,8 @@ import java.util.*;
 
 import org.reactivestreams.*;
 
-import io.reactivex.Flowable;
-import io.reactivex.functions.Function;
+import io.reactivex.*;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.internal.fuseable.*;
 import io.reactivex.plugins.RxJavaPlugins;
 
@@ -14,7 +14,7 @@ import io.reactivex.plugins.RxJavaPlugins;
  * ONLY FOR SYNCHRONOUS STREAMS!
  */
 @SuppressWarnings("rawtypes")
-public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
+public class RxSynchronousProfiler {
 
     public final Map<String, CallStatistics> entries;
 
@@ -22,12 +22,41 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
         entries = new HashMap<>();
     }
 
+    @SuppressWarnings("unchecked")
     public void start() {
-        RxJavaPlugins.setOnFlowableAssembly(this);
+        RxJavaPlugins.setOnFlowableAssembly(t -> {
+            FlowableProfiler p = new FlowableProfiler(t);
+            CallStatistics cs = new CallStatistics();
+            cs.key = t.getClass().getSimpleName();
+            CallStatistics cs2 = entries.putIfAbsent(cs.key, cs);
+
+            if (cs2 == null) {
+                p.stats = cs;
+            } else {
+                p.stats = cs2;
+            }
+
+            return p;
+        });
+        RxJavaPlugins.setOnSingleAssembly(t -> {
+            SingleProfiler p = new SingleProfiler(t);
+            CallStatistics cs = new CallStatistics();
+            cs.key = t.getClass().getSimpleName();
+            CallStatistics cs2 = entries.putIfAbsent(cs.key, cs);
+
+            if (cs2 == null) {
+                p.stats = cs;
+            } else {
+                p.stats = cs2;
+            }
+
+            return p;
+        });
     }
 
     public void stop() {
         RxJavaPlugins.setOnFlowableAssembly(null);
+        RxJavaPlugins.setOnSingleAssembly(null);
     }
 
     public void clear() {
@@ -40,23 +69,6 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
         list.sort(Comparator.comparing(CallStatistics::sumTime).reversed());
 
         list.forEach(v -> System.out.println(v.print()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Flowable apply(Flowable t) throws Exception {
-        FlowableProfiler p = new FlowableProfiler(t);
-        CallStatistics cs = new CallStatistics();
-        cs.key = t.getClass().getSimpleName();
-        CallStatistics cs2 = entries.putIfAbsent(cs.key, cs);
-
-        if (cs2 == null) {
-            p.stats = cs;
-        } else {
-            p.stats = cs2;
-        }
-
-        return p;
     }
 
     public static final class CallStatistics {
@@ -98,7 +110,7 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
         }
 
         String tf(long time, long count) {
-            return String.format("     time = %10d ns, count = %7d, cost = %6d ns/call\r\n", time, count, count != 0 ? time / count : -1L);
+            return String.format("     time = %10d ns, count = %7d, cost = %9d ns/call\r\n", time, count, count != 0 ? time / count : -1L);
         }
 
         public String print() {
@@ -147,7 +159,7 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
             stats.subscribeTime += Math.max(0, after - now);
         }
 
-        static final class ProfilerSubscriber<T> implements Subscriber<T>, QueueSubscription<T> {
+        static final class ProfilerSubscriber<T> implements FlowableSubscriber<T>, QueueSubscription<T> {
 
             final Subscriber<? super T> actual;
 
@@ -399,6 +411,96 @@ public class RxSynchronousProfiler implements Function<Flowable, Flowable> {
             @Override
             public void cancel() {
                 s.cancel();
+            }
+        }
+    }
+    
+
+    static final class SingleProfiler<T> extends Single<T> {
+
+        final Single<T> source;
+
+        CallStatistics stats;
+
+        SingleProfiler(Single<T> source) {
+            this.source = source;
+        }
+
+        @Override
+        protected void subscribeActual(SingleObserver<? super T> s) {
+            long now = System.nanoTime();
+
+            source.subscribe(new ProfilerSingleObserver<T>(s, stats));
+
+            long after = System.nanoTime();
+            stats.subscribeCount++;
+            stats.subscribeTime += Math.max(0, after - now);
+        }
+
+        static final class ProfilerSingleObserver<T> implements SingleObserver<T>, Disposable {
+
+            final SingleObserver<? super T> actual;
+
+            final CallStatistics calls;
+
+            Disposable s;
+
+            QueueSubscription<T> qs;
+
+            ProfilerSingleObserver(SingleObserver<? super T> actual, CallStatistics calls) {
+                this.actual = actual;
+                this.calls = calls;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void onSubscribe(Disposable s) {
+                this.s = s;
+                if (s instanceof QueueSubscription) {
+                    qs = (QueueSubscription<T>)s;
+                }
+
+                long now = System.nanoTime();
+
+                actual.onSubscribe(this);
+
+                long after = System.nanoTime();
+                calls.onSubscribeCount++;
+                calls.onSubscribeTime += Math.max(0, after - now);
+            }
+
+            @Override
+            public void onSuccess(T t) {
+                long now = System.nanoTime();
+
+                actual.onSuccess(t);
+
+                long after = System.nanoTime();
+                calls.onNextCount++;
+                calls.onNextTime += Math.max(0, after - now);
+                calls.onCompleteCount++;
+                calls.onCompleteTime += 1;
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                long now = System.nanoTime();
+
+                actual.onError(t);
+
+                long after = System.nanoTime();
+                calls.onErrorCount++;
+                calls.onErrorTime += Math.max(0, after - now);
+            }
+
+            @Override
+            public void dispose() {
+                s.dispose();
+            }
+            
+            @Override
+            public boolean isDisposed() {
+                return s.isDisposed();
             }
         }
     }
