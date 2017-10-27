@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava2.RxSynchronousProfiler;
+import hu.akarnokd.rxjava2.RxSynchronousCoarseProfiler;
 import hu.akarnokd.rxjava2.math.MathFlowable;
 import hu.akarnokd.rxjava2.string.StringFlowable;
 import io.reactivex.*;
@@ -211,7 +211,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt extends ShakespeareP
         */
         ShakespearePlaysScrabbleWithRxJava2FlowableOpt s = new ShakespearePlaysScrabbleWithRxJava2FlowableOpt();
         s.init();
-        RxSynchronousProfiler p = new RxSynchronousProfiler();
+        RxSynchronousCoarseProfiler p = new RxSynchronousCoarseProfiler();
         p.start();
         for (int i = 0; i < 100; i++) {
             System.out.println(s.measureThroughput());
