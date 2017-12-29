@@ -24,3 +24,4 @@ hs_err_pid*
 bin/
 !/gradle/wrapper/gradle-wrapper.jar
 /hotspot_pid*.log
+/test-output

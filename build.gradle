@@ -51,7 +51,7 @@ apply plugin: 'maven'
 apply plugin: 'osgi'
 
 dependencies {
-    compile 'org.reactivestreams:reactive-streams:1.0.0'
+    compile 'org.reactivestreams:reactive-streams:1.0.2'
 
     compile 'io.reactivex:rxjava:1.+'
     compile 'io.reactivex:rxjava-string:+';
@@ -141,6 +141,9 @@ dependencies {
     }
     
     compile 'net.objecthunter:exp4j:+'
+    
+    testCompile "org.testng:testng:6.11"
+    testCompile "org.reactivestreams:reactive-streams-tck:1.0.2"
 }
 
 processResources {
