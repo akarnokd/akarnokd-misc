@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.9.0'
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.2.0"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
     }
 }
 
@@ -56,7 +56,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.+'
     compile 'io.reactivex:rxjava-string:+';
 
-    compile 'io.reactivex.rxjava2:rxjava:2.2.0-SNAPSHOT'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.9'
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
@@ -183,9 +183,10 @@ apply plugin: 'license'
 apply from: file('gradle/license.gradle')
 
 jmh {
-    jmhVersion = '1.19'
+    jmhVersion = '1.20'
     humanOutputFile = null
     includeTests = false
+    jvmArgsAppend = ["-Djmh.separateClasspathJAR=true"]
     if (project.hasProperty('jmh')) {
         include = ".*" + project.jmh + ".*"
     } else {
