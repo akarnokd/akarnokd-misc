@@ -112,7 +112,6 @@ public class IxPerf {
         concatMapXRangeFx = rangeFx.concatMap(v -> Flux.fromArray(array2));
         concatMapXRangeIx = Ix.concat(rangeIx.map(v -> Ix.fromArray(array2)));  // Ix doesn't have concatMap...
         concatMapXRangeGx = rangeGx.transformAndConcat(v -> FluentIterable.from(array2));
-
     }
 
 //    @Benchmark

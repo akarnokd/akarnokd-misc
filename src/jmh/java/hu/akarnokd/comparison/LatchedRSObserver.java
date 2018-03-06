@@ -16,9 +16,12 @@ package hu.akarnokd.comparison;
 import java.util.concurrent.CountDownLatch;
 
 import org.openjdk.jmh.infra.Blackhole;
-import org.reactivestreams.*;
+import org.reactivestreams.Subscription;
 
-public class LatchedRSObserver<T> implements Subscriber<T> {
+import io.reactivex.FlowableSubscriber;
+import reactor.core.CoreSubscriber;
+
+public class LatchedRSObserver<T> implements FlowableSubscriber<T>, CoreSubscriber<T> {
 
     public CountDownLatch latch = new CountDownLatch(1);
     private final Blackhole bh;
