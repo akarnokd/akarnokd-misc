@@ -191,12 +191,9 @@ public class FlowableIfNonEmptyComposeTest {
                     onError(ex);
                     return;
                 }
-                queue.offer(t);
-                drain();
-            } else {
-                queue.offer(t);
-                drain();
             }
+            queue.offer(t);
+            drain();
         }
         
         @Override
@@ -212,8 +209,12 @@ public class FlowableIfNonEmptyComposeTest {
         
         @Override
         public void onComplete() {
-            done = true;
-            drain();
+            if (!nonEmpty) {
+                outputMonoSubscriber.onComplete();
+            } else {
+                done = true;
+                drain();
+            }
         }
 
         @Override
