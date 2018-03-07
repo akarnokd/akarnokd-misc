@@ -198,6 +198,7 @@ public class FlowableIfNonEmptyComposeTest {
         
         @Override
         public void onError(Throwable t) {
+            upstream = Operators.cancelledSubscription();
             if (!nonEmpty) {
                 outputMonoSubscriber.onError(t);
             } else {
@@ -209,6 +210,7 @@ public class FlowableIfNonEmptyComposeTest {
         
         @Override
         public void onComplete() {
+            upstream = Operators.cancelledSubscription();
             if (!nonEmpty) {
                 outputMonoSubscriber.onComplete();
             } else {
@@ -323,6 +325,11 @@ public class FlowableIfNonEmptyComposeTest {
                     }
                     
                     if (e == r) {
+                        if (cancelled) {
+                            queue.clear();
+                            return;
+                        }
+                        
                         boolean d = done;
                         boolean empty = queue.isEmpty();
                         
@@ -416,11 +423,13 @@ public class FlowableIfNonEmptyComposeTest {
             
             @Override
             public void onError(Throwable t) {
+                parent.upstream.cancel();
                 parent.outputMonoSubscriber.onError(t);
             }
 
             @Override
             public void onComplete() {
+                parent.upstream.cancel();
                 parent.outputMonoSubscriber.onComplete();
             }
             
