@@ -61,6 +61,8 @@ dependencies {
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
+    testCompile 'io.projectreactor:reactor-test:3+'
+
     compile group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
