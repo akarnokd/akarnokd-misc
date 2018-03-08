@@ -9,6 +9,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class TrackSubscriber {
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
     RxJavaPlugins.setOnObservableSubscribe((observable, observer) -> {
         if (!observable.getClass().getName().toLowerCase().contains("map")) {

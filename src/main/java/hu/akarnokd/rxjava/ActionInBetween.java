@@ -3,7 +3,6 @@ package hu.akarnokd.rxjava;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
-import rx.schedulers.TestScheduler;
 import rx.subjects.PublishSubject;
 
 public class ActionInBetween {

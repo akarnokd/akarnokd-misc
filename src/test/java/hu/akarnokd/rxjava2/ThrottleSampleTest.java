@@ -113,7 +113,7 @@ public class ThrottleSampleTest {
             this.time = time;
             this.unit = unit;
             this.worker = worker;
-            this.queue = new ConcurrentLinkedQueue<Object>();
+            this.queue = new ConcurrentLinkedQueue<>();
         }
         
         @Override
@@ -163,6 +163,7 @@ public class ThrottleSampleTest {
             drain();
         }
         
+        @SuppressWarnings("unchecked")
         void drain() {
             if (getAndIncrement() != 0) {
                 return;

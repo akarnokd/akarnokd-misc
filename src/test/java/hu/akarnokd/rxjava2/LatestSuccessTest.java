@@ -17,9 +17,10 @@ public class LatestSuccessTest {
         .assertResult(2);
     }
     
+    @SafeVarargs
     public static <T> Single<T> latestSuccess(Single<T>... sources) {
         return Single.defer(() -> {
-            AtomicReference<T> last = new AtomicReference<T>();
+            AtomicReference<T> last = new AtomicReference<>();
             return Observable.fromArray(sources)
                 .concatMap(source ->
                      source.doOnSuccess(last::lazySet)

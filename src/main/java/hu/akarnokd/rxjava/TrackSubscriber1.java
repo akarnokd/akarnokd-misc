@@ -8,6 +8,7 @@ import rx.schedulers.Schedulers;
 
 public class TrackSubscriber1 {
 
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
     RxJavaHooks.setOnObservableStart((observable, onSubscribe) -> {
         if (!onSubscribe.getClass().getName().toLowerCase().contains("map")) {

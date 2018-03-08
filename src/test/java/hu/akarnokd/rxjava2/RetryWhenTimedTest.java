@@ -12,7 +12,7 @@ public class RetryWhenTimedTest {
 
     public class RetryWhenObservable implements Func1<Observable<? extends Throwable>, Observable<?>> {
 
-        private static final String TAG = "RetryWhenObservable";
+        static final String TAG = "RetryWhenObservable";
         int maxRetry, interval,retryCount = 0;
 
         public RetryWhenObservable(int maxRetry, int interval) {

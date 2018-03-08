@@ -47,7 +47,7 @@ public class FlowableIfNonEmptyComposeTest {
         Flux.error(new IOException())
         .compose(composeIfNonEmpty(f -> {
             System.out.println("Composed!");
-            return Mono.from(f.doOnNext(System.out::println));
+            return f.doOnNext(System.out::println).then();
         }))
         .subscribe(v -> { }, Throwable::printStackTrace, () -> System.out.println("Done"));
     }
@@ -69,7 +69,7 @@ public class FlowableIfNonEmptyComposeTest {
         Flux.error(new IOException())
         .compose(composeIfNonEmptyDedicated(f -> {
             System.out.println("Composed!");
-            return Mono.from(f.doOnNext(System.out::println));
+            return f.doOnNext(System.out::println).then();
         }))
         .subscribe(v -> { }, Throwable::printStackTrace, () -> System.out.println("Done"));
     }

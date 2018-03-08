@@ -62,7 +62,7 @@ public class ConcatRange {
                 for (int i = 0; i < 3; i++) {
                     list.add("I am value " + i + " of " + integer);
                 }
-                int delayTime = (int) (1 + Math.random() * 10);
+//                int delayTime = (int) (1 + Math.random() * 10);
                 return Flowable.fromIterable(list);//.delay(delayTime, TimeUnit.MILLISECONDS);
             }
         }).subscribeOn(Schedulers.newThread())

@@ -10,5 +10,6 @@ public class InteropCheck {
     public void test() {
         rx.subjects.PublishSubject<String> sj = rx.subjects.PublishSubject.create();
         io.reactivex.subjects.Subject<String> sj2 = RxJavaInterop.toV2Subject(sj);
+        sj2.test();
     }
 }

@@ -9,8 +9,8 @@ public class ZipShare {
 
     @Test
     public void test() {
-        Observable myObservable = Observable.just(1)
-                .flatMap(i -> {
+        Observable<Integer> myObservable = Observable.just(1)
+                .<Integer>flatMap(i -> {
                     throw new IllegalStateException();
                 }).share();
 

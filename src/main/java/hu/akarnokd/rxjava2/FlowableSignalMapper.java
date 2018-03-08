@@ -22,7 +22,7 @@ public final class FlowableSignalMapper<R> extends Flowable<R> {
 
     @Override
     protected void subscribeActual(Subscriber<? super R> s) {
-        source.subscribe(new SignalMapperSubscriber<R>(s, mapper));
+        source.subscribe(new SignalMapperSubscriber<>(s, mapper));
     }
 
     static final class SignalMapperSubscriber<R> implements FlowableSubscriber<Object>, Subscription {
