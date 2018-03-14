@@ -1,4 +1,4 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.consumers;
 
 import java.util.concurrent.*;
 
@@ -7,17 +7,24 @@ import org.reactivestreams.Subscription;
 
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
+import reactor.core.CoreSubscriber;
 
-public final class PerfAsyncConsumer implements FlowableSubscriber<Object>, Observer<Object>, SingleObserver<Object>,
-CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
-
-    final CountDownLatch cdl;
+public final class PerfAsyncConsumer
+extends CountDownLatch
+implements 
+FlowableSubscriber<Object>,
+CoreSubscriber<Object>,
+Observer<Object>, 
+SingleObserver<Object>,
+CompletableObserver, 
+MaybeObserver<Object>, 
+rx.CompletableSubscriber {
 
     final Blackhole bh;
 
     public PerfAsyncConsumer(Blackhole bh) {
+        super(1);
         this.bh = bh;
-        this.cdl = new CountDownLatch(1);
     }
 
     @Override
@@ -29,13 +36,13 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     @Override
     public void onComplete() {
         bh.consume(false);
-        cdl.countDown();
+        countDown();
     }
 
     @Override
     public void onError(Throwable e) {
         bh.consume(e);
-        cdl.countDown();
+        countDown();
     }
 
     @Override
@@ -46,7 +53,7 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     @Override
     public void onSuccess(Object value) {
         bh.consume(value);
-        cdl.countDown();
+        countDown();
     }
 
     @Override
@@ -57,7 +64,7 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
     @Override
     public void onCompleted() {
         bh.consume(false);
-        cdl.countDown();
+        countDown();
     }
     @Override
     public void onSubscribe(rx.Subscription d) {
@@ -71,10 +78,10 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
     public void await(int count, int timeoutSeconds) {
         if (count <= 1000) {
-            while (cdl.getCount() != 0) { }
+            while (getCount() != 0) { }
         } else {
             try {
-                if (!cdl.await(timeoutSeconds, TimeUnit.SECONDS)) {
+                if (!await(timeoutSeconds, TimeUnit.SECONDS)) {
                     throw new RuntimeException("Timeout!");
                 }
             } catch (InterruptedException ex) {

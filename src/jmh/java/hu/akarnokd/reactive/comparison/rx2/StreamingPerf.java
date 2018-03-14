@@ -1,4 +1,4 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.rx2;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -6,9 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
+import hu.akarnokd.reactive.comparison.consumers.PerfConsumer;
 import io.reactivex.Flowable;
-import reactor.core.publisher.Flux;
-import rx.Observable;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -20,32 +19,6 @@ public class StreamingPerf {
 
     @Param({"1", "10", "100", "1000", "10000", "100000", "1000000" })
     public int count;
-
-    rx.Observable<Integer> rangeRxObservable;
-
-    rx.Observable<Integer> arrayRxObservable;
-
-    rx.Observable<Integer> iterableRxObservable;
-
-    rx.Observable<Integer> concatMapJustRxObservable;
-
-    rx.Observable<Integer> concatMapRangeRxObservable;
-
-    rx.Observable<Integer> concatMapXRangeRxObservable;
-
-    rx.Observable<Integer> flatMapJustRxObservable;
-
-    rx.Observable<Integer> flatMapRangeRxObservable;
-
-    rx.Observable<Integer> flatMapXRangeRxObservable;
-
-    rx.Observable<Integer> flattenJustRxObservable;
-
-    rx.Observable<Integer> flattenRangeRxObservable;
-
-    rx.Observable<Integer> flattenXRangeRxObservable;
-
-    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
     Flowable<Integer> rangeRx2Flowable;
 
@@ -100,30 +73,6 @@ public class StreamingPerf {
 
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-    Flux<Integer> rangeReactorFlux;
-
-    Flux<Integer> arrayReactorFlux;
-
-    Flux<Integer> iterableReactorFlux;
-
-    Flux<Integer> concatMapJustReactorFlux;
-
-    Flux<Integer> concatMapRangeReactorFlux;
-
-    Flux<Integer> concatMapXRangeReactorFlux;
-
-    Flux<Integer> flatMapJustReactorFlux;
-
-    Flux<Integer> flatMapRangeReactorFlux;
-
-    Flux<Integer> flatMapXRangeReactorFlux;
-
-    Flux<Integer> flattenJustReactorFlux;
-
-    Flux<Integer> flattenRangeReactorFlux;
-
-    Flux<Integer> flattenXRangeReactorFlux;
-
     @Setup
     public void setup() {
         Integer[] array = new Integer[count];
@@ -135,37 +84,6 @@ public class StreamingPerf {
         Iterable<Integer> justIt = Collections.singletonList(1);
         Iterable<Integer> rangeIt = Arrays.asList(1, 2);
         Iterable<Integer> arrayXIt = Arrays.asList(arrayX);
-
-        // --------------------------------------------------------------------------
-
-        Observable<Integer> just1x = Observable.just(1);
-        Observable<Integer> range1x = Observable.range(1, 2);
-        Observable<Integer> arrayX1x = Observable.from(arrayX);
-
-        rangeRxObservable = Observable.range(1, count);
-
-        arrayRxObservable = Observable.from(array);
-
-        iterableRxObservable = Observable.from(Arrays.asList(array));
-
-        concatMapJustRxObservable = arrayRxObservable.concatMap(v -> just1x);
-
-        concatMapRangeRxObservable = arrayRxObservable.concatMap(v -> range1x);
-
-        concatMapXRangeRxObservable = arrayRxObservable.concatMap(v -> arrayX1x);
-
-        flatMapJustRxObservable = arrayRxObservable.flatMap(v -> just1x);
-
-        flatMapRangeRxObservable = arrayRxObservable.flatMap(v -> range1x);
-
-        flatMapXRangeRxObservable = arrayRxObservable.flatMap(v -> arrayX1x);
-
-
-        flattenJustRxObservable = arrayRxObservable.flatMapIterable(v -> justIt);
-
-        flattenRangeRxObservable = arrayRxObservable.flatMapIterable(v -> rangeIt);
-
-        flattenXRangeRxObservable = arrayRxObservable.flatMapIterable(v -> arrayXIt);
 
         // --------------------------------------------------------------------------
 
@@ -230,95 +148,6 @@ public class StreamingPerf {
         flattenXRangeRx2Observable = arrayRx2Observable.flatMapIterable(v -> arrayXIt);
 
         // --------------------------------------------------------------------------
-
-        Flux<Integer> justFx = Flux.just(1);
-        Flux<Integer> rangeFx = Flux.range(1, 2);
-        Flux<Integer> arrayXFx = Flux.fromArray(arrayX);
-
-        rangeReactorFlux = Flux.range(1, count);
-
-        arrayReactorFlux = Flux.fromArray(array);
-
-        iterableReactorFlux = Flux.fromIterable(Arrays.asList(array));
-
-        concatMapJustReactorFlux = arrayReactorFlux.concatMap(v -> justFx);
-
-        concatMapRangeReactorFlux = arrayReactorFlux.concatMap(v -> rangeFx);
-
-        concatMapXRangeReactorFlux = arrayReactorFlux.concatMap(v -> arrayXFx);
-
-        flatMapJustReactorFlux = arrayReactorFlux.flatMap(v -> justFx);
-
-        flatMapRangeReactorFlux = arrayReactorFlux.flatMap(v -> rangeFx);
-
-        flatMapXRangeReactorFlux = arrayReactorFlux.flatMap(v -> arrayXFx);
-
-
-        flattenJustReactorFlux = arrayReactorFlux.flatMapIterable(v -> justIt);
-
-        flattenRangeReactorFlux = arrayReactorFlux.flatMapIterable(v -> rangeIt);
-
-        flattenXRangeReactorFlux = arrayReactorFlux.flatMapIterable(v -> arrayXIt);
-    }
-
-    @Benchmark
-    public void rangeRxObservable(Blackhole bh) {
-        rangeRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void arrayRxObservable(Blackhole bh) {
-        arrayRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void iterableRxObservable(Blackhole bh) {
-        iterableRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void concatMapJustRxObservable(Blackhole bh) {
-        concatMapJustRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void concatMapRangeRxObservable(Blackhole bh) {
-        concatMapRangeRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void concatMapXRangeRxObservable(Blackhole bh) {
-        concatMapXRangeRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void flatMapJustRxObservable(Blackhole bh) {
-        flatMapJustRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void flatMapRangeRxObservable(Blackhole bh) {
-        flatMapRangeRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void flatMapXRangeRxObservable(Blackhole bh) {
-        flatMapXRangeRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void flattenJustRxObservable(Blackhole bh) {
-        flattenJustRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void flattenRangeRxObservable(Blackhole bh) {
-        flattenRangeRxObservable.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void flattenXRangeRxObservable(Blackhole bh) {
-        flattenXRangeRxObservable.subscribe(new PerfRxSubscriber(bh));
     }
 
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -447,65 +276,4 @@ public class StreamingPerf {
 
 
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-    @Benchmark
-    public void rangeReactorFlux(Blackhole bh) {
-        rangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void arrayReactorFlux(Blackhole bh) {
-        arrayReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void iterableReactorFlux(Blackhole bh) {
-        iterableReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void concatMapJustReactorFlux(Blackhole bh) {
-        concatMapJustReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void concatMapRangeReactorFlux(Blackhole bh) {
-        concatMapRangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void concatMapXRangeReactorFlux(Blackhole bh) {
-        concatMapXRangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void flatMapJustReactorFlux(Blackhole bh) {
-        flatMapJustReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void flatMapRangeReactorFlux(Blackhole bh) {
-        flatMapRangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void flatMapXRangeReactorFlux(Blackhole bh) {
-        flatMapXRangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void flattenJustReactorFlux(Blackhole bh) {
-        flattenJustReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void flattenRangeReactorFlux(Blackhole bh) {
-        flattenRangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void flattenXRangeReactorFlux(Blackhole bh) {
-        flattenXRangeReactorFlux.subscribe(new PerfConsumer(bh));
-    }
-
 }

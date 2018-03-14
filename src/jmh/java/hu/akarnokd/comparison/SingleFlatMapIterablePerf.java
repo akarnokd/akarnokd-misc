@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import hu.akarnokd.reactive.comparison.PerfConsumer;
+import hu.akarnokd.reactive.comparison.consumers.PerfConsumer;
 import io.reactivex.*;
 
 /**

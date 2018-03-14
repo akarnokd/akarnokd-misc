@@ -1,12 +1,12 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.rx2;
 
 import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
+import hu.akarnokd.reactive.comparison.consumers.PerfConsumer;
 import io.reactivex.Flowable;
-import reactor.core.publisher.*;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)
@@ -15,29 +15,6 @@ import reactor.core.publisher.*;
 @Fork(value = 1)
 @State(Scope.Thread)
 public class SubscribePerf {
-
-    rx.Observable<Integer> rxObservableNever = rx.Observable.never();
-
-    rx.Single<Integer> rxSingleNever = rx.Single.create(new rx.Single.OnSubscribe<Integer>() {
-        @Override
-        public void call(rx.SingleSubscriber<? super Integer> t) {
-
-        }
-    });
-
-    rx.Completable rxCompletableNever = rx.Completable.never();
-
-    rx.Observable<Integer> rxObservableEmpty = rx.Observable.empty();
-
-    rx.Single<Integer> rxSingleEmpty = rx.Single.error(new RuntimeException());
-
-    rx.Completable rxCompletableEmpty = rx.Completable.complete();
-
-    rx.Observable<Integer> rxObservableJust = rx.Observable.just(1);
-
-    rx.Single<Integer> rxSingleJust = rx.Single.just(1);
-
-    rx.Completable rxCompletableJust = rx.Completable.error(new RuntimeException());
 
     // ---------------------------------------------
 
@@ -70,70 +47,6 @@ public class SubscribePerf {
     io.reactivex.Completable rx2CompletableJust = io.reactivex.Completable.error(new RuntimeException());
 
     io.reactivex.Maybe<Integer> rx2MaybeJust = io.reactivex.Maybe.just(1);
-
-    // ---------------------------------------------
-
-    Flux<Integer> reactorFluxNever = Flux.never();
-
-    Flux<Integer> reactorFluxEmpty = Flux.empty();
-
-    Flux<Integer> reactorFluxJust = Flux.just(1);
-
-    Mono<Integer> reactorMonoNever = Mono.never();
-
-    Mono<Integer> reactorMonoEmpty = Mono.empty();
-
-    Mono<Integer> reactorMonoJust = Mono.just(1);
-
-    /// ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
-
-    @Benchmark
-    public void neverRxObservable(Blackhole bh) {
-        rxObservableNever.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void emptyRxObservable(Blackhole bh) {
-        rxObservableEmpty.subscribe(new PerfRxSubscriber(bh));
-    }
-
-
-    @Benchmark
-    public void justRxObservable(Blackhole bh) {
-        rxObservableJust.subscribe(new PerfRxSubscriber(bh));
-    }
-
-    @Benchmark
-    public void neverRxSingle(Blackhole bh) {
-        rxSingleNever.subscribe(new PerfRxSingleSubscriber(bh));
-    }
-
-    @Benchmark
-    public void emptyRxSingle(Blackhole bh) {
-        rxSingleEmpty.subscribe(new PerfRxSingleSubscriber(bh));
-    }
-
-
-    @Benchmark
-    public void justRxSingle(Blackhole bh) {
-        rxSingleJust.subscribe(new PerfRxSingleSubscriber(bh));
-    }
-
-    @Benchmark
-    public void neverRxCompletable(Blackhole bh) {
-        rxCompletableNever.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void emptyRxCompletable(Blackhole bh) {
-        rxCompletableEmpty.subscribe(new PerfConsumer(bh));
-    }
-
-
-    @Benchmark
-    public void justRxCompletable(Blackhole bh) {
-        rxCompletableJust.subscribe(new PerfConsumer(bh));
-    }
 
     /// ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
@@ -220,37 +133,4 @@ public class SubscribePerf {
     }
 
     /// ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
-
-    @Benchmark
-    public void neverReactorFlux(Blackhole bh) {
-        reactorFluxNever.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void emptyReactorFlux(Blackhole bh) {
-        reactorFluxEmpty.subscribe(new PerfConsumer(bh));
-    }
-
-
-    @Benchmark
-    public void justReactorFlux(Blackhole bh) {
-        reactorFluxJust.subscribe(new PerfConsumer(bh));
-    }
-
-
-    @Benchmark
-    public void neverReactorMono(Blackhole bh) {
-        reactorMonoNever.subscribe(new PerfConsumer(bh));
-    }
-
-    @Benchmark
-    public void emptyReactorMono(Blackhole bh) {
-        reactorMonoEmpty.subscribe(new PerfConsumer(bh));
-    }
-
-
-    @Benchmark
-    public void justReactorMono(Blackhole bh) {
-        reactorMonoJust.subscribe(new PerfConsumer(bh));
-    }
 }

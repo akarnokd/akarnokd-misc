@@ -1,29 +1,18 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.consumers;
 
 import java.util.concurrent.*;
 
 import org.openjdk.jmh.infra.Blackhole;
 
-public final class PerfRxAsyncSubscriber extends rx.Subscriber<Object> {
+public final class PerfRxAsyncSingleSubscriber extends rx.SingleSubscriber<Object> {
 
     final CountDownLatch cdl;
 
     final Blackhole bh;
 
-    public PerfRxAsyncSubscriber(Blackhole bh) {
+    public PerfRxAsyncSingleSubscriber(Blackhole bh) {
         this.bh = bh;
         this.cdl = new CountDownLatch(1);
-    }
-
-    @Override
-    public void onStart() {
-        bh.consume(true);
-    }
-
-    @Override
-    public void onCompleted() {
-        bh.consume(false);
-        cdl.countDown();
     }
 
     @Override
@@ -33,10 +22,10 @@ public final class PerfRxAsyncSubscriber extends rx.Subscriber<Object> {
     }
 
     @Override
-    public void onNext(Object t) {
+    public void onSuccess(Object t) {
         bh.consume(t);
+        cdl.countDown();
     }
-
 
     public void await(int count) {
         if (count <= 1000) {

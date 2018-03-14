@@ -13,7 +13,7 @@ import akka.actor.ActorSystem;
 import akka.stream.*;
 import akka.stream.javadsl.*;
 import akka.stream.scaladsl.Broadcast;
-import hu.akarnokd.reactive.comparison.PerfAsyncConsumer;
+import hu.akarnokd.reactive.comparison.consumers.PerfAsyncConsumer;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
 

@@ -1,13 +1,12 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.rx2;
 
 import java.lang.management.ManagementFactory;
 import java.util.function.Supplier;
 
 import org.reactivestreams.Subscription;
 
+import io.reactivex.FlowableSubscriber;
 import io.reactivex.disposables.Disposable;
-import reactor.core.publisher.Flux;
-import rx.schedulers.Schedulers;
 
 public final class MemoryPerf {
 
@@ -17,29 +16,7 @@ public final class MemoryPerf {
         return ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
     }
 
-    static final class MyRxSubscriber extends rx.Subscriber<Object> {
-        MyRxSubscriber() {
-            request(0);
-        }
-
-        @Override
-        public void onCompleted() {
-
-        }
-
-        @Override
-        public void onError(Throwable e) {
-
-        }
-
-        @Override
-        public void onNext(Object t) {
-
-        }
-    }
-
-
-    static final class MyRx2Subscriber implements org.reactivestreams.Subscriber<Object> {
+    static final class MyRx2Subscriber implements FlowableSubscriber<Object> {
 
         org.reactivestreams.Subscription s;
 
@@ -124,60 +101,7 @@ public final class MemoryPerf {
 
     public static void main(String[] args) throws Exception {
 
-        Flux.just(1);
-
         System.out.println("Benchmark  (lib-type)   Mode  Cnt       Score       Error  Units");
-
-        checkMemory(() -> rx.Observable.just(1), "just", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10), "range", "RxObservable");
-
-        checkMemory(() -> rx.Observable.empty(), "empty", "RxObservable");
-
-        checkMemory(() -> rx.Observable.fromCallable(() -> 1), "fromCallable", "RxObservable");
-
-        checkMemory(() -> new MyRxSubscriber(), "consumer", "RxObservable");
-
-        checkMemory(() -> new rx.observers.TestSubscriber<>(), "test-consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.just(1).subscribe(new MyRxSubscriber()), "just+consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10).subscribe(new MyRxSubscriber()), "range+consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10).map(v -> v).subscribe(new MyRxSubscriber()),
-                "range+map+consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10).map(v -> v).filter(v -> true).subscribe(new MyRxSubscriber()),
-                "range+map+filter+consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10).subscribeOn(Schedulers.computation()).subscribe(new MyRxSubscriber()),
-                "range+subscribeOn+consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10).observeOn(Schedulers.computation()).subscribe(new MyRxSubscriber()),
-                "range+observeOn+consumer", "RxObservable");
-
-        checkMemory(() -> rx.Observable.range(1, 10).subscribeOn(Schedulers.computation()).observeOn(Schedulers.computation()).subscribe(new MyRxSubscriber()),
-                "range+subscribeOn+observeOn+consumer", "RxObservable");
-
-        checkMemory(() -> rx.subjects.AsyncSubject.create(), "Async", "RxObservable");
-
-        checkMemory(() -> rx.subjects.PublishSubject.create(), "Publish", "RxObservable");
-
-        checkMemory(() -> rx.subjects.ReplaySubject.create(), "Replay", "RxObservable");
-
-        checkMemory(() -> rx.subjects.BehaviorSubject.create(), "Behavior", "RxObservable");
-
-        checkMemory(() -> rx.subjects.UnicastSubject.create(), "Unicast", "RxObservable");
-
-        checkMemory(() -> rx.subjects.AsyncSubject.create().subscribe(new MyRxSubscriber()), "Async+consumer", "RxObservable");
-
-        checkMemory(() -> rx.subjects.PublishSubject.create().subscribe(new MyRxSubscriber()), "Publish+consumer", "RxObservable");
-
-        checkMemory(() -> rx.subjects.ReplaySubject.create().subscribe(new MyRxSubscriber()), "Replay+consumer", "RxObservable");
-
-        checkMemory(() -> rx.subjects.BehaviorSubject.create().subscribe(new MyRxSubscriber()), "Behavior+consumer", "RxObservable");
-
-        checkMemory(() -> rx.subjects.UnicastSubject.create().subscribe(new MyRxSubscriber()), "Unicast+consumer", "RxObservable");
 
         // ---------------------------------------------------------------------------------------------------------------------
 
@@ -187,9 +111,9 @@ public final class MemoryPerf {
 
         checkMemory(() -> io.reactivex.Observable.empty(), "empty", "Rx2Observable");
 
-        checkMemory(() -> io.reactivex.Observable.fromCallable(() -> 1), ".fromCallable", "Rx2Observable");
+        checkMemory(() -> io.reactivex.Observable.fromCallable(() -> 1), "fromCallable", "Rx2Observable");
 
-        checkMemory(() -> new MyRxSubscriber(), "consumer", "Rx2Observable");
+        checkMemory(() -> new MyRx2Observer(), "consumer", "Rx2Observable");
 
         checkMemory(() -> new io.reactivex.observers.TestObserver<>(), "test-consumer", "Rx2Observable");
 
@@ -249,7 +173,7 @@ public final class MemoryPerf {
 
         checkMemory(() -> io.reactivex.Flowable.fromCallable(() -> 1), "fromCallable", "Rx2Flowable");
 
-        checkMemory(() -> new MyRxSubscriber(), "consumer", "Rx2Flowable");
+        checkMemory(() -> new MyRx2Subscriber(), "consumer", "Rx2Flowable");
 
         checkMemory(() -> new io.reactivex.observers.TestObserver<>(), "test-consumer", "Rx2Flowable");
 
@@ -300,56 +224,5 @@ public final class MemoryPerf {
                 "Unicast+consumer", "Rx2Flowable");
 
         // ---------------------------------------------------------------------------------------------------------------------
-
-        checkMemory(() -> Flux.just(1), "just", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10), "range", "ReactorFlux");
-
-        checkMemory(() -> Flux.empty(), "empty", "ReactorFlux");
-
-//        checkMemory(() -> Flux.fromCallable(() -> 1), "fromCallable", "ReactorFlux");
-
-        checkMemory(() -> new MyRxSubscriber(), "consumer", "ReactorFlux");
-
-        checkMemory(() -> new io.reactivex.observers.TestObserver<>(), "test-consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.just(1).subscribeWith(new MyRx2Subscriber()),
-                "just+consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10).subscribeWith(new MyRx2Subscriber()),
-                "range+consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10).map(v -> v).subscribeWith(new MyRx2Subscriber()),
-                "range+map+consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10).map(v -> v).filter(v -> true).subscribeWith(new MyRx2Subscriber()),
-                "range+map+filter+consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10).subscribeOn(reactor.core.scheduler.Schedulers.parallel()).subscribeWith(new MyRx2Subscriber()),
-                "range+subscribeOn+consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10).publishOn(reactor.core.scheduler.Schedulers.parallel()).subscribeWith(new MyRx2Subscriber()),
-                "range+observeOn+consumer", "ReactorFlux");
-
-        checkMemory(() -> Flux.range(1, 10).subscribeOn(reactor.core.scheduler.Schedulers.parallel()).publishOn(reactor.core.scheduler.Schedulers.parallel()).subscribeWith(new MyRx2Subscriber()),
-                "range+subscribeOn+observeOn+consumer", "ReactorFlux");
-
-        checkMemory(() -> reactor.core.publisher.DirectProcessor.create(), "Publish", "ReactorFlux");
-
-        checkMemory(() -> reactor.core.publisher.ReplayProcessor.create(), "Replay", "ReactorFlux");
-
-        checkMemory(() -> reactor.core.publisher.UnicastProcessor.create(), "Unicast", "ReactorFlux");
-
-        checkMemory(() -> reactor.core.publisher.DirectProcessor.create().subscribeWith(new MyRx2Subscriber()),
-                "Publish+consumer", "ReactorFlux");
-
-        checkMemory(() -> reactor.core.publisher.ReplayProcessor.create().subscribeWith(new MyRx2Subscriber()),
-                "Replay+consumer", "ReactorFlux");
-
-        checkMemory(() -> reactor.core.publisher.UnicastProcessor.create().subscribeWith(new MyRx2Subscriber()),
-                "Unicast+consumer", "ReactorFlux");
-
-        // ---------------------------------------------------------------------------------------------------------------------
-
     }
 }

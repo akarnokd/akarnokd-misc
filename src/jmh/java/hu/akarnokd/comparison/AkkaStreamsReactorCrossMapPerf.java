@@ -12,7 +12,7 @@ import com.typesafe.config.*;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
-import hu.akarnokd.reactive.comparison.PerfAsyncConsumer;
+import hu.akarnokd.reactive.comparison.consumers.PerfAsyncConsumer;
 import reactor.core.publisher.Flux;
 
 @BenchmarkMode(Mode.Throughput)

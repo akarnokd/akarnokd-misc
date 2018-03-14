@@ -1,12 +1,14 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.consumers;
 
 import org.openjdk.jmh.infra.Blackhole;
-import org.reactivestreams.*;
+import org.reactivestreams.Subscription;
 
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
+import reactor.core.CoreSubscriber;
 
-public final class PerfConsumer implements Subscriber<Object>, Observer<Object>, SingleObserver<Object>,
+public final class PerfConsumer implements 
+FlowableSubscriber<Object>, CoreSubscriber<Object>, Observer<Object>, SingleObserver<Object>,
 CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
     final Blackhole bh;

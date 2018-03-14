@@ -1,4 +1,4 @@
-package hu.akarnokd.reactive.comparison;
+package hu.akarnokd.reactive.comparison.consumers;
 
 import org.openjdk.jmh.infra.Blackhole;
 
