@@ -201,7 +201,7 @@ public class ShakespearePlaysScrabbleWithJOOLOpt extends ShakespearePlaysScrabbl
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
                 buildHistoOnScore.apply(score3)
-                    .flatMap(map -> Seq.seq(() -> map.entrySet().iterator()))
+                    .flatMap(map -> Seq.seq((Iterable<Map.Entry<Integer, List<String>>>)() -> map.entrySet().iterator()))
                     .take(3)
                     .scanLeft(new ArrayList<Entry<Integer, List<String>>>(), (list, entry) -> {
                         list.add(entry);

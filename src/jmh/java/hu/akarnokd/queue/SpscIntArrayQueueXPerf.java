@@ -34,7 +34,6 @@ public class SpscIntArrayQueueXPerf {
 
     SpscIntArrayQueue queue;
     SpscArrayQueue<Integer> queueBoxed;
-    SpscIntArrayQueueUnsafe queueUnsafe;
     SpscIntArrayQueueAtomic queueFastflow;
 
     final boolean[] hasValue = new boolean[1];
@@ -43,7 +42,6 @@ public class SpscIntArrayQueueXPerf {
     public void setup() {
         queue = new SpscIntArrayQueue(capacity);
         queueFastflow = new SpscIntArrayQueueAtomic(capacity);
-        queueUnsafe = new SpscIntArrayQueueUnsafe(capacity);
         queueBoxed = new SpscArrayQueue<>(capacity);
     }
 
@@ -61,25 +59,6 @@ public class SpscIntArrayQueueXPerf {
     @Benchmark
     public void recv1(Control control) {
         final SpscIntArrayQueue q = queue;
-        while (!control.stopMeasurement && q.poll() == 0) {
-            ;
-        }
-    }
-
-    @Group("unsafe")
-    @GroupThreads(1)
-    @Benchmark
-    public void send3(Control control) {
-        SpscIntArrayQueueUnsafe q = queueUnsafe;
-        while (!q.offer(1) && !control.stopMeasurement) {
-        }
-    }
-
-    @Group("unsafe")
-    @GroupThreads(1)
-    @Benchmark
-    public void recv3(Control control) {
-        final SpscIntArrayQueueUnsafe q = queueUnsafe;
         while (!control.stopMeasurement && q.poll() == 0) {
             ;
         }

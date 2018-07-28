@@ -101,7 +101,7 @@ public class ShakespearePlaysScrabbleWithJOOL extends ShakespearePlaysScrabble {
                 word -> {
                     long[] sum = { 0L };
                     return histoOfLetters.apply(word)
-                                .flatMap(map -> Seq.seq(() -> map.entrySet().iterator()))
+                                .flatMap(map -> Seq.seq((Iterable<Map.Entry<Integer, LongWrapper>>)() -> map.entrySet().iterator()))
                                 .flatMap(blank)
                                 .map(v -> sum[0] += v)
                                 .skip(Long.MAX_VALUE)
@@ -122,7 +122,7 @@ public class ShakespearePlaysScrabbleWithJOOL extends ShakespearePlaysScrabble {
                 word -> {
                     int[] sum = { 0 };
                     return histoOfLetters.apply(word)
-                                .flatMap(map -> Seq.seq(() -> map.entrySet().iterator()))
+                                .flatMap(map -> Seq.seq((Iterable<Map.Entry<Integer, LongWrapper>>)() -> map.entrySet().iterator()))
                                 .flatMap(letterScore)
                                 .map(v -> sum[0] += v)
                                 .skip(Long.MAX_VALUE)
@@ -182,7 +182,7 @@ public class ShakespearePlaysScrabbleWithJOOL extends ShakespearePlaysScrabble {
         Function<Function<String, Seq<Integer>>, Seq<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> {
                     TreeMap<Integer, List<String>> map = new TreeMap<>(Comparator.reverseOrder());
-                    return Seq.seq(() -> shakespeareWords.iterator())
+                    return Seq.seq((Iterable<String>)() -> shakespeareWords.iterator())
                                     .filter(scrabbleWords::contains)
                                     .filter(word -> checkBlanks.apply(word).findFirst().orElse(false))
                                     .map(word -> {
@@ -205,7 +205,7 @@ public class ShakespearePlaysScrabbleWithJOOL extends ShakespearePlaysScrabble {
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
                 buildHistoOnScore.apply(score3)
-                    .flatMap(map -> Seq.seq(() -> map.entrySet().iterator()))
+                    .flatMap(map -> Seq.seq((Iterable<Map.Entry<Integer, List<String>>>)() -> map.entrySet().iterator()))
                     .take(3)
                     .scanLeft(new ArrayList<Entry<Integer, List<String>>>(), (list, entry) -> {
                         list.add(entry);
