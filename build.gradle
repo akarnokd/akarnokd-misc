@@ -188,7 +188,7 @@ apply plugin: 'license'
 apply from: file('gradle/license.gradle')
 
 jmh {
-    jmhVersion = '1.20'
+    jmhVersion = '1.21'
     humanOutputFile = null
     includeTests = false
     jvmArgsAppend = ["-Djmh.separateClasspathJAR=true"]

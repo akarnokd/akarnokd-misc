@@ -101,7 +101,7 @@ public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
         // number of blanks for a given word
         Func1<String, ObservableBuilder<Long>> nBlanks =
                 word -> histoOfLetters.invoke(word)
-                            .selectMany((Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
+                            .selectMany((Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from((Iterable<Map.Entry<Integer, LongWrapper>>)() -> map.entrySet().iterator()))
                             .selectMany(blank)
                             .sumLong();
 
@@ -114,7 +114,7 @@ public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
         // score taking blanks into account letterScore1
         Func1<String, ObservableBuilder<Integer>> score2 =
                 word -> histoOfLetters.invoke(word)
-                            .selectMany((Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
+                            .selectMany((Func1<HashMap<Integer, LongWrapper>, Observable<Entry<Integer, LongWrapper>>>)(map) -> ObservableBuilder.from((Iterable<Map.Entry<Integer, LongWrapper>>)() -> map.entrySet().iterator()))
                             .selectMany(letterScore)
                             .sumInt();
 
@@ -151,7 +151,7 @@ public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
                 .sumInt() ;
 
         Func1<Func1<String, ObservableBuilder<Integer>>, ObservableBuilder<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-                score -> ObservableBuilder.from(() -> shakespeareWords.iterator())
+                score -> ObservableBuilder.from((Iterable<String>)() -> shakespeareWords.iterator())
                                 .where(scrabbleWords::contains)
                                 .where(word -> checkBlanks.invoke(word).first())
                                 .aggregate(
@@ -172,7 +172,7 @@ public class ShakespearePlaysScrabbleWithR4J extends ShakespearePlaysScrabble {
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
                 buildHistoOnScore.invoke(score3)
-                    .selectMany((Func1<TreeMap<Integer, List<String>>, Observable<Entry<Integer, List<String>>>>)map -> ObservableBuilder.from(() -> map.entrySet().iterator()))
+                    .selectMany((Func1<TreeMap<Integer, List<String>>, Observable<Entry<Integer, List<String>>>>)map -> ObservableBuilder.from((Iterable<Map.Entry<Integer, List<String>>>)() -> map.entrySet().iterator()))
                     .take(3)
                     .aggregate(
                         new ArrayList<Entry<Integer, List<String>>>(),
