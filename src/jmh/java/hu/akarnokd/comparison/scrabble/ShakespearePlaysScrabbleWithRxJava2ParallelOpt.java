@@ -48,7 +48,7 @@ public class ShakespearePlaysScrabbleWithRxJava2ParallelOpt extends ShakespeareP
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
-        iterations = 5
+        iterations = 5, time = 1
     )
     @Measurement(
         iterations = 5, time = 1

@@ -82,6 +82,8 @@ dependencies {
 
     compile 'com.annimon:stream:+'
 
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
+
     // -------------------------------------------------------------------
 
     //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'

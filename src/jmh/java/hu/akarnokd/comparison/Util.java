@@ -18,32 +18,39 @@
 
 package hu.akarnokd.comparison;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.stream.*;
 
 public final class Util {
 
     private Util() { }
 
+    static Path findPath(String resourceName) {
+        try {
+            String uri = new File(Util.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath();
+            int i = uri.indexOf("akarnokd-misc");
+            return Paths.get(uri.substring(0, i + 13), "files", resourceName);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Paths.get("files", resourceName);
+        }
+    }
+    
     public static Set<String> readScrabbleWords() {
         Set<String> scrabbleWords = new HashSet<>() ;
-        try (Stream<String> scrabbleWordsStream = Files.lines(Paths.get("files", "ospd.txt"))) {
+        try (Stream<String> scrabbleWordsStream = Files.lines(findPath("ospd.txt"))) {
             scrabbleWords.addAll(scrabbleWordsStream.map(String::toLowerCase).collect(Collectors.toSet()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return scrabbleWords ;
+        return scrabbleWords;
     }
 
     public static Set<String> readShakespeareWords() {
         Set<String> shakespeareWords = new HashSet<>() ;
-        try (Stream<String> shakespeareWordsStream = Files.lines(Paths.get("files", "words.shakespeare.txt"))) {
+        try (Stream<String> shakespeareWordsStream = Files.lines(findPath("words.shakespeare.txt"))) {
             shakespeareWords.addAll(shakespeareWordsStream.map(String::toLowerCase).collect(Collectors.toSet()));
         } catch (IOException e) {
             e.printStackTrace();
