@@ -45,7 +45,7 @@ import rx.functions.Func1;
  */
 public class ShakespearePlaysScrabbleWithRxJava1Beta extends ShakespearePlaysScrabble {
     @SuppressWarnings("unused")
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

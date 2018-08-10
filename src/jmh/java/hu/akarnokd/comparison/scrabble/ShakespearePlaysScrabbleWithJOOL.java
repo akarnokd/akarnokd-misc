@@ -35,7 +35,7 @@ import hu.akarnokd.comparison.IterableSpliterator;
  */
 public class ShakespearePlaysScrabbleWithJOOL extends ShakespearePlaysScrabble {
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

@@ -46,7 +46,7 @@ import rsc.publisher.Px;
  */
 public class ShakespearePlaysScrabbleWithRsc extends ShakespearePlaysScrabble {
     @SuppressWarnings("unused")
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

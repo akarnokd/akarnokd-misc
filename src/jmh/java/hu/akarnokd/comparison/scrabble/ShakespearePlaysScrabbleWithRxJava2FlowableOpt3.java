@@ -41,7 +41,7 @@ public class ShakespearePlaysScrabbleWithRxJava2FlowableOpt3 extends Shakespeare
     }
 
     @SuppressWarnings("unused")
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

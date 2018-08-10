@@ -39,7 +39,7 @@ public class ShakespearePlaysScrabbleWithR4JOpt extends ShakespearePlaysScrabble
         return ObservableBuilder.range(0, word.length()).select(i -> (int)word.charAt(i));
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

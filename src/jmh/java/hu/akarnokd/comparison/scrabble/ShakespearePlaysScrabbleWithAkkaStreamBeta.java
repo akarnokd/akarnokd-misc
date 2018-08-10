@@ -63,7 +63,7 @@ public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlays
         return Source.from(ix.Ix.characters(word));
     }
 
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

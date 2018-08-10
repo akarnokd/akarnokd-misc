@@ -195,7 +195,10 @@ jmh {
     includeTests = false
     
     // For Epsilon GC, add: "-Xmx12G", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"
-    // For Shenandoah, add: "-XX:+UseShenandoahGC"
+    // For Shenandoah, add: "-XX:+UseShenandoahGC" [optionally "-XX:+UnlockDiagnosticVMOptions", "-XX:ShenandoahGCHeuristics=passive"]
+    // For Parallel GC, add: "-XX:+UseParallelGC"
+    // For G1 GC, add: "-XX:+UseG1GC"
+    // For ZGC, add: "-XX:+UnlockExperimentalVMOptions", "-XX:+UseZGC"
     // ---------------------------------------------------------------------------------------
     jvmArgsAppend = ["-Djmh.separateClasspathJAR=true"]
     // ---------------------------------------------------------------------------------------

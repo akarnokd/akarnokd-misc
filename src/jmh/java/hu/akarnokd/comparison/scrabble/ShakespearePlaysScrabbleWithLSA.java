@@ -34,7 +34,7 @@ public abstract class ShakespearePlaysScrabbleWithLSA extends ShakespearePlaysSc
 
 
     @SuppressWarnings("unused")
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

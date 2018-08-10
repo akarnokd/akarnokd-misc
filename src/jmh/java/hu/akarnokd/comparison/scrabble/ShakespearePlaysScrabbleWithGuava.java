@@ -67,7 +67,7 @@ public class ShakespearePlaysScrabbleWithGuava extends ShakespearePlaysScrabble 
 
     */
     @SuppressWarnings({ "unchecked", "unused" })
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(

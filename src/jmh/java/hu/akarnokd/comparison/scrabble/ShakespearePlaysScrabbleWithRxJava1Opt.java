@@ -81,7 +81,7 @@ public class ShakespearePlaysScrabbleWithRxJava1Opt extends ShakespearePlaysScra
     }
 
     @SuppressWarnings("unused")
-    @Benchmark
+//    @Benchmark
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
