@@ -70,7 +70,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
 
         @Override
         public void onError(Throwable t) {
-            actual.onError(t);
+            downstream.onError(t);
         }
 
         @Override
@@ -93,7 +93,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
                         if (hasValue) {
                             complete(sum);
                         } else {
-                            actual.onComplete();
+                            downstream.onComplete();
                         }
                         
                         return;
@@ -110,7 +110,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
                             v = callable.call();
                         } catch (Throwable ex) {
                             Exceptions.throwIfFatal(ex);
-                            actual.onError(ex);
+                            downstream.onError(ex);
                             return;
                         }
                         

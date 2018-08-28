@@ -57,7 +57,7 @@ dependencies {
     compile 'io.reactivex:rxjava-string:+'
     compile 'io.reactivex:rxjava-reactive-streams:+'
 
-    compile 'io.reactivex.rxjava2:rxjava:2.2.0'
+    compile 'io.reactivex.rxjava2:rxjava:2.2.1'
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
@@ -200,7 +200,7 @@ jmh {
     // For G1 GC, add: "-XX:+UseG1GC"
     // For ZGC, add: "-XX:+UnlockExperimentalVMOptions", "-XX:+UseZGC"
     // ---------------------------------------------------------------------------------------
-    jvmArgsAppend = ["-Djmh.separateClasspathJAR=true"]
+    jvmArgsAppend = ["-Djmh.separateClasspathJAR=true", "-XX:+UseParallelGC"]
     // ---------------------------------------------------------------------------------------
     
     if (project.hasProperty('jmh')) {
