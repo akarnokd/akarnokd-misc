@@ -2220,6 +2220,7 @@ public enum TestHelper {
      * @param ts the TestSubscriber instance
      * @param classes the array of expected Throwables inside the Composite
      */
+    @SafeVarargs
     public static void assertCompositeExceptions(TestSubscriber<?> ts, Class<? extends Throwable>... classes) {
         ts
         .assertSubscribed()
@@ -2264,6 +2265,7 @@ public enum TestHelper {
      * @param to the TestSubscriber instance
      * @param classes the array of expected Throwables inside the Composite
      */
+    @SafeVarargs
     public static void assertCompositeExceptions(TestObserver<?> to, Class<? extends Throwable>... classes) {
         to
         .assertSubscribed()
@@ -2308,6 +2310,7 @@ public enum TestHelper {
      * @param p the target processor
      * @param values the values to emit
      */
+    @SafeVarargs
     public static <T> void emit(Processor<T, ?> p, T... values) {
         for (T v : values) {
             p.onNext(v);
@@ -2321,6 +2324,7 @@ public enum TestHelper {
      * @param p the target subject
      * @param values the values to emit
      */
+    @SafeVarargs
     public static <T> void emit(Subject<T> p, T... values) {
         for (T v : values) {
             p.onNext(v);
