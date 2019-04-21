@@ -20,6 +20,7 @@ public class Fallout76EnemyInfo {
             
             Map<String, JsonElement> armorJson = new HashMap<String, JsonElement>();
             Map<String, JsonElement> healthJson = new HashMap<String, JsonElement>();
+            Map<String, JsonElement> weaponJson = new TreeMap<String, JsonElement>();
             
             for (Ba2FileEntry entry : ba2.entries) {
                 if (entry.name.endsWith(".json")) {
@@ -55,60 +56,101 @@ public class Fallout76EnemyInfo {
                         
                         armorJson.put(creature, obj);
                     }
+                    idx = entry.name.indexOf("weap_");
+                    if (idx > 0) {
+                        String weap = entry.name.substring(idx + 5);
+                        weap = weap.substring(0, weap.length() - 8);
+
+                        raf.seek(entry.offset);
+                        byte[] data = new byte[entry.size];
+                        raf.read(data);
+                        
+                        JsonElement obj = new JsonParser().parse(new String(data, StandardCharsets.ISO_8859_1));
+                        weaponJson.put(weap, obj);
+                    }
                 }
             }
             
             Map<String, Map<Integer, HealthArmor>> creatures = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : healthJson.entrySet()) {
-               
+
+                String name = entry.getKey();
+
+                JsonElement drJson = armorJson.get(name + "_dr");
+                JsonElement erJson = armorJson.get(name + "_er");
+                JsonElement rrJson = armorJson.get(name + "_rad");
+
+                if (drJson == null || erJson == null || rrJson == null) {
+                    continue;
+                }
+
                 Map<Integer, HealthArmor> creature = creatures.computeIfAbsent(entry.getKey(), s -> new TreeMap<>());
                 
-                String name = entry.getKey();
                 
-                setCreatureEntry(entry.getValue(), (x, y) -> {
+                processCurveTable(entry.getValue(), (x, y) -> {
                     HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
                     
                     level.health = y;
                 });
 
-                JsonElement drJson = armorJson.get(name + "_dr");
-                if (drJson != null) {
-                    setCreatureEntry(drJson, (x, y) -> {
-                        HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
-                        
-                        level.dr = y;
-                    });
-                }
+                processCurveTable(drJson, (x, y) -> {
+                    HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
+                    
+                    level.dr = y;
+                });
 
-                JsonElement erJson = armorJson.get(name + "_er");
-                if (erJson != null) {
-                    setCreatureEntry(erJson, (x, y) -> {
-                        HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
-                        
-                        level.er = y;
-                    });
-                }
+                processCurveTable(erJson, (x, y) -> {
+                    HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
+                    
+                    level.er = y;
+                });
 
-                JsonElement rrJson = armorJson.get(name + "_rad");
-                if (rrJson != null) {
-                    setCreatureEntry(rrJson, (x, y) -> {
-                        HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
-                        
-                        level.rr = y;
-                    });
-                }
+                processCurveTable(rrJson, (x, y) -> {
+                    HealthArmor level = creature.computeIfAbsent(x, v -> new HealthArmor());
+                    
+                    level.rr = y;
+                });
                 
+                /*
                 System.out.println(name);
                 
                 for (Map.Entry<Integer, HealthArmor> e : creature.entrySet()) {
                     HealthArmor ha = e.getValue();
                     System.out.printf("    %3d:  %5d    %4d    %4d    %4d%n", e.getKey(), ha.health, ha.dr, ha.er, ha.rr);
                 }
+                */
+                
+                for (Map.Entry<Integer, HealthArmor> e : creature.entrySet()) {
+                    HealthArmor ha = e.getValue();
+                    System.out.printf("%s\t%d\t%d\t%d\t%d\t%d%n", name, e.getKey(), ha.health, ha.dr, ha.er, ha.rr);
+                }
             }
+            
+            Map<String, Map<Integer, Integer>> weapons = new HashMap<>();
+            for (Map.Entry<String, JsonElement> entry : weaponJson.entrySet()) {
+
+                String name = entry.getKey();
+                
+                if (name.startsWith("mod_all_") || name.startsWith("template_")) {
+                    continue;
+                }
+                
+                Map<Integer, Integer> weapon = weapons.computeIfAbsent(name, s -> new TreeMap<>());
+
+                processCurveTable(entry.getValue(), (x, y) -> {
+                    if (y > 0) {
+                        weapon.put(x, y);
+                    }
+                });
+
+                for (Map.Entry<Integer, Integer> e : weapon.entrySet()) {
+                    System.out.printf("%s\t%d\t%d%n", name, e.getKey(), e.getValue());
+                }
+}
         }
     }
     
-    static void setCreatureEntry(JsonElement file, BiConsumer<Integer, Integer> onEntry) throws Exception {
+    static void processCurveTable(JsonElement file, BiConsumer<Integer, Integer> onEntry) throws Exception {
         JsonElement curve = file.getAsJsonObject().get("curve");
         for (JsonElement he : curve.getAsJsonArray()) {
             JsonObject obj = he.getAsJsonObject();
