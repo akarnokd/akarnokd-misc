@@ -6,6 +6,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -39,8 +40,14 @@ public class EditorIDFinder {
                                     System.out.println("Records so far: " + i);
                                 }
                                 i++;
+                            } else {
+                                mbb.position(mbb.position() - 3);
                             }
+                        } else {
+                            mbb.position(mbb.position() - 2);
                         }
+                    } else {
+                        mbb.position(mbb.position() - 1);
                     }
                 }
             }
@@ -60,7 +67,8 @@ public class EditorIDFinder {
             search.setFont(f);
             
             JTextPane text = new JTextPane();
-            frame.add(text, BorderLayout.CENTER);
+            JScrollPane scroll = new JScrollPane(text);
+            frame.add(scroll, BorderLayout.CENTER);
             f = new Font(Font.MONOSPACED, Font.PLAIN, 22);
             text.setFont(f);
             
@@ -70,23 +78,30 @@ public class EditorIDFinder {
                 text.setText("");
                 
                 String find = search.getText().trim().toLowerCase();
+                String[] ands = find.split("\\s+");
                 
-                StringBuilder sb = new StringBuilder();
+                List<String> found = new ArrayList<>();
                 if (find.length() > 0) {
                     for (String s : editorIds) {
-                        if (s.toLowerCase().contains(find)) {
-                            if (sb.length() > 0) {
-                                sb.append("\r\n");
+                        boolean has = true;
+                        for (String a : ands) {
+                            if (!s.toLowerCase().contains(a)) {
+                                has = false;
+                                break;
                             }
-                            sb.append(s);
+                        }
+                        if (has) {
+                            found.add(s);
                         }
                     }
                     
-                    if (sb.length() == 0) {
-                        sb.append("<not found>");
+                    if (found.size() == 0) {
+                        text.setText("<not found>");
+                    } else {
+                        Collections.sort(found, String.CASE_INSENSITIVE_ORDER);
+                        text.setText(String.join("\r\n", found));
+                        text.setCaretPosition(0);
                     }
-                    
-                    text.setText(sb.toString());
                 }
             });
         });
