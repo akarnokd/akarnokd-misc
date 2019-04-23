@@ -4,16 +4,33 @@ public class BallisticResist {
 
     public static void main(String[] args) {
 
-        double baseDamage = 210;
-        double armorIgnore = 0.125;
-        double speedCoeff = 1.3;
-        System.out.println(baseDamage + "-" + (25 * armorIgnore) + ": " + damageFormula(baseDamage, 25 * armorIgnore) * speedCoeff);
-        System.out.println(baseDamage + "-" + (50* armorIgnore) + ": " + damageFormula(baseDamage, 50 * armorIgnore) * speedCoeff);
-        System.out.println(baseDamage + "-" + (75 * armorIgnore) + ": " + damageFormula(baseDamage, 75 * armorIgnore) * speedCoeff);
-        System.out.println(baseDamage + "-" + (100 * armorIgnore) + ": " + damageFormula(baseDamage, 100 * armorIgnore) * speedCoeff);
-        System.out.println(baseDamage + "-" + (150 * armorIgnore) + ": " + damageFormula(baseDamage, 150 * armorIgnore) * speedCoeff);
-        System.out.println(baseDamage + "-" + (200 * armorIgnore) + ": " + damageFormula(baseDamage, 200 * armorIgnore) * speedCoeff);
-        System.out.println(baseDamage + "-" + (300 * armorIgnore) + ": " + damageFormula(baseDamage, 300 * armorIgnore) * speedCoeff);
+        double baseDamage = 103;
+        double armorRemaining = (1 - 0.36) * (1 - 0.5);
+        double speedCoeff = 1.0;
+        
+        System.out.println(baseDamage + "-" + (25 * armorRemaining) + ": " + damageFormula(baseDamage, 25 * armorRemaining) * speedCoeff);
+        System.out.println(baseDamage + "-" + (50* armorRemaining) + ": " + damageFormula(baseDamage, 50 * armorRemaining) * speedCoeff);
+        System.out.println(baseDamage + "-" + (75 * armorRemaining) + ": " + damageFormula(baseDamage, 75 * armorRemaining) * speedCoeff);
+        System.out.println(baseDamage + "-" + (100 * armorRemaining) + ": " + damageFormula(baseDamage, 100 * armorRemaining) * speedCoeff);
+        System.out.println(baseDamage + "-" + (150 * armorRemaining) + ": " + damageFormula(baseDamage, 150 * armorRemaining) * speedCoeff);
+        System.out.println(baseDamage + "-" + (200 * armorRemaining) + ": " + damageFormula(baseDamage, 200 * armorRemaining) * speedCoeff);
+        System.out.println(baseDamage + "-" + (300 * armorRemaining) + ": " + damageFormula(baseDamage, 300 * armorRemaining) * speedCoeff);
+
+        System.out.println("SBQ: " + 48000 / (damageFormula(baseDamage, 300 * armorRemaining) * speedCoeff));
+
+        System.out.println("Protectron   : " + (damageFormula(baseDamage, 125 * (1 - 0.36))));
+        System.out.println("Protectron AA: " + (damageFormula(baseDamage, 125 * (1 - 0.36) * (1 - 0.5))));
+        System.out.println("Protectron TR: " + (damageFormula(baseDamage * 1.3, 125 * (1 - 0.36))));
+
+        System.out.println("Protectron TR: " + (damageFormula(baseDamage, 125)));
+        System.out.println("Protectron AA: " + (damageFormula(baseDamage, 125 * (1 - 0.5))));
+        System.out.println("Protectron TR: " + (damageFormula(baseDamage * 1.3, 125)));
+
+        System.out.println("----------");
+        
+        System.out.println("Damage: " + (damageFormula(125, 120 * (1 - 0.36) * (1 - 0.4))));
+
+        System.out.println("----------");
 
         
         /*
