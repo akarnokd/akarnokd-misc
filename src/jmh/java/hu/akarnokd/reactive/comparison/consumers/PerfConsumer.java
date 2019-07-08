@@ -7,7 +7,7 @@ import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import reactor.core.CoreSubscriber;
 
-public final class PerfConsumer implements 
+public final class PerfConsumer implements
 FlowableSubscriber<Object>, CoreSubscriber<Object>, Observer<Object>, SingleObserver<Object>,
 CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
 
