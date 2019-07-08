@@ -4,7 +4,7 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import hu.akarnokd.rxjava2.operators.*;
+import hu.akarnokd.rxjava2.operators.Flowables;
 import io.reactivex.Flowable;
 
 public class JoinPairwise {

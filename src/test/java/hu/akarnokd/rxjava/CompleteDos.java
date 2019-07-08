@@ -1,7 +1,8 @@
 package hu.akarnokd.rxjava;
 
 import org.junit.Test;
-import rx.*;
+
+import rx.Completable;
 import rx.schedulers.Schedulers;
 
 public class CompleteDos {

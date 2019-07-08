@@ -17,22 +17,16 @@
 
 package hu.akarnokd.comparison.scrabble;
 
+import static hu.akarnokd.comparison.FluentIterables.*;
+
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-
-import static hu.akarnokd.comparison.FluentIterables.*;
 
 /**
  * Shakespeare play Scrabble with Guava optimized.

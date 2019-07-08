@@ -1,17 +1,14 @@
 package hu.akarnokd.rxjava2;
 
-import org.junit.Test;
+import static java.util.Collections.singletonList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
+import org.junit.Test;
 
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.subjects.BehaviorSubject;
-import io.reactivex.subjects.Subject;
-
-import static java.util.Collections.singletonList;
+import io.reactivex.subjects.*;
 
 public class BehaviorSubjectCombineLatestTest {
 

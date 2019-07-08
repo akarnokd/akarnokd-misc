@@ -1,14 +1,14 @@
 package hu.akarnokd.rxjava2;
 
     import java.util.concurrent.CompletableFuture;
-    import java.util.concurrent.atomic.*;
-    import java.util.function.*;
-    
-    import org.reactivestreams.*;
-    
-    import io.reactivex.Flowable;
-    import io.reactivex.internal.subscriptions.EmptySubscription;
-    import io.reactivex.internal.util.BackpressureHelper;
+import java.util.concurrent.atomic.*;
+import java.util.function.*;
+
+import org.reactivestreams.*;
+
+import io.reactivex.Flowable;
+import io.reactivex.internal.subscriptions.EmptySubscription;
+import io.reactivex.internal.util.BackpressureHelper;
     
     public final class SomeAsyncApiBridge<T> extends Flowable<T> {
     

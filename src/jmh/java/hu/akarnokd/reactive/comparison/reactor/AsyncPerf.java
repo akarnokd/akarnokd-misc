@@ -7,7 +7,7 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Publisher;
 
-import hu.akarnokd.reactive.comparison.consumers.*;
+import hu.akarnokd.reactive.comparison.consumers.PerfAsyncConsumer;
 import reactor.core.publisher.Flux;
 
 @BenchmarkMode(Mode.Throughput)

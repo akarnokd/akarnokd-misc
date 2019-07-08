@@ -3,10 +3,9 @@ package hu.akarnokd.rxjava2;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.*;
 
 import io.reactivex.Observable;
-import org.junit.*;
 
 public class JustFromEagerCancel {
 

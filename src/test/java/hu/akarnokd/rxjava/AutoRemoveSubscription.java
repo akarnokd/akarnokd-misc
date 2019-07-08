@@ -1,12 +1,11 @@
 package hu.akarnokd.rxjava;
 
-import rx.subjects.PublishSubject;
-
 import org.junit.*;
 
 import rx.*;
 import rx.functions.Action1;
 import rx.plugins.RxJavaHooks;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
 public class AutoRemoveSubscription {

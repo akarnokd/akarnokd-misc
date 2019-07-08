@@ -6,9 +6,9 @@ import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 import org.reactivestreams.Processor;
 
-import hu.akarnokd.reactive.comparison.consumers.*;
+import hu.akarnokd.reactive.comparison.consumers.PerfConsumer;
 import reactor.core.publisher.DirectProcessor;
-import reactor.util.concurrent.*;
+import reactor.util.concurrent.Queues;
 
 @BenchmarkMode(Mode.Throughput)
 @Warmup(iterations = 5)

@@ -4,7 +4,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Test;
 
-import io.reactivex.*;
+import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ObservableConcatEagerTest {

@@ -1,9 +1,9 @@
 package hu.akarnokd.rxjava2;
-import io.reactivex.Flowable;
-import io.reactivex.FlowableSubscriber;
+import org.reactivestreams.Subscription;
+
+import io.reactivex.*;
 import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.Schedulers;
-import org.reactivestreams.Subscription;
 
 public class RxJavaFuseTest {
     public static void main(String[] args) throws Exception {

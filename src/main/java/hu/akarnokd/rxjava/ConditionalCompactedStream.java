@@ -1,15 +1,15 @@
     package hu.akarnokd.rxjava;
 
     import java.util.*;
-    import java.util.concurrent.*;
-    import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-    import org.reactivestreams.*;
+import org.reactivestreams.*;
 
-    import io.reactivex.*;
-    import io.reactivex.Scheduler.Worker;
-    import io.reactivex.disposables.*;
-    import io.reactivex.schedulers.Schedulers;
+import io.reactivex.*;
+import io.reactivex.Scheduler.Worker;
+import io.reactivex.disposables.*;
+import io.reactivex.schedulers.Schedulers;
 
     public final class ConditionalCompactedStream {
 

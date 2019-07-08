@@ -1,10 +1,10 @@
 package hu.akarnokd.rxjava2;
-import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by Ambros on 08/07/2017.

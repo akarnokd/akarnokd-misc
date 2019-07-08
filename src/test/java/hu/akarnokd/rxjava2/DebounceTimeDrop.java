@@ -1,15 +1,15 @@
 package hu.akarnokd.rxjava2;
 
     import java.util.Queue;
-    import java.util.concurrent.*;
-    import java.util.concurrent.atomic.AtomicLong;
-    
-    import org.junit.Test;
-    
-    import io.reactivex.*;
-    import io.reactivex.functions.Consumer;
-    import io.reactivex.schedulers.*;
-    import io.reactivex.subjects.PublishSubject;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.Test;
+
+import io.reactivex.*;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.*;
+import io.reactivex.subjects.PublishSubject;
     
     public class DebounceTimeDrop {
     

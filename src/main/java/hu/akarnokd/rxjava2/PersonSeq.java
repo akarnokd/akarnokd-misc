@@ -10,9 +10,9 @@ import io.reactivex.schedulers.Schedulers;
 public class PersonSeq {
 
     public static class Person {
-        private String name = null;
-        private String address = null;
-        private int age;
+//        private String name = null;
+//        private String address = null;
+//        private int age;
 
         private Optional<String> optName= null;
         private Optional<Integer> optAge= null;

@@ -1,19 +1,15 @@
 package hu.akarnokd.rxjava;
 
+import static java.lang.String.format;
+import static rx.Observable.*;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.String.format;
-import static rx.Observable.just;
-import static rx.Observable.timer;
+import rx.subjects.*;
 
 /**
  * Date: 3/13/17.

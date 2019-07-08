@@ -1,14 +1,14 @@
 package hu.akarnokd.rxjava2;
 
     import java.util.concurrent.atomic.*;
-    
-    import org.junit.Test;
-    import org.reactivestreams.*;
-    
-    import io.reactivex.*;
-    import io.reactivex.Scheduler.Worker;
-    import io.reactivex.internal.util.BackpressureHelper;
-    import io.reactivex.schedulers.Schedulers;
+
+import org.junit.Test;
+import org.reactivestreams.*;
+
+import io.reactivex.*;
+import io.reactivex.Scheduler.Worker;
+import io.reactivex.internal.util.BackpressureHelper;
+import io.reactivex.schedulers.Schedulers;
     
     public class LockstepObserveOnTest {
     

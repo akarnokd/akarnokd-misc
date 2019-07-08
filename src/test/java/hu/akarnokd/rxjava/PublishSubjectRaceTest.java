@@ -1,15 +1,15 @@
 package hu.akarnokd.rxjava;
 
     import java.util.concurrent.CountDownLatch;
-    import java.util.concurrent.atomic.AtomicInteger;
-    
-    import org.junit.Test;
-    
-    import rx.Scheduler.Worker;
-    import rx.exceptions.MissingBackpressureException;
-    import rx.observers.AssertableSubscriber;
-    import rx.schedulers.Schedulers;
-    import rx.subjects.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.Test;
+
+import rx.Scheduler.Worker;
+import rx.exceptions.MissingBackpressureException;
+import rx.observers.AssertableSubscriber;
+import rx.schedulers.Schedulers;
+import rx.subjects.*;
     
     public class PublishSubjectRaceTest {
     

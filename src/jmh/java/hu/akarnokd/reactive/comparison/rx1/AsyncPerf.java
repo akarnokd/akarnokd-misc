@@ -6,7 +6,7 @@ import java.util.concurrent.*;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 
-import hu.akarnokd.reactive.comparison.consumers.*;
+import hu.akarnokd.reactive.comparison.consumers.PerfRxAsyncSubscriber;
 import rx.schedulers.Schedulers;
 
 @BenchmarkMode(Mode.Throughput)

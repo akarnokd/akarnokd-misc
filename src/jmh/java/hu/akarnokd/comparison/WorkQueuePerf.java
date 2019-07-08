@@ -22,6 +22,7 @@ import reactor.util.concurrent.WaitStrategy;
 @OutputTimeUnit(TimeUnit.SECONDS)
 @Fork(value = 1)
 @State(Scope.Thread)
+@SuppressWarnings("deprecation")
 public class WorkQueuePerf {
 
     @Param({"1", "1000", "1000000" })

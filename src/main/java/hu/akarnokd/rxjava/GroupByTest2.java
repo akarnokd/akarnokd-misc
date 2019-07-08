@@ -1,10 +1,10 @@
 package hu.akarnokd.rxjava;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import static rx.Observable.range;
 
 import java.util.Random;
 
-import static rx.Observable.range;
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 public final class GroupByTest2 {
     private GroupByTest2() { }

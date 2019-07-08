@@ -1,7 +1,8 @@
 package hu.akarnokd.rxjava2;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import io.reactivex.Flowable;
 import reactor.core.publisher.Flux;

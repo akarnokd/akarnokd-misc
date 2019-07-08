@@ -1,9 +1,9 @@
 package hu.akarnokd.rxjava2;
 
     import org.junit.Test;
-    
-    import io.reactivex.subjects.BehaviorSubject;
-    import io.reactivex.Observable;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.BehaviorSubject;
     
     public class BehaviorSubjectCombineLatest {
     

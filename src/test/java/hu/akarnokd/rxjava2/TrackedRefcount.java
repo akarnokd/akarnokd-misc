@@ -5,7 +5,6 @@ import org.junit.Test;
 import hu.akarnokd.rxjava2.debug.RxJavaAssemblyTracking;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
 public class TrackedRefcount {

@@ -1,9 +1,9 @@
 package hu.akarnokd.rxjava2;
 
     import java.util.concurrent.TimeUnit;
-    
-    import io.reactivex.*;
-    import io.reactivex.schedulers.TestScheduler;
+
+import io.reactivex.*;
+import io.reactivex.schedulers.TestScheduler;
     
     public class Coincidence {
     

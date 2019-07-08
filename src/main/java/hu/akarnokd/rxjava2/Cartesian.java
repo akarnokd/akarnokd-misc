@@ -1,8 +1,8 @@
 package hu.akarnokd.rxjava2;
 
     import java.util.*;
-    
-    import io.reactivex.Observable;
+
+import io.reactivex.Observable;
     
     public class Cartesian {
     

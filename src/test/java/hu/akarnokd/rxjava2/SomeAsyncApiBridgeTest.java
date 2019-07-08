@@ -1,9 +1,9 @@
 package hu.akarnokd.rxjava2;
 
     import java.util.concurrent.*;
-    import java.util.function.Consumer;
-    
-    import org.junit.Test;
+import java.util.function.Consumer;
+
+import org.junit.Test;
     
     public class SomeAsyncApiBridgeTest {
     

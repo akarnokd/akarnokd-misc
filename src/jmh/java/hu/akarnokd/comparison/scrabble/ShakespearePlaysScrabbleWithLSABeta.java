@@ -20,10 +20,11 @@ package hu.akarnokd.comparison.scrabble;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import com.annimon.stream.function.*;
-import com.annimon.stream.*;
 
 import org.openjdk.jmh.annotations.*;
+
+import com.annimon.stream.*;
+import com.annimon.stream.function.*;
 
 /**
  * Shakespeare plays Scrabble with Java Streams.

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.reactivestreams.*;
 
-import reactor.core.*;
+import reactor.core.Fuseable;
 import reactor.core.publisher.Operators;
 
 /**

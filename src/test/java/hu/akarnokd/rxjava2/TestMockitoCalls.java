@@ -1,12 +1,12 @@
 package hu.akarnokd.rxjava2;
 
     import static org.mockito.Mockito.*;
-    
-    import java.util.List;
-    
-    import org.junit.Test;
-    
-    import io.reactivex.subjects.CompletableSubject;
+
+import java.util.List;
+
+import org.junit.Test;
+
+import io.reactivex.subjects.CompletableSubject;
     
     public class TestMockitoCalls {
     

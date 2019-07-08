@@ -18,8 +18,7 @@
 
 package hu.akarnokd.comparison;
 
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 
 public final class IterableSpliterator<T>  {
 

@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import io.reactivex.*;
 import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.operators.observable.ObservableCreate;
 
@@ -24,7 +23,7 @@ public class CreateFlatFlat {
                 emitter.onComplete();
             }
         });
-        Disposable disposable = observable.flatMap(new Function<Integer, ObservableSource<String>>() {
+        observable.flatMap(new Function<Integer, ObservableSource<String>>() {
             @Override
             public ObservableSource<String> apply(Integer i) throws Exception {
                 List<String> list = new ArrayList<>(3);

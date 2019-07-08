@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 public class EditorIDScanner {
 

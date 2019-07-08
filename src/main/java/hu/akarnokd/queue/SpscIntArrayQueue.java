@@ -13,7 +13,7 @@
 
 package hu.akarnokd.queue;
 
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 import rx.internal.util.unsafe.Pow2;
 

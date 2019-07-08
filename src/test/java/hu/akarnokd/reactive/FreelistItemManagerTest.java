@@ -1,6 +1,7 @@
 package hu.akarnokd.reactive;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 public class FreelistItemManagerTest {
