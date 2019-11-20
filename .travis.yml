@@ -13,4 +13,4 @@ before_install:
  - chmod +x gradlew
 
 install:
-  - gradlew assemble
+  - ./gradlew assemble testClasses
