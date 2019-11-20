@@ -3,6 +3,8 @@ language: java
 jdk:
   - openjdk8
 
+install: true
+
 # cache between builds
 cache:
   directories:
@@ -12,5 +14,5 @@ cache:
 before_install:
  - chmod +x gradlew
 
-install:
+script:
   - ./gradlew assemble testClasses
