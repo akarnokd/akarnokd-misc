@@ -189,7 +189,9 @@ public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlays
                                         return word;
                                     })
                                     .drop(Long.MAX_VALUE)
-                                    .concat(Source.single(map));
+                                    .map(v -> map)
+                                    .concat(Source.single(map))
+                                    ;
                 } ;
 
         // best key / value pairs
@@ -202,6 +204,7 @@ public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlays
                         finalList2.add(v); return v;
                     })
                     .drop(Long.MAX_VALUE)
+                    .map(v -> finalList2)
                     .concat(Source.single(finalList2))
                     );
 
