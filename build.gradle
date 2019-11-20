@@ -51,7 +51,7 @@ apply plugin: 'maven'
 apply plugin: 'osgi'
 
 dependencies {
-    api 'org.reactivestreams:reactive-streams:1.0.2'
+    api 'org.reactivestreams:reactive-streams:1.0.3'
 
     compile 'io.reactivex:rxjava:1.+'
     compile 'io.reactivex:rxjava-string:+'
