@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.4.5"
+        classpath "me.champeau.gradle:jmh-gradle-plugin:0.5.0"
     }
 }
 
@@ -32,8 +32,6 @@ if (!hasProperty('mainClass')) {
 
 
 
-apply from: file('gradle/maven.gradle')
-
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'https://oss.sonatype.org/content/groups/public' }
@@ -48,7 +46,6 @@ repositories {
 }
 
 apply plugin: 'maven'
-apply plugin: 'osgi'
 
 dependencies {
     api 'org.reactivestreams:reactive-streams:1.0.3'
@@ -157,32 +154,6 @@ processResources {
   from ('src/main/java') {
     include '**/*.conf'
   }
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-	archives jar
-    archives sourcesJar
-    archives javadocJar
-}
-
-jar {
-    manifest {
-        name = 'akarnokd-misc'
-        instruction 'Bundle-Vendor', 'akarnokd'
-        instruction 'Bundle-DocURL', 'https://github.com/akarnokd/akarnokd-misc'
-        instruction 'Import-Package', '!org.junit,!junit.framework,!org.mockito.*,*'
-        instruction 'Eclipse-ExtensibleAPI', 'true'
-    }
 }
 
 apply plugin: 'license'
