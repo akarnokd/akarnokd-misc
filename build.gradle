@@ -63,7 +63,7 @@ dependencies {
     compile group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
-    compile 'com.typesafe.akka:akka-stream_2.11:2.5.4'
+    compile 'com.typesafe.akka:akka-stream_2.11:2.5.26'
     
     compile 'org.jctools:jctools-core:2.+'
 
