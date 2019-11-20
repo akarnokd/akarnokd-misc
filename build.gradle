@@ -164,6 +164,7 @@ jmh {
     jmhVersion = '1.21'
     humanOutputFile = null
     includeTests = false
+    duplicateClassesStrategy = 'warn'
     
     // For Epsilon GC, add: "-Xmx12G", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"
     // For Shenandoah, add: "-XX:+UseShenandoahGC" [optionally "-XX:+UnlockDiagnosticVMOptions", "-XX:ShenandoahGCHeuristics=passive"]
