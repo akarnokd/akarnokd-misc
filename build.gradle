@@ -33,16 +33,12 @@ if (!hasProperty('mainClass')) {
 
 
 repositories {
+    mavenCentral()
+
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url 'https://oss.sonatype.org/content/groups/public' }
-
-    mavenCentral()
-	
-	//mavenLocal();
-	
     maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'http://repo.spring.io/libs-snapshot' }
-    //maven { url 'http://repo.akka.io/snapshots' }
 }
 
 apply plugin: 'maven'
