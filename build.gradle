@@ -140,7 +140,7 @@ dependencies {
     
     compile 'net.objecthunter:exp4j:+'
     
-    testCompile "org.testng:testng:7.0.0"
+    testCompile "org.testng:testng:7.1.0"
     testCompile "org.reactivestreams:reactive-streams-tck:1.0.3"
 
     jmh configurations.api
