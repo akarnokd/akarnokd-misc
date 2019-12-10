@@ -134,7 +134,7 @@ dependencies {
     
     compile 'com.squareup.retrofit2:retrofit:2.7.0'
     compile 'com.squareup.retrofit2:converter-gson:2.7.0'
-    compile('com.squareup.retrofit2:adapter-rxjava2:2.6.2') {
+    compile('com.squareup.retrofit2:adapter-rxjava2:2.7.0') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
     
