@@ -10,7 +10,7 @@ public class FlatMapIterableSharedTest {
     @Test
     public void test() {
         Flowable.just(Ix.range(0, 300), Ix.range(0, 300))
-        .flatMapIterable(x->x)
+        .flatMapIterable(x -> x)
         .doOnNext(System.out::println)
         .share()
         .share()
@@ -29,7 +29,7 @@ public class FlatMapIterableSharedTest {
     @Test
     public void test2() {
         Flowable.just(Ix.range(0, 600))
-        .flatMapIterable(x->x)
+        .flatMapIterable(x -> x)
         .doOnNext(System.out::println)
         .share()
         .share()
