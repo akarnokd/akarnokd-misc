@@ -51,6 +51,7 @@ dependencies {
     compile 'io.reactivex:rxjava-reactive-streams:+'
 
     compile 'io.reactivex.rxjava2:rxjava:2.2.18'
+    compile 'io.reactivex.rxjava3:rxjava:3.0.0'
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
@@ -96,6 +97,10 @@ dependencies {
 
     compile('com.github.akarnokd:rxjava2-extensions:+') {
     	exclude group: "io.reactivex.rxjava2", module: "rxjava"
+    }
+
+    compile('com.github.akarnokd:rxjava3-extensions:+') {
+        exclude group: "io.reactivex.rxjava3", module: "rxjava"
     }
 
     compile('com.github.akarnokd:rxjava2-interop:+') {
@@ -159,7 +164,7 @@ apply plugin: 'license'
 apply from: file('gradle/license.gradle')
 
 jmh {
-    jmhVersion = '1.21'
+    jmhVersion = '1.23'
     humanOutputFile = null
     includeTests = false
     duplicateClassesStrategy = 'warn'
