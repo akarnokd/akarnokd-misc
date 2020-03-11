@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava3.ParallelFromPublisher;
+import hu.akarnokd.rxjava3.ParallelFromBatchPublisher;
 import hu.akarnokd.rxjava3.math.MathFlowable;
 import hu.akarnokd.rxjava3.string.StringFlowable;
 import io.reactivex.rxjava3.core.*;
@@ -161,7 +161,8 @@ public class ShakespearePlaysScrabbleWithRxJava3ParallelDiag extends Shakespeare
 
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score ->
-                new ParallelFromPublisher<>(Flowable.fromIterable(shakespeareWords), parallelism, Flowable.bufferSize())
+//                new ParallelFromPublisher<>(Flowable.fromIterable(shakespeareWords), parallelism, Flowable.bufferSize())
+                new ParallelFromBatchPublisher<>(Flowable.fromIterable(shakespeareWords), parallelism, Flowable.bufferSize())
 //                Flowable.fromIterable(shakespeareWords)
 //                .parallel(parallelism)
                 .runOn(scheduler, prefetch)
@@ -212,6 +213,7 @@ public class ShakespearePlaysScrabbleWithRxJava3ParallelDiag extends Shakespeare
 
     public static void main(String[] args) throws Throwable {
         ShakespearePlaysScrabbleWithRxJava3ParallelDiag s = new ShakespearePlaysScrabbleWithRxJava3ParallelDiag();
+        s.parallelism = Runtime.getRuntime().availableProcessors();
         s.init();
         System.out.println(s.measureThroughput());
     }
