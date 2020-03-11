@@ -30,7 +30,6 @@ import akka.actor.ActorSystem;
 import akka.japi.function.Function;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
-import hu.akarnokd.comparison.ReactiveStreamsImplsAsync;
 
 /**
  * Shakespeare with Akka-Stream Optimized.
@@ -47,7 +46,7 @@ public class ShakespearePlaysScrabbleWithAkkaStreamOpt extends ShakespearePlaysS
     @Setup
     public void setup() {
 
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
+        Config cfg = ConfigFactory.parseResources(ShakespearePlaysScrabbleWithAkkaStreamOpt.class, "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
         materializer = ActorMaterializer.create(actorSystem);
 

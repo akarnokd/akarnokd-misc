@@ -51,7 +51,7 @@ public class AkkaStreamsReactorCrossMapPerf {
 
     @Setup
     public void setup() throws Exception {
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
+        Config cfg = ConfigFactory.parseResources(AkkaStreamsReactorCrossMapPerf.class, "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
 
         materializer = ActorMaterializer.create(actorSystem);
@@ -207,7 +207,7 @@ public class AkkaStreamsReactorCrossMapPerf {
 
     public static void main(String[] args) {
 
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
+        Config cfg = ConfigFactory.parseResources(AkkaStreamsReactorCrossMapPerf.class, "/akka-streams.conf").resolve();
         ActorSystem actorSystem = ActorSystem.create("sys", cfg);
 
         ActorMaterializer materializer = ActorMaterializer.create(actorSystem);

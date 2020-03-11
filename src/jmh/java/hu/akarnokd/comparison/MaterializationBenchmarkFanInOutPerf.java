@@ -47,7 +47,7 @@ public class MaterializationBenchmarkFanInOutPerf {
 
     @Setup
     public void setup() {
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
+        Config cfg = ConfigFactory.parseResources(getClass(), "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
 
         materializer = ActorMaterializer.create(actorSystem);

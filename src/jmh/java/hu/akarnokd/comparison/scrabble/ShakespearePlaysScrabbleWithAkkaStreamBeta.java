@@ -21,6 +21,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.*;
 
 import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.options.*;
 
 import com.typesafe.config.*;
 
@@ -29,7 +31,6 @@ import akka.actor.ActorSystem;
 import akka.japi.function.Function;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.*;
-import hu.akarnokd.comparison.ReactiveStreamsImplsAsync;
 
 /**
  * Shakespeare with Akka-Stream Optimized.
@@ -46,7 +47,7 @@ public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlays
     @Setup
     public void setup() {
 
-        Config cfg = ConfigFactory.parseResources(ReactiveStreamsImplsAsync.class, "/akka-streams.conf").resolve();
+        Config cfg = ConfigFactory.parseResources(ShakespearePlaysScrabbleWithAkkaStreamOpt.class, "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
         materializer = ActorMaterializer.create(actorSystem);
 
@@ -241,5 +242,19 @@ public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlays
             s.teardown();
         }
 
+        /*
+        Options opt = new OptionsBuilder()
+                .include(ShakespearePlaysScrabbleWithAkkaStreamBeta.class.getSimpleName())
+                .forks(1)
+                .warmupIterations(5)
+                .warmupTime(TimeValue.seconds(1))
+                .measurementIterations(5)
+                .measurementTime(TimeValue.seconds(1))
+                .timeUnit(TimeUnit.MILLISECONDS)
+                .mode(Mode.SampleTime)
+                .build();
+
+        new Runner(opt).run();
+        */
     }
 }
