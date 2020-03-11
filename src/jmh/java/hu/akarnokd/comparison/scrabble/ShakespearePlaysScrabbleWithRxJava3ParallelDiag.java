@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava3.ParallelFromPublisher;
 import hu.akarnokd.rxjava3.math.MathFlowable;
 import hu.akarnokd.rxjava3.string.StringFlowable;
 import io.reactivex.rxjava3.core.*;
@@ -43,8 +44,9 @@ public class ShakespearePlaysScrabbleWithRxJava3ParallelDiag extends Shakespeare
 
     final Scheduler scheduler = Schedulers.computation(); // = new WeakParallelScheduler();
 
-    @Param({ "1", "2", "4", "6", "8", "10", "11", "12" })
-    int parallelism;
+    @Param({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" })
+    int parallelism; //= 12;
+//    int parallelism = 12;
 
 //    @Param({ "4", "8", "16", "32", "64", "128", "256", "512", "1024" })
     int prefetch = 128;
@@ -159,8 +161,9 @@ public class ShakespearePlaysScrabbleWithRxJava3ParallelDiag extends Shakespeare
 
         Function<Function<String, Flowable<Integer>>, Flowable<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score ->
-                Flowable.fromIterable(shakespeareWords)
-                .parallel(parallelism)
+                new ParallelFromPublisher<>(Flowable.fromIterable(shakespeareWords), parallelism, Flowable.bufferSize())
+//                Flowable.fromIterable(shakespeareWords)
+//                .parallel(parallelism)
                 .runOn(scheduler, prefetch)
                 .filter(scrabbleWords::contains)
                 .filter(word -> checkBlanks.apply(word).blockingFirst())
