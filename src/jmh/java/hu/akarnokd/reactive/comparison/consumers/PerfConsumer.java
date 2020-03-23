@@ -9,7 +9,14 @@ import reactor.core.CoreSubscriber;
 
 public final class PerfConsumer implements
 FlowableSubscriber<Object>, CoreSubscriber<Object>, Observer<Object>, SingleObserver<Object>,
-CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
+CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber, 
+io.reactivex.rxjava3.core.FlowableSubscriber<Object>, 
+io.reactivex.rxjava3.core.Observer<Object>, 
+io.reactivex.rxjava3.core.SingleObserver<Object>,
+io.reactivex.rxjava3.core.CompletableObserver, 
+io.reactivex.rxjava3.core.MaybeObserver<Object>,
+java.util.concurrent.Flow.Subscriber<Object>
+{
 
     final Blackhole bh;
 
@@ -48,13 +55,26 @@ CompletableObserver, MaybeObserver<Object>, rx.CompletableSubscriber {
         bh.consume(d);
     }
 
+
+    @Override
+    public void onSubscribe(io.reactivex.rxjava3.disposables.Disposable d) {
+        bh.consume(d);
+    }
+
     @Override
     public void onCompleted() {
         bh.consume(false);
     }
+
     @Override
     public void onSubscribe(rx.Subscription d) {
         bh.consume(d);
     }
 
+    @Override
+    public void onSubscribe(
+            java.util.concurrent.Flow.Subscription subscription) {
+        subscription.request(Long.MAX_VALUE);
+        bh.consume(subscription);
+    }
 }

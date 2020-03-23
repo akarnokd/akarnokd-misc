@@ -36,6 +36,9 @@ public final class MemoryPerf {
 
 
     static <U> void checkMemory(Supplier<U> item, String name, String typeLib) throws Exception {
+        // make sure classes are initialized
+        item.get();
+
         int n = 1_000_000;
         Object[] array = new Object[n];
 

@@ -50,7 +50,7 @@ dependencies {
     compile 'io.reactivex:rxjava-string:+'
     compile 'io.reactivex:rxjava-reactive-streams:+'
 
-    compile 'io.reactivex.rxjava2:rxjava:2.2.18'
+    compile 'io.reactivex.rxjava2:rxjava:2.2.19'
     compile 'io.reactivex.rxjava3:rxjava:3.0.1'
     
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
@@ -58,6 +58,8 @@ dependencies {
     testCompile 'io.projectreactor:reactor-test:3+'
 
     compile group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
+
+    compile group: 'io.helidon.common', name: 'helidon-common-reactive', version: '2.0.0-M2'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
     compile 'com.typesafe.akka:akka-stream_2.13:2.6.4'
