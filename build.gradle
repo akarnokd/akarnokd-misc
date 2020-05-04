@@ -150,7 +150,7 @@ dependencies {
     testCompile "org.testng:testng:7.1.0"
     testCompile "org.reactivestreams:reactive-streams-tck:1.0.3"
 
-    testCompile group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.25.0'
+    testCompile group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.26.0'
 
     jmh configurations.api
 }
