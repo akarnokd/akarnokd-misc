@@ -7,21 +7,22 @@ import java.util.zip.Inflater;
 
 public class EsmExport {
 
-    static PrintWriter save;
-
+    static PrintWriter saveIds;
+            
     public static void main(String[] args) throws Throwable {
         File file = new File(
                 "e:\\Games\\Fallout76\\Data\\SeventySix.esm");
 
-        save = new PrintWriter(new FileWriter("e:\\Games\\Fallout76\\Data\\SeventySix.txt"));
+        saveIds = new PrintWriter(new FileWriter(
+                "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_EDIDs.txt"));
         try {
             try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
                 while (raf.getFilePointer() < raf.length()) {
-                    processTopGroups(raf, "LVLI");
+                    processTopGroups(raf, "LVLI,GLOB");
                 }
             }
         } finally {
-            save.close();
+            saveIds.close();
         }
     }
     
@@ -68,13 +69,21 @@ public class EsmExport {
 
             // data starts here
 
-            if (filterGroup != null && filterGroup.contains(groupLabel)) {
-                int offset = 0;
-                while (offset < size - 24) {
-                    offset += processRecords(din);
+            if (filterGroup == null || filterGroup.contains(groupLabel)) {
+                try (PrintWriter save = new PrintWriter(new FileWriter(
+                        "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_" + groupLabel + ".txt"))) {
+                
+                    int offset = 0;
+                    while (offset < size - 24) {
+                        offset += processRecords(din, save);
+                    }
                 }
             } else {
-                din.skipBytes(size - 24);
+                int offset = 0;
+                while (offset < size - 24) {
+                    offset += processRecords(din, null);
+                }
+                // din.skipBytes(size - 24);
             }
         } else {
             int flags = Integer.reverseBytes(din.readInt());
@@ -89,7 +98,7 @@ public class EsmExport {
             din.skipBytes(size);
         }
     }
-    static int processRecords(DataInput din) throws Exception {
+    static int processRecords(DataInput din, PrintWriter save) throws Exception {
         String type = readChars(din, 4);
         int size = Integer.reverseBytes(din.readInt());
         int flags = Integer.reverseBytes(din.readInt());
@@ -110,12 +119,19 @@ public class EsmExport {
         // skip version control and unknown
         din.skipBytes(8);
         
-        save.printf("%s %08X %d%n", type, id, flags);
+        if (save != null) {
+            save.printf("%s %08X %d%n", type, id, flags);
+        }
         
         if (!isCompressed) {
             for (FieldEntry fe : processFields(din, size)) {
                 //System.out.printf("      + %s%n", fe.asString(type));
-                fe.printBinary(save, type);
+                if (save != null) {
+                    fe.printBinary(save, type);
+                }
+                if (fe.type.equals("EDID")) {
+                    saveIds.printf("%s,%08X,%s%n", type, id, fe.getZString());
+                }
             }
         } else {
             int decompressSize = Integer.reverseBytes(din.readInt());
@@ -138,7 +154,12 @@ public class EsmExport {
             
             for (FieldEntry fe : processFields(cdin, size)) {
                 //System.out.printf("      + %s%n", fe.asString(type));
-                fe.printBinary(save, type);
+                if (save != null) {
+                    fe.printBinary(save, type);
+                }
+                if (fe.type.equals("EDID")) {
+                    saveIds.printf("%s,%08X,%s%n", type, id, fe.getZString());
+                }
             }
             // data starts here
             //din.skipBytes(size);
@@ -153,6 +174,15 @@ public class EsmExport {
         while (offset < size) {
             String ftype = readChars(din, 4);
             int fsize = din.readUnsignedByte() + din.readUnsignedByte() * 256;
+            
+            if (fsize == 0) {
+                if (result.size() > 0) {
+                    FieldEntry last = result.get(result.size() - 1);
+                    if (last.type.equals("XXXX")) {
+                        fsize = toInt(last.data[0], last.data[1], last.data[2], last.data[3]);
+                    }
+                }
+            }
             
             byte[] data = new byte[fsize];
             din.readFully(data);
@@ -234,6 +264,10 @@ public class EsmExport {
                     break;
                 }
                 case "LVLV": {
+                    out.printf("%.5f", Float.intBitsToFloat(toInt(data[0], data[1], data[2], data[3])));
+                    break;
+                }
+                case "FLTV": {
                     out.printf("%.5f", Float.intBitsToFloat(toInt(data[0], data[1], data[2], data[3])));
                     break;
                 }
@@ -341,21 +375,21 @@ public class EsmExport {
                     out.printf("%08X", toInt(data[20], data[21], data[22], data[23]));
             }
         }
-        
-        static int toInt(byte b1, byte b2, byte b3, byte b4) {
-            return (b1 & 0xFF) + ((b2 & 0xFF) << 8)
-                    + ((b3 & 0xFF) << 16) + ((b4 & 0xFF) << 24);
-        }
-        
-        static int toInt(byte b1, byte b2) {
-            return (b1 & 0xFF) + ((b2 & 0xFF) << 8);
-        }
 
-        private String getZString() {
+        String getZString() {
             return new String(data, 0, data.length - 1, StandardCharsets.ISO_8859_1);
         }
     }
+
+    static int toInt(byte b1, byte b2, byte b3, byte b4) {
+        return (b1 & 0xFF) + ((b2 & 0xFF) << 8)
+                + ((b3 & 0xFF) << 16) + ((b4 & 0xFF) << 24);
+    }
     
+    static int toInt(byte b1, byte b2) {
+        return (b1 & 0xFF) + ((b2 & 0xFF) << 8);
+    }
+
     static final Map<Integer, String> FUNCTION_MAP = new HashMap<>();
     static {
         FUNCTION_MAP.put(4778, "WornHasKeyword");
