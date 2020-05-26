@@ -251,11 +251,30 @@ public class EsmExport {
                     out.printf("%08X (global)", toInt(data[0], data[1], data[2], data[3]));
                     break;
                 }
+                // epic chance global
+                case "LVSG": {
+                    out.printf("%08X (global)", toInt(data[0], data[1], data[2], data[3]));
+                    break;
+                }
+                // chance none global
+                case "LVLG": {
+                    out.printf("%08X (global)", toInt(data[0], data[1], data[2], data[3]));
+                    break;
+                }
                 case "LVOT": {
                     out.printf("%08X (curve)", toInt(data[0], data[1], data[2], data[3]));
                     break;
                 }
+                // chance none value
+                case "LVCV": {
+                    out.printf("%.5f", Float.intBitsToFloat(toInt(data[0], data[1], data[2], data[3])));
+                    break;
+                }
                 case "LVOV": {
+                    out.printf("%.5f", Float.intBitsToFloat(toInt(data[0], data[1], data[2], data[3])));
+                    break;
+                }
+                case "LVMV": {
                     out.printf("%.5f", Float.intBitsToFloat(toInt(data[0], data[1], data[2], data[3])));
                     break;
                 }
