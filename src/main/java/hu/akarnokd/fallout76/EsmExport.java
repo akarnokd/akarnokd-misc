@@ -273,26 +273,33 @@ public class EsmExport {
         void printConditionData(PrintWriter out) {
             out.println();
             out.printf("    Operator:");
-            if ((data[0] >> 5) == 0) {
+            int optype = (data[0] & 0xFF) >> 5;
+            switch (optype) {
+            case 0:
                 out.printf(" ==");
-            }
-            if ((data[0] >> 5) == 1) {
+                break;
+            case 1:
                 out.printf(" !=");
-            }
-            if ((data[0] >> 5) == 2) {
+                break;
+            case 2:
                 out.printf(" >");
-            }
-            if ((data[0] >> 5) == 3) {
+                break;
+            case 3:
                 out.printf(" >=");
-            }
-            if ((data[0] >> 5) == 4) {
+                break;
+            case 4:
                 out.printf(" <");
-            }
-            if ((data[0] >> 5) == 5) {
+                break;
+            case 5:
                 out.printf(" <=");
+                break;
+            default:
+                out.printf(" %d ???", optype);
             }
             if ((data[0] & 1) == 0) {
                 out.printf(" AND");
+            } else {
+                out.printf(" OR");
             }
             if ((data[0] & 2) != 0) {
                 out.printf(" Parameters");
@@ -355,7 +362,7 @@ public class EsmExport {
         FUNCTION_MAP.put(4173, "GetRandomPercent");
         FUNCTION_MAP.put(4170, "GetGlobalValue");
         FUNCTION_MAP.put(4639, "GetQuestCompleted");
-        FUNCTION_MAP.put(4675, "GetEquippedShout");
+        FUNCTION_MAP.put(4675, "EditorLocationHasKeyword");
         
         FUNCTION_MAP.put(4544, "HasPerk");
         FUNCTION_MAP.put(4165, "GetIsRace");
@@ -377,7 +384,18 @@ public class EsmExport {
 
         FUNCTION_MAP.put(4661, "GetIsEditorLocation");
         FUNCTION_MAP.put(4266, "GetDayOfWeek");
+        FUNCTION_MAP.put(4955, "HasEntitlement");
+        FUNCTION_MAP.put(4949, "HasLearnedRecipe");
+        FUNCTION_MAP.put(4971, "IsTrueForConditionForm");
 
+        FUNCTION_MAP.put(4945, "GetIsInRegion");
+        FUNCTION_MAP.put(4953, "GetNumTimesCompletedQuest");
+        FUNCTION_MAP.put(4933, "IsActivePlayer");
+        FUNCTION_MAP.put(4994, "GetWorldType");
+        FUNCTION_MAP.put(4942, "GetActorValueForCurrentLocation");
 
+        FUNCTION_MAP.put(4929, "GetStageDoneUniqueQuest");
+        FUNCTION_MAP.put(4950, "HasActiveMagicEffect");
+        FUNCTION_MAP.put(4884, "LocationHasPlayerOwnedWorkshop");
     }
 }
