@@ -2,7 +2,9 @@ package hu.akarnokd.fallout76;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.zip.Inflater;
 
 public class EsmExport {
@@ -15,6 +17,8 @@ public class EsmExport {
     
     static Map<Integer, Float> globalValues;
 
+    static PrintWriter leveledList;
+
     public static void main(String[] args) throws Throwable {
         File file = new File(
                 "e:\\Games\\Fallout76\\Data\\SeventySix.esm");
@@ -23,17 +27,44 @@ public class EsmExport {
         usedFormIDs = new HashSet<>(10_000);
         globalValues = new HashMap<>(10_000);
         
-        saveIds = new PrintWriter(new FileWriter(
-                "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_EDIDs.txt"));
-        
+        String lvliFile = "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_LVLIs.json";
+
+        leveledList = new PrintWriter(new FileWriter(
+                lvliFile));
+        leveledList.println("{");
+
         try {
-            try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-                while (raf.getFilePointer() < raf.length()) {
-                    processTopGroups(raf, "LVLI,GLOB");
+            saveIds = new PrintWriter(new FileWriter(
+                    "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_EDIDs.txt"));
+            
+            
+            try {
+                try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+                    while (raf.getFilePointer() < raf.length()) {
+                        processTopGroups(raf, "LVLI,GLOB");
+                    }
                 }
+            } finally {
+                saveIds.close();
             }
         } finally {
-            saveIds.close();
+            leveledList.println("}");
+            leveledList.close();
+            
+            // fix the trailing commas
+            List<String> lines = Files.readAllLines(Paths.get(lvliFile));
+            
+            for (int i = 0; i < lines.size() - 1; i++) {
+                String line1 = lines.get(i);
+                String line2 = lines.get(i + 1).trim();
+                
+                if (line1.endsWith(",") && 
+                        (line2.startsWith("}") || line2.startsWith("]"))) {
+                    lines.set(i, line1.substring(0, line1.length() - 1));
+                }
+            }
+            
+            Files.write(Paths.get(lvliFile), lines);
         }
         
         for (Integer id : usedFormIDs) {
@@ -56,7 +87,7 @@ public class EsmExport {
             pw.println("{");
             for (Map.Entry<Integer, String> e : edidMap.entrySet()) {
                 pw.print("\"");
-                pw.print(e.getKey());
+                pw.printf("%08X", e.getKey());
                 pw.print("\": \"");
                 pw.print(e.getValue().replace("\"", "\\\""));
                 pw.println("\",");
@@ -69,7 +100,7 @@ public class EsmExport {
             pw.println("{");
             for (Map.Entry<Integer, Float> e : globalValues.entrySet()) {
                 pw.print("\"");
-                pw.print(e.getKey());
+                pw.printf("%08X", e.getKey());
                 pw.print("\": ");
                 pw.print(e.getValue());
                 pw.println(",");
@@ -241,10 +272,204 @@ public class EsmExport {
         }
         
         if (type.equals("LVLI")) {
-            // TODO
+            leveledList.printf("\"%08X\": {%n", id);
+            
+            int listcount = 0;
+            boolean conditionMode = false;
+            boolean once = false;
+            boolean hasEntl = false;
+            boolean hadList = false;
+            
+            for (int i = 0; i < fieldList.size(); i++) {
+                FieldEntry fe = fieldList.get(i);
+
+                if (listcount == 0 && conditionMode && !"CTDA".equals(fe.type)) {
+                    conditionMode = false;
+                    leveledList.printf("    ],%n");
+                }
+
+                if ("LLCT".equals(fe.type)) {
+                    listcount = fe.data[0];
+                    leveledList.printf("  \"Entries\": [%n");
+                    hadList = listcount != 0;
+                    continue;
+                }
+                if (listcount != 0) {
+                    if (conditionMode && !"CTDA".equals(fe.type)) {
+                        conditionMode = false;
+                        leveledList.printf("      ],%n");
+                    }
+                    switch (fe.type) {
+                        case "LVLO":
+                            if (once) {
+                                leveledList.printf("    },%n");
+                            }
+                            once = true;
+                            leveledList.printf("    {%n");
+                            leveledList.printf("      \"Object\": \"%08X\",%n", fe.getAsObjectID());
+                            break;
+                        case "LVOV": { // omission chance value
+                            float fv = fe.getAsFloat();
+                            if (fv > 0.0f) {
+                                leveledList.printf(Locale.US, "      \"%s\": %f,%n", fe.type, fv);
+                            }
+                            break;
+                        }
+                        case "LVIV": { // quantity
+                            float fv = fe.getAsFloat();
+                            if (fv > 1.0f) {
+                                leveledList.printf(Locale.US, "      \"%s\": %f,%n", fe.type, fv);
+                            }
+                            break;
+                        }
+                        case "LVLV": { // min level, 0-1 has no relevant meaning here
+                            float fv = fe.getAsFloat();
+                            if (fv > 1.0f) {
+                                leveledList.printf(Locale.US, "      \"%s\": %f,%n", fe.type, fv);
+                            }
+                            break;
+                        }
+                        case "LVOC":
+                        case "LVOT":
+                        case "LVIG":
+                        case "LVOG":
+                        case "LVLT":
+                            leveledList.printf(Locale.US, "      \"%s\": \"%08X\",%n", fe.type, fe.getAsObjectID());
+                            break;
+                    }
+                    if ("CTDA".equals(fe.type)) {
+                        if (!conditionMode) {
+                            conditionMode = true;
+                            leveledList.printf("      \"Conditions\": [%n");
+                        }
+                        addCTDA("      ", fe);
+                    }
+                } else {
+                    if (conditionMode && !"CTDA".equals(fe.type)) {
+                        conditionMode = false;
+                        leveledList.printf("  ],%n");
+                    }
+
+                    switch (fe.type) {
+                        case "LVMG":
+                        case "LVMT":
+                        case "LVLG":
+                        case "LVCT":
+                            leveledList.printf("  \"%s\": \"%08X\",%n", fe.type, fe.getAsObjectID());
+                            break;
+                        case "LVMV":
+                        case "LVCV":
+                            float fv = fe.getAsFloat();
+                        
+                            // don't add default-zero entries
+                            if (fv != 0.0f) {
+                                leveledList.printf(Locale.US, "  \"%s\": %f,%n", fe.type, fv);
+                            }
+                            break;
+                        case "LVLF": {
+                            int f = 0;
+                            if (fe.data.length >= 1) {
+                                f = fe.data[0];
+                            }
+                            if (fe.data.length >= 2) {
+                                f += (fe.data[1] & 0xFF) * 256;
+                            }
+                            leveledList.print(String.format("  \"%s\": %d,%n", fe.type, f));
+                            break;
+                        }
+                    }
+                    if ("CTDA".equals(fe.type)) {
+                        if (!conditionMode) {
+                            conditionMode = true;
+                            leveledList.printf("  \"Conditions\": [%n");
+                        }
+                        addCTDA("", fe);
+                    }
+                }
+                if ("ENLT".equals(fe.type)) {
+                    if (conditionMode) {
+                        conditionMode = false;
+                        leveledList.printf("      ],%n");
+                    }
+                    listcount = 0;
+                    if (hadList) {
+                        leveledList.printf("    },%n");
+                        leveledList.printf("  ],%n");
+                    }
+                    hasEntl = true;
+                    break;
+                }
+            }
+            
+            if (!hasEntl) {
+                if (hadList) {
+                    if (conditionMode) {
+                        conditionMode = false;
+                        leveledList.printf("      ],%n");
+                    }
+                    leveledList.printf("    },%n");
+                    leveledList.printf("  ],%n");
+                }
+                if (conditionMode) {
+                    conditionMode = false;
+                    leveledList.printf("  ],%n");
+                }
+            }
+            
+            leveledList.printf("},%n");
         }
 
         return size + 24;
+    }
+    
+    static void addCTDA(String prefix, FieldEntry fe) {
+
+        leveledList.printf("%s    {%n", prefix);
+        leveledList.printf("%s      \"Operator\": %d,%n", prefix, fe.data[0]);
+        int v = toInt(fe.data[4], fe.data[5], fe.data[6], fe.data[7]);
+        if ((fe.data[0] & 4) != 0) {
+            leveledList.printf("%s      \"Ref\": \"%08X\",%n", prefix, v);
+        } else {
+            leveledList.printf(Locale.US, "%s      \"Value\": %s,%n", prefix, Float.intBitsToFloat(v));
+        }
+        int findex = toInt(fe.data[8], fe.data[9]) + 4096;
+        leveledList.printf("%s      \"Function\": %d,%n", prefix, findex);
+        leveledList.printf("%s      \"FunctionName\": \"%s\",%n", prefix, FUNCTION_MAP.get(findex));
+
+        int p1 = toInt(fe.data[12], fe.data[13], fe.data[14], fe.data[15]);
+        leveledList.printf("%s      \"Param1Ref\": \"%08X\",%n", prefix, p1);
+        leveledList.printf(Locale.US, "%s      \"Param1Value\": %s,%n", prefix, Float.intBitsToFloat(p1));
+        
+        int p2 = toInt(fe.data[16], fe.data[17], fe.data[18], fe.data[19]);
+        leveledList.printf("%s      \"Param2Ref\": \"%08X\",%n", prefix, p2);
+        leveledList.printf(Locale.US, "%s      \"Param2Value\": %s,%n", prefix, Float.intBitsToFloat(p2));
+
+        switch (fe.data[20]) {
+        case 0: {
+            leveledList.printf("%s      \"RunOn\": \"Subject\"%n", prefix);
+            break;
+        }
+        case 1: {
+            leveledList.printf("%s      \"RunOn\": \"Target\"%n", prefix);
+            break;
+        }
+        case 2: {
+            leveledList.printf("%s      \"RunOn\": \"Ref\",%n", prefix);
+            int rf = toInt(fe.data[24], fe.data[25], fe.data[26], fe.data[27]);
+            leveledList.printf("%s      \"RunOnRef\": \"%08X\"%n", prefix, rf);
+            break;
+        }
+        }
+        
+        leveledList.printf("%s    },%n", prefix);
+    }
+    
+    static void findEntry(List<FieldEntry> list, String entry, PrintWriter out, BiConsumer<FieldEntry, PrintWriter> handler) {
+        for (FieldEntry fe : list) {
+            if (entry.equals(fe.type)) {
+                handler.accept(fe, out);
+            }
+        }
     }
     
     static List<FieldEntry> processFields(DataInput din, int size) throws IOException {
@@ -687,5 +912,9 @@ public class EsmExport {
             "LVLT", // list minimum level global ref
             "LVMG", // list max global
             "LVMT" // list max curve table
+    ));
+    
+    static final Set<String> IGNORE_FIELDS = new HashSet<>(Arrays.asList(
+            "OBND", "ONAM", "ENLT", "ENLS", "AUUV"
     ));
 }
