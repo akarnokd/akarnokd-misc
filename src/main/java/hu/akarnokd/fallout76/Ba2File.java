@@ -3,18 +3,19 @@ package hu.akarnokd.fallout76;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Predicate;
 
 public final class Ba2File {
 
-    public final List<Ba2FileEntry> entries = new ArrayList<Ba2FileEntry>();
+    public final List<Ba2FileEntry> entries = new ArrayList<>();
 
-    public void open(File file) throws IOException {
+    public void open(File file, Predicate<String> readDataPredicate) throws IOException {
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            read(raf);
+            read(raf, readDataPredicate);
         }
     }
 
-    public void read(RandomAccessFile raf) throws IOException {
+    public void read(RandomAccessFile raf, Predicate<String> readDataPredicate) throws IOException {
         raf.seek(12);
         int numFiles = Integer.reverseBytes(raf.readInt());
         long nameTableOffset = Long.reverseBytes(raf.readLong());
@@ -41,6 +42,14 @@ public final class Ba2File {
             raf.read(name);
             
             entry.name = new String(name, StandardCharsets.ISO_8859_1);
+        }
+        
+        for (Ba2FileEntry entry : entries) {
+            if (readDataPredicate.test(entry.name)) {
+                raf.seek(entry.offset);
+                entry.data = new byte[entry.size];
+                raf.readFully(entry.data);
+            }
         }
     }
 }

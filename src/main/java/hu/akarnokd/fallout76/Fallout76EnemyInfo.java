@@ -16,11 +16,11 @@ public class Fallout76EnemyInfo {
 
         Ba2File ba2 = new Ba2File();
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            ba2.read(raf);
+            ba2.read(raf, n -> false);
             
-            Map<String, JsonElement> armorJson = new HashMap<String, JsonElement>();
-            Map<String, JsonElement> healthJson = new HashMap<String, JsonElement>();
-            Map<String, JsonElement> weaponJson = new TreeMap<String, JsonElement>();
+            Map<String, JsonElement> armorJson = new HashMap<>();
+            Map<String, JsonElement> healthJson = new HashMap<>();
+            Map<String, JsonElement> weaponJson = new TreeMap<>();
             
             for (Ba2FileEntry entry : ba2.entries) {
                 if (entry.name.endsWith(".json")) {
