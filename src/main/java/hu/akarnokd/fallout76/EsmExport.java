@@ -7,27 +7,37 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.zip.Inflater;
 
-public class EsmExport {
+public final class EsmExport {
 
     static PrintWriter saveIds;
-    
+
     static Map<Integer, String> edidMap;
-    
+
     static Set<Integer> usedFormIDs;
-    
+
     static Map<Integer, Float> globalValues;
 
     static PrintWriter leveledList;
 
+    static String baseDir = "c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\";
+    //static String baseDir = "e:\\Games\\Fallout76\\Data\\";
+
+    private EsmExport() {
+        // program
+    }
+
     public static void main(String[] args) throws Throwable {
+
         File file = new File(
-                "e:\\Games\\Fallout76\\Data\\SeventySix.esm");
+                baseDir + "SeventySix.esm");
 
         edidMap = new HashMap<>(100_000);
         usedFormIDs = new HashSet<>(10_000);
         globalValues = new HashMap<>(10_000);
-        
-        String lvliFile = "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_LVLIs.json";
+
+        new File(baseDir + "Dump").mkdirs();
+
+        String lvliFile = baseDir + "Dump\\SeventySix_LVLIs.json";
 
         leveledList = new PrintWriter(new FileWriter(
                 lvliFile));
@@ -35,9 +45,8 @@ public class EsmExport {
 
         try {
             saveIds = new PrintWriter(new FileWriter(
-                    "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_EDIDs.txt"));
-            
-            
+                    baseDir + "Dump\\SeventySix_EDIDs.txt"));
+
             try {
                 try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
                     while (raf.getFilePointer() < raf.length()) {
@@ -50,29 +59,29 @@ public class EsmExport {
         } finally {
             leveledList.println("}");
             leveledList.close();
-            
+
             // fix the trailing commas
             List<String> lines = Files.readAllLines(Paths.get(lvliFile));
-            
+
             for (int i = 0; i < lines.size() - 1; i++) {
                 String line1 = lines.get(i);
                 String line2 = lines.get(i + 1).trim();
-                
-                if (line1.endsWith(",") && 
-                        (line2.startsWith("}") || line2.startsWith("]"))) {
+
+                if (line1.endsWith(",")
+                        && (line2.startsWith("}") || line2.startsWith("]"))) {
                     lines.set(i, line1.substring(0, line1.length() - 1));
                 }
             }
-            
+
             Files.write(Paths.get(lvliFile), lines);
         }
-        
+
         for (Integer id : usedFormIDs) {
             if (!edidMap.containsKey(id)) {
                 System.err.printf("%08X missing edid%n", id);
             }
         }
-        
+
         System.out.println("usedFormIDs before: " + usedFormIDs.size());
         System.out.println("EDIDs before: " + edidMap.size());
         System.out.println("GLOBs before: " + globalValues.size());
@@ -83,7 +92,7 @@ public class EsmExport {
         System.out.println("GLOBs after: " + globalValues.size());
         
         try (PrintWriter pw = new PrintWriter(new FileWriter(
-                "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_EDIDs.json"))) {
+                baseDir + "Dump\\SeventySix_EDIDs.json"))) {
             pw.println("{");
             for (Map.Entry<Integer, String> e : edidMap.entrySet()) {
                 pw.print("\"");
@@ -96,7 +105,7 @@ public class EsmExport {
         }
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(
-                "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_GLOBs.json"))) {
+                baseDir + "Dump\\SeventySix_GLOBs.json"))) {
             pw.println("{");
             for (Map.Entry<Integer, Float> e : globalValues.entrySet()) {
                 pw.print("\"");
@@ -161,7 +170,7 @@ public class EsmExport {
             } else {
                 if (filterGroup == null || filterGroup.contains(groupLabel)) {
                     try (PrintWriter save = new PrintWriter(new FileWriter(
-                            "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_" + groupLabel + ".txt"))) {
+                            baseDir + "Dump\\SeventySix_" + groupLabel + ".txt"))) {
                     
                         int offset = 0;
                         while (offset < size - 24) {
@@ -217,6 +226,10 @@ public class EsmExport {
         
         if (save != null) {
             save.printf("%s %08X %d%n", type, id, flags);
+        }
+        
+        if (type.equals("LVLI")) {
+            usedFormIDs.add(id);
         }
         
         DataInput fieldInput = din;
