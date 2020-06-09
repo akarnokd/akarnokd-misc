@@ -60,7 +60,7 @@ public class FlattenCrossMapPerf {
             }
         });
 
-        multi = Multi.from(outer).flatMapIterable(v -> inner, 128);
+        multi = Multi.create(outer).flatMapIterable(v -> inner, 128);
     }
 
 //    @Benchmark
