@@ -270,6 +270,10 @@ public class EsmExport {
         if (save != null) {
             save.printf("%s %08X %d%n", type, id, flags);
         }
+
+        if (type.equals("LVLI")) {
+            usedFormIDs.add(id);
+        }
         
         DataInput fieldInput = din;
         if (isCompressed) {
