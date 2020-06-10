@@ -315,6 +315,9 @@ public class EsmExport {
             }
             
             if (type.equals("LVLI")) {
+                if ("LVLO".equals(fe.type) && fe.data.length == 12) {
+                    usedFormIDs.add(fe.getAsObjectID(4));
+                } else
                 if (OBJECT_FIELDS.contains(fe.type)) {
                     usedFormIDs.add(fe.getAsObjectID());
                 }
@@ -367,7 +370,20 @@ public class EsmExport {
                             }
                             once = true;
                             leveledList.printf("    {%n");
-                            leveledList.printf("      \"Object\": \"%08X\",%n", fe.getAsObjectID());
+                            if (fe.data.length == 4) {
+                                leveledList.printf("      \"Object\": \"%08X\",%n", fe.getAsObjectID());
+                            } else {
+                                leveledList.printf("      \"Object\": \"%08X\",%n", fe.getAsObjectID(4));
+                                if (fe.data[10] > 0) {
+                                    leveledList.printf(Locale.US, "      \"%s\": %d,%n", "LVOV", fe.data[10]);
+                                }
+                                if (fe.getAsShort(8) > 1) {
+                                    leveledList.printf(Locale.US, "      \"%s\": %d,%n", "LVIV", fe.getAsShort(8));
+                                }
+                                if (fe.getAsShort(0) > 1) {
+                                    leveledList.printf(Locale.US, "      \"%s\": %d,%n", "LVLV", fe.getAsShort(0));
+                                }
+                            }
                             break;
                         case "LVOV": { // omission chance value
                             float fv = fe.getAsFloat();
@@ -580,7 +596,14 @@ public class EsmExport {
                 break;
             }
             case "LVLO": {
-                sb.append(String.format("%08X (object)", getAsObjectID()));
+                if (data.length == 4) {
+                    sb.append(String.format("%08X (object)", getAsObjectID()));
+                } else {
+                    sb.append(String.format("%08X (object)%n", getAsObjectID(4)));
+                    sb.append(String.format(Locale.US, "  %s: %d", "LVOV", data[10]));
+                    sb.append(String.format(Locale.US, "  %s: %d", "LVIV", getAsShort(8)));
+                    sb.append(String.format(Locale.US, "  %s: %d", "LVLV", getAsShort(0)));
+                }
                 break;
             }
             case "LVOG": {
@@ -704,7 +727,14 @@ public class EsmExport {
                     break;
                 }
                 case "LVLO": {
-                    out.printf("%08X (object)", getAsObjectID());
+                    if (data.length == 4) {
+                        out.printf("%08X (object)", getAsObjectID());
+                    } else {
+                        out.printf("%08X (object)%n", getAsObjectID(4));
+                        out.printf(Locale.US, "  %s (1): %d%n", "LVOV", data[10]);
+                        out.printf(Locale.US, "  %s (2): %d%n", "LVIV", getAsShort(8));
+                        out.printf(Locale.US, "  %s (2): %d", "LVLV", getAsShort(0));
+                    }
                     break;
                 }
                 case "LVOG": {
@@ -807,7 +837,15 @@ public class EsmExport {
         }
 
         int getAsObjectID() {
-            return toInt(data[0], data[1], data[2], data[3]);
+            return getAsObjectID(0);
+        }
+        
+        int getAsObjectID(int offset) {
+            return toInt(data[offset + 0], data[offset + 1], data[offset + 2], data[offset + 3]);
+        }
+        
+        int getAsShort(int offset) {
+            return toInt(data[offset + 0], data[offset + 1]);
         }
         
         List<Integer> getConditionObjectIDs() {
