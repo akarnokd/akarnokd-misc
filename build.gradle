@@ -140,7 +140,7 @@ dependencies {
     compile 'it.unimi.dsi:fastutil:8.3.1'
     
     compile 'com.squareup.retrofit2:retrofit:2.9.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.8.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.9.0'
     compile('com.squareup.retrofit2:adapter-rxjava2:2.9.0') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
@@ -150,7 +150,7 @@ dependencies {
     testCompile "org.testng:testng:7.1.0"
     testCompile "org.reactivestreams:reactive-streams-tck:1.0.3"
 
-    testCompile group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.28.0'
+    testCompile group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.29.0'
 
     jmh configurations.api
 }
