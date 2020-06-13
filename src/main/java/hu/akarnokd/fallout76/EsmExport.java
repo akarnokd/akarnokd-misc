@@ -182,51 +182,78 @@ public class EsmExport {
     static void processTopGroups(DataInput din, String filterGroup) throws Exception {
         System.out.println(":---");
         String type = readChars(din, 4);
-        System.out.printf("Type: %s%n", type);
+        //System.out.printf("Type: %s%n", type);
         int size = Integer.reverseBytes(din.readInt());
-        System.out.printf("Size: %s%n", size);
+        //System.out.printf("Size: %s%n", size);
         
-        processInnerGroup(din, filterGroup, type, size);
+        processInnerGroup(din, filterGroup, type, size, "");
+    }
+    
+    static double getProgress(DataInput din) throws IOException {
+        long fileOffset = ((RandomAccessFile)din).getFilePointer();
+        long len = ((RandomAccessFile)din).length();
+        double percent = (1.0 * fileOffset / len) * 100.0;
+        return percent;
     }
 
-    static void processInnerGroup(DataInput din, String filterGroup, String type, int size) throws Exception {
+    static void processInnerGroup(DataInput din, String filterGroup, String type, int size, String debugPrefix) throws Exception {
         if ("GRUP".equals(type)) {
             int labelOf = Integer.reverseBytes(din.readInt());
             int gtype = Integer.reverseBytes(din.readInt());
 
             String groupLabel = "";
+            //System.out.printf("%sv-v-v-v-v-v-v-v-v-v%n", debugPrefix);
+            //System.out.printf("%sSize: %d%n", debugPrefix, size);
+            int logLimit = 6;
             if (gtype == 0) {
                 groupLabel = intToChar(labelOf);
-                System.out.printf("GroupType: Top%n", gtype);
-                System.out.printf("Record type: %s%n", groupLabel);
+                /*
+                System.out.printf("%sGroupType: Top%n", debugPrefix, gtype);
+                System.out.printf("%sRecord type: %s%n", debugPrefix, groupLabel);
+                */
+                if (debugPrefix.length() < logLimit) {
+                    
+                    System.out.printf("%sGRUP (size: %,d) for %s (type: %d) [%.3f%%]%n", 
+                            debugPrefix, size, groupLabel, gtype, getProgress(din));
+                }
             } else {
-                System.out.printf("Label: %08X%n", labelOf);
-                System.out.printf("GroupType: %08X%n", gtype);
+                /*
+                System.out.printf("%sLabel: %08X%n", debugPrefix, labelOf);
+                System.out.printf("%sGroupType: %08X%n", debugPrefix, gtype);
+                */
+                if (debugPrefix.length() < logLimit) {
+                    System.out.printf("%sGRUP (size: %,d) for %08X (type: %d) [%.3f%%]%n", 
+                            debugPrefix, size, labelOf, gtype, getProgress(din));
+                }
             }
             // skip version control and unknown
             din.skipBytes(8);
 
             // data starts here
 
-            if (groupLabel.equals("CELL") || groupLabel.equals("WRLD")) {
+            if (groupLabel.equals("aaaa")) {
+//            if (!groupLabel.equals("WRLD") && debugPrefix.length() == 0) {
+//            if (groupLabel.equals("CELL") || groupLabel.equals("WRLD")) {
                 din.skipBytes(size - 24);
             } else {
-                if (filterGroup == null || filterGroup.contains(groupLabel)) {
+                if (!groupLabel.isEmpty() && (filterGroup == null || filterGroup.contains(groupLabel))) {
                     try (PrintWriter save = new PrintWriter(new FileWriter(
                             "e:\\Games\\Fallout76\\Data\\Dump\\SeventySix_" + groupLabel + ".txt"))) {
                     
                         int offset = 0;
                         while (offset < size - 24) {
-                            offset += processRecords(din, save, filterGroup);
+                            offset += processRecords(din, save, filterGroup, debugPrefix);
                         }
                     }
                 } else {
                     int offset = 0;
                     while (offset < size - 24) {
-                        offset += processRecords(din, null, filterGroup);
+                        offset += processRecords(din, null, filterGroup, debugPrefix);
                     }
                 }
             }
+            
+            //System.out.printf("%s^-^-^-^-^-^-^-^-^-^%n", debugPrefix);
         } else {
             int flags = Integer.reverseBytes(din.readInt());
             System.out.printf("Flags: %08X%n", flags);
@@ -241,18 +268,25 @@ public class EsmExport {
         }
     }
     
-    static int processRecords(DataInput din, PrintWriter save, String filterGroup) throws Exception {
+    static int processRecords(DataInput din, PrintWriter save, String filterGroup, String debugPrefix) throws Exception {
         String type = readChars(din, 4);
         int size = Integer.reverseBytes(din.readInt());
 
         if (type.equals("GRUP")) {
-            processInnerGroup(din, filterGroup, type, size);
-            return size - 24;
+            processInnerGroup(din, filterGroup, type, size, debugPrefix + "  ");
+            return size;
         }
         
         int flags = Integer.reverseBytes(din.readInt());
         boolean isCompressed = (flags & FLAGS_COMPRESSED) != 0;
         int id = Integer.reverseBytes(din.readInt());
+
+        /*
+//        if (type.equals("WRLD") || type.equals("CELL")) 
+        {
+            System.out.printf("%s%s record (size: %d): %08X%s%n", debugPrefix, type, size, id, isCompressed ? "  compressed" : "");
+        }
+        */
         /*
         System.out.println("   ---");
         System.out.printf("   Type: %s%n", type);
@@ -275,6 +309,7 @@ public class EsmExport {
             usedFormIDs.add(id);
         }
         
+        int propertySize = size;
         DataInput fieldInput = din;
         if (isCompressed) {
             int decompressSize = Integer.reverseBytes(din.readInt());
@@ -290,8 +325,8 @@ public class EsmExport {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(decompressSize);
             byte[] buffer = new byte[1024];  
             while (!inflater.finished()) {  
-             int count = inflater.inflate(buffer);  
-             outputStream.write(buffer, 0, count);  
+                int count = inflater.inflate(buffer);  
+                outputStream.write(buffer, 0, count);  
             }  
             outputStream.close();  
             byte[] output = outputStream.toByteArray();
@@ -300,9 +335,10 @@ public class EsmExport {
             
             // data starts here
             //din.skipBytes(size);
+            propertySize = output.length;
         }
 
-        List<FieldEntry> fieldList = processFields(fieldInput, size);
+        List<FieldEntry> fieldList = processFields(fieldInput, propertySize);
 
         for (FieldEntry fe : fieldList) {
             //System.out.printf("      + %s%n", fe.asString(type));
@@ -553,22 +589,27 @@ public class EsmExport {
         int offset = 0;
         List<FieldEntry> result = new ArrayList<>();
         while (offset < size) {
-            String ftype = readChars(din, 4);
-            int fsize = din.readUnsignedByte() + din.readUnsignedByte() * 256;
-            
-            if (fsize == 0) {
-                if (result.size() > 0) {
-                    FieldEntry last = result.get(result.size() - 1);
-                    if (last.type.equals("XXXX")) {
-                        fsize = toInt(last.data[0], last.data[1], last.data[2], last.data[3]);
+            try {
+                String ftype = readChars(din, 4);
+                int fsize = din.readUnsignedByte() + din.readUnsignedByte() * 256;
+                
+                if (fsize == 0) {
+                    if (result.size() > 0) {
+                        FieldEntry last = result.get(result.size() - 1);
+                        if (last.type.equals("XXXX")) {
+                            fsize = toInt(last.data[0], last.data[1], last.data[2], last.data[3]);
+                        }
                     }
                 }
+                
+                byte[] data = new byte[fsize];
+                din.readFully(data);
+                offset += 6 + fsize;
+                result.add(new FieldEntry(ftype, data));
+            } catch (EOFException ex) {
+                System.err.printf("Parsing error after %d properties%n", result.size());
+                throw ex;
             }
-            
-            byte[] data = new byte[fsize];
-            din.readFully(data);
-            offset += 6 + fsize;
-            result.add(new FieldEntry(ftype, data));
         }
         return result;
     }
@@ -584,6 +625,7 @@ public class EsmExport {
         @Override
         public java.lang.String toString() {
             StringBuilder sb = new StringBuilder();
+            sb.append(type).append(": ");
             switch (type) {
             case "EDID":
             case "CNAM":
