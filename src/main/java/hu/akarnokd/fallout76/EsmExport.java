@@ -471,7 +471,7 @@ public class EsmExport {
                             leveledList.printf("  \"%s\": \"%08X\",%n", fe.type, fe.getAsObjectID());
                             break;
                         case "LVMV":
-                        case "LVCV":
+                        case "LVCV": {
                             float fv = fe.getAsFloat();
                         
                             // don't add default-zero entries
@@ -479,6 +479,14 @@ public class EsmExport {
                                 leveledList.printf(Locale.US, "  \"%s\": %f,%n", fe.type, fv);
                             }
                             break;
+                        }
+                        case "LVLD": {
+                            if (fe.data.length != 0 && fe.data[0] != 0) {
+                                leveledList.printf(Locale.US, "  \"%s\": %d,%n", "LVCV", fe.data[0]);
+                            }
+
+                            break;
+                        }
                         case "LVLF": {
                             int f = 0;
                             if (fe.data.length >= 1) {
