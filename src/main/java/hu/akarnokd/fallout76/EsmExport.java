@@ -1,6 +1,8 @@
 package hu.akarnokd.fallout76;
 
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -19,7 +21,7 @@ public final class EsmExport {
 
     static Map<Integer, String> edidMap;
 
-    static Map<Integer, String> descriptionMap;
+    static Map<Integer, Integer> descriptionMap;
 
     static Set<Integer> usedFormIDs;
 
@@ -33,6 +35,20 @@ public final class EsmExport {
     static String basePath = "c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\";
 
     public static void main(String[] args) throws Throwable {
+
+        Map<String, Ba2FileEntry> localization = new HashMap<>();
+        loadStringsBa2(localization, basePath + "SeventySix - Localization.ba2");
+
+        Map<Integer, String> descriptionLookup = new HashMap<>(10_000);
+
+        for (Map.Entry<String, Ba2FileEntry> entry : localization.entrySet()) {
+            if (entry.getKey().toLowerCase().endsWith("seventysix_en.strings")) {
+                TesStringsData.process(entry.getValue().data, (id, string) -> {
+                    descriptionLookup.put(id, string);
+                });
+            }
+        }
+
         File file = new File(
                 basePath + "SeventySix.esm");
 
@@ -54,7 +70,12 @@ public final class EsmExport {
 
             try {
                 try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-                    while (raf.getFilePointer() < raf.length()) {
+                    MappedByteBuffer bb = raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
+                    bb.order(ByteOrder.BIG_ENDIAN);
+
+                    DataInputByteBuffer buf = new DataInputByteBuffer(bb);
+
+                    while (buf.position() < raf.length()) {
                         processTopGroups(raf, "LVLI,GLOB,CURV");
                     }
                 }
@@ -102,44 +123,10 @@ public final class EsmExport {
         System.out.println("GLOBs after: " + globalValues.size());
         System.out.println("CURVs after: " + curveTables.size());
 
-        try (PrintWriter pw = new PrintWriter(new FileWriter(
-                basePath + "Dump\\SeventySix_EDIDs.js"))) {
-            pw.println("edids = {");
-            for (Map.Entry<Integer, String> e : edidMap.entrySet()) {
-                pw.print("\"");
-                pw.printf("%08X", e.getKey());
-                pw.print("\": \"");
-                String editorID = e.getValue().replace("\"", "\\\"");
-                String description = descriptionMap.get(e.getKey());
-                if (description == null) {
-                    pw.print(editorID);
-                } else {
-                    pw.print(editorID);
-                    pw.print(" ");
-                    pw.print(description.replace("\"", "\\\""));
-                }
-                pw.println("\",");
-            }
-            pw.println("}");
-        }
-
-        try (PrintWriter pw = new PrintWriter(new FileWriter(
-                basePath + "Dump\\SeventySix_GLOBs.js"))) {
-            pw.println("globals = {");
-            for (Map.Entry<Integer, Float> e : globalValues.entrySet()) {
-                pw.print("\"");
-                pw.printf("%08X", e.getKey());
-                pw.print("\": ");
-                pw.print(e.getValue());
-                pw.println(",");
-            }
-            pw.println("}");
-        }
-
         Map<String, Ba2FileEntry> curveMap = new HashMap<>();
 
-        loadBa2(curveMap, basePath + "SeventySix - Startup.ba2");
-        loadBa2(curveMap, basePath + "SeventySix - MiscClient.ba2");
+        loadJsonBa2(curveMap, basePath + "SeventySix - Startup.ba2");
+        loadJsonBa2(curveMap, basePath + "SeventySix - MiscClient.ba2");
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(
                 basePath + "Dump\\SeventySix_CURVs.js"))) {
@@ -166,14 +153,63 @@ public final class EsmExport {
             }
             pw.println("}");
         }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(
+                basePath + "Dump\\SeventySix_EDIDs.js"))) {
+            pw.println("edids = {");
+            for (Map.Entry<Integer, String> e : edidMap.entrySet()) {
+                pw.print("\"");
+                pw.printf("%08X", e.getKey());
+                pw.print("\": \"");
+                String editorID = e.getValue().replace("\"", "\\\"");
+                Integer description = descriptionMap.get(e.getKey());
+                pw.print(editorID);
+                if (description != null) {
+                    String descriptionStr = descriptionLookup.get(description);
+                    if (descriptionStr != null) {
+                        pw.print(" ");
+                        pw.print(descriptionStr.replace("\"", "\\\""));
+                    }
+                }
+                pw.println("\",");
+            }
+            pw.println("}");
+        }
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(
+                basePath + "Dump\\SeventySix_GLOBs.js"))) {
+            pw.println("globals = {");
+            for (Map.Entry<Integer, Float> e : globalValues.entrySet()) {
+                pw.print("\"");
+                pw.printf("%08X", e.getKey());
+                pw.print("\": ");
+                pw.print(e.getValue());
+                pw.println(",");
+            }
+            pw.println("}");
+        }
+
     }
 
-    static void loadBa2(Map<String, Ba2FileEntry> curveMap, String ba2FileName) throws IOException {
+    static void loadJsonBa2(Map<String, Ba2FileEntry> curveMap, String ba2FileName) throws IOException {
         Ba2File baf = new Ba2File();
         File curveFiles = new File(ba2FileName);
 
         try (RandomAccessFile raf = new RandomAccessFile(curveFiles, "r")) {
             baf.read(raf, name -> name.endsWith("json"));
+
+            for (Ba2FileEntry e : baf.entries) {
+                curveMap.put(e.name.toLowerCase().replace('\\', '/'), e);
+            }
+        }
+    }
+
+    static void loadStringsBa2(Map<String, Ba2FileEntry> curveMap, String ba2FileName) throws IOException {
+        Ba2File baf = new Ba2File();
+        File curveFiles = new File(ba2FileName);
+
+        try (RandomAccessFile raf = new RandomAccessFile(curveFiles, "r")) {
+            baf.read(raf, name -> name.toLowerCase().endsWith("seventysix_en.strings"));
 
             for (Ba2FileEntry e : baf.entries) {
                 curveMap.put(e.name.toLowerCase().replace('\\', '/'), e);
@@ -370,7 +406,7 @@ public final class EsmExport {
                 edidMap.put(id, type + fe.getZString());
             }
             if (fe.type.equals("FULL")) {
-                //descriptionMap.put(id, fe.getZString());
+                descriptionMap.put(id, fe.getAsObjectID());
             }
 
             if (type.equals("LVLI")) {
