@@ -19,31 +19,31 @@ public final class Ba2File {
         raf.seek(12);
         int numFiles = Integer.reverseBytes(raf.readInt());
         long nameTableOffset = Long.reverseBytes(raf.readLong());
-        
+
         // get file entries
 
         for (int i = 0; i < numFiles; i++) {
             raf.seek(24L + i * 36 + 16);
-            
+
             Ba2FileEntry entry = new Ba2FileEntry();
             entries.add(entry);
-            
+
             entry.offset = Long.reverseBytes(raf.readLong());
             raf.readInt(); // non-real size?
             entry.size = Integer.reverseBytes(raf.readInt());
         }
-        
+
         raf.seek(nameTableOffset);
-        
+
         for (int i = 0; i < numFiles; i++) {
             Ba2FileEntry entry = entries.get(i);
             int nameLength = Short.reverseBytes(raf.readShort());
             byte[] name = new byte[nameLength];
             raf.read(name);
-            
+
             entry.name = new String(name, StandardCharsets.ISO_8859_1);
         }
-        
+
         for (Ba2FileEntry entry : entries) {
             if (readDataPredicate.test(entry.name)) {
                 raf.seek(entry.offset);

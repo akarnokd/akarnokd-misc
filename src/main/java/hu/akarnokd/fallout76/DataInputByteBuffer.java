@@ -15,6 +15,10 @@ public class DataInputByteBuffer implements DataInput {
         return buffer.position();
     }
 
+    public long length() {
+        return buffer.capacity();
+    }
+
     @Override
     public void readFully(byte[] b) throws IOException {
         readFully(b, 0, b.length);

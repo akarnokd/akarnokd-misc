@@ -76,7 +76,7 @@ public final class EsmExport {
                     DataInputByteBuffer buf = new DataInputByteBuffer(bb);
 
                     while (buf.position() < raf.length()) {
-                        processTopGroups(raf, "LVLI,GLOB,CURV");
+                        processTopGroups(buf, "LVLI,GLOB,CURV");
                     }
                 }
             } finally {
@@ -246,8 +246,17 @@ public final class EsmExport {
     }
 
     static double getProgress(DataInput din) throws IOException {
-        long fileOffset = ((RandomAccessFile)din).getFilePointer();
-        long len = ((RandomAccessFile)din).length();
+        long fileOffset = 0;
+        long len = 1;
+
+        if (din instanceof RandomAccessFile) {
+            fileOffset = ((RandomAccessFile)din).getFilePointer();
+            len = ((RandomAccessFile)din).length();
+        }
+        else if (din instanceof DataInputByteBuffer) {
+            fileOffset = ((DataInputByteBuffer)din).position();
+            len = ((DataInputByteBuffer)din).length();
+        }
         double percent = (1.0 * fileOffset / len) * 100.0;
         return percent;
     }
