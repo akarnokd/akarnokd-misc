@@ -18,8 +18,8 @@ apply plugin: 'eclipse'
 
 apply plugin: "me.champeau.gradle.jmh"
 
-targetCompatibility = '1.8'
-sourceCompatibility = '1.8'
+targetCompatibility = '11'
+sourceCompatibility = '11'
 
 group = "com.github.akarnokd" 
 ext.githubProjectName = 'akarnokd-misc'

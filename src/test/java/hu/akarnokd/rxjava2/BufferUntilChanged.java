@@ -14,7 +14,7 @@ public class BufferUntilChanged {
     @Test
     @SuppressWarnings("unchecked")
     public void test() {
-        Observable.fromArray(1,1,1,2,2,2,3,3,1,1,5,5)
+        Observable.fromArray(1, 1,1,2,2,2,3,3,1,1,5,5)
         .compose(bufferUntilChanged(v -> v))
         .test()
         .assertResult(
