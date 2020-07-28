@@ -12,12 +12,12 @@ import io.reactivex.schedulers.Schedulers;
 public class ZipCrash {
     @Test
     public void testUncaughtException() throws InterruptedException {
-        Observable first = Observable.create(e -> {
+        Observable<Object> first = Observable.create(e -> {
             System.out.println("first");
             throw new Exception("first exception");
         });
 
-        Observable second = Observable.create(e -> {
+        Observable<Object> second = Observable.create(e -> {
             System.out.println("second");
             throw new Exception("second exception");
         });
@@ -39,15 +39,15 @@ public class ZipCrash {
     
     @Test
     public void testUncaughtExceptionWithFlatMap() throws InterruptedException {
-        Observable testObservable = Observable.create(e -> e.onNext(""))
+        Observable<Object> testObservable = Observable.create(e -> e.onNext(""))
                 .flatMap((Function<Object, ObservableSource<?>>) o -> {
 
-                    Observable first = Observable.create(e -> {
+                    Observable<Object> first = Observable.create(e -> {
                         System.out.println("first");
                         throw new Exception("first exception");
                     });
 
-                    Observable second = Observable.create(e -> {
+                    Observable<Object> second = Observable.create(e -> {
                         System.out.println("second");
                         throw new Exception("second exception");
                     });

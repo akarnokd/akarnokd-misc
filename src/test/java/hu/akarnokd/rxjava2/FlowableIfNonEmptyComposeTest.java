@@ -20,7 +20,7 @@ public class FlowableIfNonEmptyComposeTest {
     public void simple() throws Exception {
         Flux.range(1, 10)
         .hide()
-        .compose(composeIfNonEmpty(f -> {
+        .transform(composeIfNonEmpty(f -> {
             System.out.println("Composed!");
             return f.doOnNext(System.out::println).then();
         }))
@@ -45,7 +45,7 @@ public class FlowableIfNonEmptyComposeTest {
     @Test
     public void error() {
         Flux.error(new IOException())
-        .compose(composeIfNonEmpty(f -> {
+        .transform(composeIfNonEmpty(f -> {
             System.out.println("Composed!");
             return f.doOnNext(System.out::println).then();
         }))
@@ -57,7 +57,7 @@ public class FlowableIfNonEmptyComposeTest {
     public void simpleDedicated() throws Exception {
         Flux.range(1, 10)
         .hide()
-        .compose(composeIfNonEmptyDedicated(f -> {
+        .transform(composeIfNonEmptyDedicated(f -> {
             System.out.println("Composed!");
             return f.doOnNext(System.out::println).then();
         }))
@@ -67,7 +67,7 @@ public class FlowableIfNonEmptyComposeTest {
     @Test
     public void errorDedicated() {
         Flux.error(new IOException())
-        .compose(composeIfNonEmptyDedicated(f -> {
+        .transform(composeIfNonEmptyDedicated(f -> {
             System.out.println("Composed!");
             return f.doOnNext(System.out::println).then();
         }))

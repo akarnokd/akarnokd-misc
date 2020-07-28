@@ -12,7 +12,7 @@ import reactor.core.publisher.*;
         public static void main(String[] args) {
             Flux.just(1, 2, 3, 6, 7, 10)
             .flatMap(v -> Mono.delay(Duration.ofMillis(v * 1000)).doOnNext(w -> System.out.println("T=" + v)).map(w -> v))
-            .compose(f -> delayedBufferAfterFirst(f, Duration.ofSeconds(2)))
+            .transform(f -> delayedBufferAfterFirst(f, Duration.ofSeconds(2)))
             .doOnNext(System.out::println)
             .blockLast();
         }

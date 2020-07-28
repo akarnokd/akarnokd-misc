@@ -14,12 +14,12 @@ buildscript {
 
 apply plugin: 'java-library'
 
-apply plugin: 'eclipse'
+//apply plugin: 'eclipse'
 
 apply plugin: "me.champeau.gradle.jmh"
 
-targetCompatibility = '11'
-sourceCompatibility = '11'
+targetCompatibility = JavaVersion.VERSION_1_9
+sourceCompatibility = JavaVersion.VERSION_1_9
 
 group = "com.github.akarnokd" 
 ext.githubProjectName = 'akarnokd-misc'
@@ -52,7 +52,6 @@ dependencies {
 
     compile 'io.reactivex.rxjava2:rxjava:2.2.19'
     compile 'io.reactivex.rxjava3:rxjava:3.0.4'
-    
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     compile 'io.projectreactor:reactor-core:3+'
     testCompile 'io.projectreactor:reactor-test:3+'
@@ -66,7 +65,7 @@ dependencies {
     
     compile 'org.jctools:jctools-core:2.+'
 
-    compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
+//    compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
 	compile 'com.aol.simplereact:cyclops-react:+'
 
@@ -115,6 +114,8 @@ dependencies {
     }
 
     compile 'com.github.akarnokd:reactive4java:+'
+
+    implementation 'org.apache.commons:commons-lang3:+'
 
     // -------------------------------------------------------------------
     
