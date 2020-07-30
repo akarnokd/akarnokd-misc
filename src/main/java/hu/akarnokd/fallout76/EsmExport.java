@@ -31,11 +31,27 @@ public final class EsmExport {
 
     static Map<Integer, String> curveTables;
 
-//    static String basePath = "e:\\Games\\Fallout76\\Data\\";
-    static String basePath = "c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\";
+    static String[] basePaths = {
+            "c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\",
+            "e:\\Games\\Fallout76\\Data\\"
+    };
+    
+    static String basePath;
 
     public static void main(String[] args) throws Throwable {
 
+        for (String s : basePaths) {
+            File f = new File(s + "SeventySix.esm");
+            if (f.canRead()) {
+                basePath = s;
+            }
+        }
+        
+        if (basePath == null) {
+            System.err.println("Game not found");
+            return;
+        }
+        
         Map<String, Ba2FileEntry> localization = new HashMap<>();
         loadStringsBa2(localization, basePath + "SeventySix - Localization.ba2");
 
@@ -108,11 +124,23 @@ public final class EsmExport {
             }
         }
 
+        Map<String, Ba2FileEntry> curveMap = new HashMap<>();
+
+        loadJsonBa2(curveMap, basePath + "SeventySix - Startup.ba2");
+        loadJsonBa2(curveMap, basePath + "SeventySix - MiscClient.ba2");
+
         System.out.println("usedFormIDs before: " + usedFormIDs.size());
         System.out.println("EDIDs before: " + edidMap.size());
         System.out.println("FULLs before: " + descriptionMap.size());
         System.out.println("GLOBs before: " + globalValues.size());
         System.out.println("CURVs before: " + curveTables.size());
+
+        saveCurvs("_full", curveMap);
+
+        saveEdids("_full", descriptionLookup);
+
+        saveGlobs("_full");
+
         // remove unneeded references
         edidMap.keySet().retainAll(usedFormIDs);
         descriptionMap.keySet().retainAll(usedFormIDs);
@@ -123,13 +151,17 @@ public final class EsmExport {
         System.out.println("GLOBs after: " + globalValues.size());
         System.out.println("CURVs after: " + curveTables.size());
 
-        Map<String, Ba2FileEntry> curveMap = new HashMap<>();
+        saveCurvs("", curveMap);
 
-        loadJsonBa2(curveMap, basePath + "SeventySix - Startup.ba2");
-        loadJsonBa2(curveMap, basePath + "SeventySix - MiscClient.ba2");
+        saveEdids("", descriptionLookup);
 
+        saveGlobs("");
+
+    }
+    
+    static void saveCurvs(String postfix, Map<String, Ba2FileEntry> curveMap) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(
-                basePath + "Dump\\SeventySix_CURVs.js"))) {
+                basePath + "Dump\\SeventySix_CURVs" + postfix + ".js"))) {
             pw.println("curves = {");
             for (Map.Entry<Integer, String> e : curveTables.entrySet()) {
                 String ckey = e.getValue().toLowerCase().replace('\\', '/');
@@ -153,9 +185,11 @@ public final class EsmExport {
             }
             pw.println("}");
         }
-
+    }
+    
+    static void saveEdids(String postfix, Map<Integer, String> descriptionLookup) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(
-                basePath + "Dump\\SeventySix_EDIDs.js"))) {
+                basePath + "Dump\\SeventySix_EDIDs" + postfix + ".js"))) {
             pw.println("edids = {");
             for (Map.Entry<Integer, String> e : edidMap.entrySet()) {
                 pw.print("\"");
@@ -168,16 +202,20 @@ public final class EsmExport {
                     String descriptionStr = descriptionLookup.get(description);
                     if (descriptionStr != null) {
                         pw.print(" ");
-                        pw.print(descriptionStr.replace("\"", "\\\""));
+                        pw.print(descriptionStr
+                                .replace("\\", "\\\\")
+                                .replace("\"", "\\\""));
                     }
                 }
                 pw.println("\",");
             }
             pw.println("}");
         }
-
+    }
+    
+    static void saveGlobs(String postfix) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(
-                basePath + "Dump\\SeventySix_GLOBs.js"))) {
+                basePath + "Dump\\SeventySix_GLOBs" + postfix + ".js"))) {
             pw.println("globals = {");
             for (Map.Entry<Integer, Float> e : globalValues.entrySet()) {
                 pw.print("\"");
@@ -188,7 +226,6 @@ public final class EsmExport {
             }
             pw.println("}");
         }
-
     }
 
     static void loadJsonBa2(Map<String, Ba2FileEntry> curveMap, String ba2FileName) throws IOException {
@@ -415,7 +452,7 @@ public final class EsmExport {
                 edidMap.put(id, type + fe.getZString());
             }
             if (fe.type.equals("FULL")) {
-                descriptionMap.put(id, fe.getAsObjectID());
+                descriptionMap.putIfAbsent(id, fe.getAsObjectID());
             }
 
             if (type.equals("LVLI")) {
@@ -433,7 +470,7 @@ public final class EsmExport {
                 globalValues.put(id, fe.getAsFloat());
             }
             if (type.equals("CURV")) {
-                if (fe.type.equals("JASF")) {
+                if (fe.type.equals("JASF") || fe.type.equals("CRVE")) {
                     curveTables.put(id, fe.getZString());
                 }
             }
