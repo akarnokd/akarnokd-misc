@@ -70,9 +70,9 @@ public class EnemyCurveTableListing {
         
         String[] postfixes = { "dr", "er", "rad", "fire", "cold", "poison" };
         String[] postfixesRename = { "dr", "er", "rr", "fr", "cr", "pr" };
-
+        System.out.println("var enemyResistancesMap = {");
         for (String e : variantList) {
-            System.out.printf("%s%n", e);
+            System.out.printf("  \"%s\": [%n", e);
             Map<String, JsonArray> arrays = new HashMap<>();
             for (String p : postfixes) {
                 String key = "armor_" + e + "_" + p + ".json";
@@ -91,7 +91,7 @@ public class EnemyCurveTableListing {
             for (JsonElement o : def) {
                 int x = o.getAsJsonObject().get("x").getAsInt();
                 
-                System.out.printf("{ level: %d", x);
+                System.out.printf("    { level: %d", x);
                 
                 int k = 0;
                 for (String p : postfixes) {
@@ -102,7 +102,9 @@ public class EnemyCurveTableListing {
                 
                 System.out.printf(" }, %n");
             }
+            System.out.println("  ],");
         }
+        System.out.println("};");
     }
     
     static int find(JsonArray array, int x, int defaultX) {
