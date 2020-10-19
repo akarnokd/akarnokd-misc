@@ -58,7 +58,7 @@ dependencies {
 
     compile group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
 
-    compile group: 'io.helidon.common', name: 'helidon-common-reactive', version: '2.0.2'
+    compile group: 'io.helidon.common', name: 'helidon-common-reactive', version: '2.1.0'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
     compile 'com.typesafe.akka:akka-stream_2.13:2.6.10'
