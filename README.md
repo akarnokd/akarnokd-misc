@@ -1,4 +1,4 @@
 # akarnokd-misc
 Miscellaneous classes, implementations with gradle and jmh set up
 
-<a href='https://travis-ci.com/akarnokd/akarnokd-misc/builds'><img src='https://travis-ci.com/akarnokd/akarnokd-misc.svg?branch=master'></a>
+<a href='https://github.com/akarnokd/akarnokd-misc/actions?query=workflow%3A%22Java+CI+with+Gradle%22'><img src='https://github.com/akarnokd/akarnokd-misc/workflows/Java%20CI%20with%20Gradle/badge.svg'></a>
