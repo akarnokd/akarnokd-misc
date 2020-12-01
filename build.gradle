@@ -138,7 +138,7 @@ dependencies {
 
     //compile 'io.swave:swave-core_2.11:0.5-M1'
     
-    compile 'it.unimi.dsi:fastutil:8.4.3'
+    compile 'it.unimi.dsi:fastutil:8.4.4'
     
     compile 'com.squareup.retrofit2:retrofit:2.9.0'
     compile 'com.squareup.retrofit2:converter-gson:2.9.0'
