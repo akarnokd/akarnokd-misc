@@ -148,7 +148,7 @@ dependencies {
     
     compile 'net.objecthunter:exp4j:+'
     
-    testCompile "org.testng:testng:7.3.0"
+    testCompile "org.testng:testng:7.4.0"
     testCompile "org.reactivestreams:reactive-streams-tck:1.0.3"
 
     testCompile group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.37.3'
