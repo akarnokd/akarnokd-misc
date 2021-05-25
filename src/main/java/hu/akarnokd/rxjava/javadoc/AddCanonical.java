@@ -392,7 +392,8 @@ public final class AddCanonical {
         init2x();
 //        process(new File("..\\RxJava\\javadoc\\rx"), "/rx/");
 //        process(new File("..\\RxJava\\1.x\\javadoc\\rx"), "/rx/");
-        process2x(new File("..\\RxJava\\2.x\\javadoc\\io\\reactivex\\"));
+//        process2x(new File("..\\RxJava\\2.x\\javadoc\\io\\reactivex\\"));
+        process2x(new File("..\\RxJava\\javadoc\\io\\reactivex\\"));
     }
 
 }

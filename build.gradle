@@ -41,96 +41,96 @@ repositories {
     maven { url 'https://repo.spring.io/libs-snapshot' }
 }
 
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 dependencies {
     api 'org.reactivestreams:reactive-streams:1.0.3'
 
-    compile 'io.reactivex:rxjava:1.+'
-    compile 'io.reactivex:rxjava-string:+'
-    compile 'io.reactivex:rxjava-reactive-streams:+'
+    implementation 'io.reactivex:rxjava:1.+'
+    implementation 'io.reactivex:rxjava-string:+'
+    implementation 'io.reactivex:rxjava-reactive-streams:+'
 
-    compile 'io.reactivex.rxjava2:rxjava:2.2.21'
-    compile 'io.reactivex.rxjava3:rxjava:3.0.12'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.12'
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
-    compile 'io.projectreactor:reactor-core:3+'
-    testCompile 'io.projectreactor:reactor-test:3+'
+    implementation 'io.projectreactor:reactor-core:3+'
+    testImplementation 'io.projectreactor:reactor-test:3+'
 
-    compile group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
+    implementation group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
 
-    compile group: 'io.helidon.common', name: 'helidon-common-reactive', version: '2.3.0'
+    implementation group: 'io.helidon.common', name: 'helidon-common-reactive', version: '2.3.0'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
-    compile 'com.typesafe.akka:akka-stream_2.13:2.6.14'
+    implementation 'com.typesafe.akka:akka-stream_2.13:2.6.14'
     
-    compile 'org.jctools:jctools-core:3.+'
+    implementation 'org.jctools:jctools-core:3.+'
 
 //    compile 'com.github.xedin:windmill-core:0.2-SNAPSHOT'
 
-	compile 'com.aol.simplereact:cyclops-react:+'
+	implementation 'com.aol.simplereact:cyclops-react:+'
 
-    compile 'org.jooq:jool-java-8:+'
+    implementation 'org.jooq:jool-java-8:+'
 
-    compile('io.reactivex:rxjava-math:+') {
+    implementation('io.reactivex:rxjava-math:+') {
     	exclude group: "io.reactivex", module: "rxjava"
     }
 
-    compile 'com.annimon:stream:+'
+    implementation 'com.annimon:stream:+'
 
-    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.30'
 
     // -------------------------------------------------------------------
 
     //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
     
-    compile 'io.projectreactor:reactive-streams-commons:0.6.0.BUILD-SNAPSHOT'
+    implementation 'io.projectreactor:reactive-streams-commons:0.6.0.BUILD-SNAPSHOT'
 
-    compile('com.github.akarnokd:ixjava:1.+') {
+    implementation('com.github.akarnokd:ixjava:1.+') {
     	exclude group: "io.reactivex", module: "rxjava"
     }
     
-    compile('com.github.akarnokd:akarnokd-reactive-rpc:+') {
+    implementation('com.github.akarnokd:akarnokd-reactive-rpc:+') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
         exclude group: "com.github.akarnokd", module: "*"
     }
 
-    compile 'com.github.akarnokd:akarnokd-xml:+'
+    implementation 'com.github.akarnokd:akarnokd-xml:+'
 
-    compile('com.github.akarnokd:rxjava2-extensions:+') {
+    implementation('com.github.akarnokd:rxjava2-extensions:+') {
     	exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
 
-    compile('com.github.akarnokd:rxjava3-extensions:+') {
+    implementation('com.github.akarnokd:rxjava3-extensions:+') {
         exclude group: "io.reactivex.rxjava3", module: "rxjava"
     }
 
-    compile('com.github.akarnokd:rxjava2-interop:+') {
+    implementation('com.github.akarnokd:rxjava2-interop:+') {
     	exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
 
-    compile('com.github.akarnokd:rxjava2-jdk8-interop:+') {
+    implementation('com.github.akarnokd:rxjava2-jdk8-interop:+') {
     	exclude group: "io.reactivex.rxjava2", module: "rxjava"
     	exclude group: "com.github.akarnokd", module: "rxjava2-extensions"
     }
 
-    compile 'com.github.akarnokd:reactive4java:+'
+    implementation 'com.github.akarnokd:reactive4java:+'
 
     implementation 'org.apache.commons:commons-lang3:+'
 
     // -------------------------------------------------------------------
     
-    compile 'com.google.guava:guava:+'
-    compile group: 'com.google.oauth-client', name: 'google-oauth-client', version:'1.31.5'
+    implementation 'com.google.guava:guava:+'
+    implementation group: 'com.google.oauth-client', name: 'google-oauth-client', version:'1.31.5'
 
-    compile 'org.eclipse.collections:eclipse-collections-api:10.4.0'
-    compile 'org.eclipse.collections:eclipse-collections:10.4.0'
+    implementation 'org.eclipse.collections:eclipse-collections-api:10.4.0'
+    implementation 'org.eclipse.collections:eclipse-collections:10.4.0'
     
-    compile 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
     
     
-    jmhCompile group: 'junit', name: 'junit', version: '4.13.2'
-    testCompile group: 'junit', name: 'junit', version: '4.13.1'
-    testCompile 'org.mockito:mockito-core:3.10.0'
+    jmhImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+    testImplementation 'org.mockito:mockito-core:3.10.0'
 
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     //compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
@@ -138,20 +138,20 @@ dependencies {
 
     //compile 'io.swave:swave-core_2.11:0.5-M1'
     
-    compile 'it.unimi.dsi:fastutil:8.5.4'
+    implementation 'it.unimi.dsi:fastutil:8.5.4'
     
-    compile 'com.squareup.retrofit2:retrofit:2.9.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.9.0'
-    compile('com.squareup.retrofit2:adapter-rxjava2:2.9.0') {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation('com.squareup.retrofit2:adapter-rxjava2:2.9.0') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
     }
     
-    compile 'net.objecthunter:exp4j:+'
+    implementation 'net.objecthunter:exp4j:+'
     
-    testCompile "org.testng:testng:7.4.0"
-    testCompile "org.reactivestreams:reactive-streams-tck:1.0.3"
+    testImplementation "org.testng:testng:7.4.0"
+    testImplementation "org.reactivestreams:reactive-streams-tck:1.0.3"
 
-    testCompile group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.39.2'
+    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.39.2'
 
     jmh configurations.api
 }

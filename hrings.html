@@ -1,0 +1,131 @@
+<html>
+<head>
+<style>
+	* {
+		font-family: sans-serif;
+		font-size: 16px;
+	}
+</style>
+</head>
+<body>
+<table>
+<tr><td>
+<span style='display: inline-block; width: 250px'>&nbsp;</span>
+<button onclick='smallLeft()'>&lt; Left</button>
+<button onclick='smallRight()'>Right &gt;</button>
+<span style='display: inline-block; width: 200px'>&nbsp;</span>
+<button onclick='largeLeft()'>&lt; Left</button>
+<button onclick='largeRight()'>Right &gt;</button>
+</td><td id='moves' rowspan='2'>Moves
+</td>
+</tr>
+<tr><td>
+<svg id='graphics' width='1300' height='800'>
+
+</svg>
+</td>
+</tr>
+</table>
+<script>
+var smallRingSize = 18;
+var largeRingSize = 24;
+
+var smallRing = [0, 0, 0,  1, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0, 0,  1, 0, 0];
+var largeRing = [1, 1, 1,  1, 1, 1,  1, 1, 1,  1, 1, 1,  1, 1, 1,  1, 1, 1,  1, 1, 1,  1, 1, 1];
+
+var smallCrossOver = [3, 15];
+var largeCrossOver = [9, 14];
+
+
+function renderRing(x, y, radius, r, phase, colors) {
+	var svg = document.getElementById("graphics");
+	var angleStep = 2 * Math.PI / colors.length;
+	for (var i = 0; i < colors.length; i++) {
+		
+		var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+		svg.appendChild(circle);
+		
+		circle.setAttribute("cx", x + radius * Math.cos(i * angleStep + phase));
+		circle.setAttribute("cy", y + radius * Math.sin(i * angleStep + phase));
+		circle.setAttribute("r", r);
+		circle.setAttribute("fill", colors[i] == 0 ? "red" : "blue");
+	}
+}
+
+function render() {
+	var r1 = 200;
+	var r2 = r1 * Math.sin(toRad(60)) / Math.sin(toRad(37.5));
+	renderRing(300, 400, r1, 10, 0, smallRing);
+	renderRing(625, 400, r2, 10, toRad(7.5), largeRing);
+}
+
+function toRad(deg) {
+	return Math.PI * deg / 180;
+}
+
+function rotateLeft(ring) {
+	var temp = ring[0];
+	for (var i = 1; i < ring.length; i++) {
+		ring[i - 1] = ring[i];
+	}
+	ring[ring.length - 1] = temp;
+}
+
+function rotateRight(ring) {
+	var temp = ring[ring.length - 1];
+	for (var i = ring.length - 2; i >= 0; i--) {
+		ring[i + 1] = ring[i];
+	}
+	ring[0] = temp;
+}
+
+function smallToLargeCrossOver() {
+	for (var i = 0; i < 2; i++) {
+		largeRing[largeCrossOver[i]] = smallRing[smallCrossOver[i]];
+	}
+}
+
+function largeToSmallCrossOver() {
+	for (var i = 0; i < 2; i++) {
+		smallRing[smallCrossOver[i]] = largeRing[largeCrossOver[i]];
+	}
+}
+
+function appendMove(text) {
+	var cell = document.getElementById("moves");
+	cell.appendChild(document.createElement("br"));
+	cell.appendChild(document.createTextNode(text));
+}
+
+function smallLeft() {
+	rotateLeft(smallRing);
+	smallToLargeCrossOver();
+	render();
+	appendMove("< Small Left")
+}
+
+function smallRight() {
+	rotateRight(smallRing);
+	smallToLargeCrossOver();
+	render();
+	appendMove("  Small Right >")
+}
+
+function largeLeft() {
+	rotateLeft(largeRing);
+	largeToSmallCrossOver();
+	render();
+	appendMove("< Large Left")
+}
+
+function largeRight() {
+	rotateRight(largeRing);
+	largeToSmallCrossOver();
+	render();
+	appendMove("  Large Right >")
+}
+
+render();
+</script>
+</body>
+</html>
