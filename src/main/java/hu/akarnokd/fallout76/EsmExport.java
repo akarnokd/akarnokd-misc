@@ -1151,6 +1151,7 @@ public final class EsmExport {
         FUNCTION_MAP.put(4929, "GetStageDoneUniqueQuest");
         FUNCTION_MAP.put(4950, "HasActiveMagicEffect");
         FUNCTION_MAP.put(4884, "LocationHasPlayerOwnedWorkshop");
+        FUNCTION_MAP.put(4396, "IsInInterior");
     }
 
     static final Set<String> OBJECT_FIELDS = new HashSet<>(Arrays.asList(
