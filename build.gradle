@@ -151,7 +151,7 @@ dependencies {
     testImplementation "org.testng:testng:7.4.0"
     testImplementation "org.reactivestreams:reactive-streams-tck:1.0.3"
 
-    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.41.1'
+    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.41.2'
 
     jmh configurations.api
 }
