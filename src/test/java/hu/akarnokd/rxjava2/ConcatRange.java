@@ -40,7 +40,7 @@ public class ConcatRange {
                         System.out.println("concatMap: accept:" + s);
                     }
                 });
-        
+
         Thread.sleep(2000);
     }
 
@@ -73,7 +73,7 @@ public class ConcatRange {
                         System.out.println("concatMap: accept:" + s);
                     }
                 });
-        
+
         Thread.sleep(2000);
     }
 }

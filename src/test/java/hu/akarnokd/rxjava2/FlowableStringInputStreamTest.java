@@ -58,7 +58,7 @@ public class FlowableStringInputStreamTest {
         assertEquals(-1, is.read());
 
         assertEquals(-1, is.read(buf));
-        
+
         assertEquals(0, is.available());
     }
 
@@ -120,12 +120,12 @@ public class FlowableStringInputStreamTest {
                 .doOnCancel(() -> calls.incrementAndGet())
                 .subscribeOn(Schedulers.computation())
                 .delay(10, TimeUnit.MILLISECONDS);
-        
+
         try (InputStream is = FlowableStringInputStream.createInputStream(f, utf8)) {
             assertEquals('1', is.read());
             assertEquals('0', is.read());
             assertEquals('0', is.read());
-            
+
             byte[] buf = new byte[3];
             assertEquals(3, is.read(buf));
 
@@ -138,7 +138,7 @@ public class FlowableStringInputStreamTest {
     @Test(timeout = 10000)
     public void asyncCancel() throws Exception {
         InputStream is = FlowableStringInputStream.createInputStream(Flowable.never(), utf8);
-        
+
         Schedulers.single().scheduleDirect(() -> {
             try {
                 is.close();
@@ -159,7 +159,7 @@ public class FlowableStringInputStreamTest {
             Schedulers.single().scheduleDirect(() -> {
                 t.interrupt();
             }, 500, TimeUnit.MILLISECONDS);
-            
+
             try {
                 is.read();
                 fail("Should have thrown");
@@ -171,7 +171,7 @@ public class FlowableStringInputStreamTest {
             Thread.interrupted();
         }
     }
-    
+
     @Test
     public void indexVerify() throws IOException {
         InputStream is = FlowableStringInputStream.createInputStream(Flowable.just("abc"), utf8);

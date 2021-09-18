@@ -43,14 +43,14 @@ public class SingleObserveOnRaceTest {
         test.awaitDone(3, TimeUnit.SECONDS)
         .assertNoErrors();
     }
-    
+
     @Test
     public void race() throws Exception {
         Worker w = Schedulers.newThread().createWorker();
         try {
             for (int i = 0; i < 1000; i++) {
                 Integer[] value = { 0, 0 };
-                
+
                 TestObserver<Integer> to = new TestObserver<Integer>() {
                     @Override
                     public void onSuccess(Integer v) {
@@ -58,16 +58,16 @@ public class SingleObserveOnRaceTest {
                         super.onSuccess(v);
                     }
                 };
-                
+
                 SingleSubject<Integer> subj = SingleSubject.create();
-                
+
                 subj.observeOn(Schedulers.single())
                 .onTerminateDetach()
                 .subscribe(to);
-                
+
                 AtomicInteger wip = new AtomicInteger(2);
                 CountDownLatch cdl = new CountDownLatch(2);
-                
+
                 w.schedule(() -> {
                     if (wip.decrementAndGet() != 0) {
                         while (wip.get() != 0);
@@ -75,7 +75,7 @@ public class SingleObserveOnRaceTest {
                     subj.onSuccess(1);
                     cdl.countDown();
                 });
-                
+
                 Schedulers.single().scheduleDirect(() -> {
                     if (wip.decrementAndGet() != 0) {
                         while (wip.get() != 0);
@@ -86,7 +86,7 @@ public class SingleObserveOnRaceTest {
                 });
 
                 cdl.await();
-                
+
                 Assert.assertNotNull(value[1]);
             }
         } finally {

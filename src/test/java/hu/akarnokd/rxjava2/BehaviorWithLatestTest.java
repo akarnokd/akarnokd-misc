@@ -11,7 +11,7 @@ public class BehaviorWithLatestTest {
     public void bothInit() {
         BehaviorSubject<String> s1 = BehaviorSubject.createDefault("");
         BehaviorSubject<String> s2 = BehaviorSubject.createDefault("");
-        
+
         s1.withLatestFrom(s2, (a, b) -> true)
         .test()
         .assertValue(true);

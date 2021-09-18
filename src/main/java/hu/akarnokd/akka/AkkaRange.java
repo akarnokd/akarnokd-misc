@@ -6,7 +6,7 @@ import com.typesafe.config.*;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import akka.stream.*;
 import akka.stream.javadsl.*;
 
 public class AkkaRange {
@@ -15,9 +15,9 @@ public class AkkaRange {
         return new Subscriber<Object>() {
 
             Subscription s;
-            
+
             int n;
-            
+
             @Override
             public void onSubscribe(Subscription s) {
                 this.s = s;
@@ -44,16 +44,16 @@ public class AkkaRange {
             }
         };
     }
-    
+
     public static void main(String[] args) throws Exception {
         Config cfg = ConfigFactory.parseResources(AkkaRange.class, "/akka-streams.conf").resolve();
         ActorSystem actorSystem = ActorSystem.create("sys", cfg);
 
-        ActorMaterializer materializer = ActorMaterializer.create(actorSystem);
+        Materializer materializer = Materializer.createMaterializer(actorSystem);
 
         Source<Integer, NotUsed> source = Source.repeat(1)
                 .map(v -> v + 1);
-        
+
         Publisher<Integer> p = source.runWith(Sink.asPublisher(AsPublisher.WITH_FANOUT), materializer);
 
         p.subscribe(println());

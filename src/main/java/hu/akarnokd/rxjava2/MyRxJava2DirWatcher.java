@@ -15,9 +15,9 @@ public class MyRxJava2DirWatcher {
         return Flowable.create(subscriber -> {
 
             WatchService watcher = fs.newWatchService();
-            
+
             subscriber.setCancellable(() -> watcher.close());
-            
+
             boolean error = false;
             WatchKey key;
             try {

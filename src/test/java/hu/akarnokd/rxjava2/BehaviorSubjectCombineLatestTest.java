@@ -16,10 +16,10 @@ public class BehaviorSubjectCombineLatestTest {
     public void test() {
         Subject<Integer> intSource = BehaviorSubject.createDefault(1);
 
-        Subject<List<Observable<Integer>>> mainSubject = 
+        Subject<List<Observable<Integer>>> mainSubject =
                 BehaviorSubject.createDefault(singletonList(intSource));
 
-        TestObserver<List<Integer>> testObserver = 
+        TestObserver<List<Integer>> testObserver =
                 mainSubject.flatMap(observables ->
                 Observable.combineLatest(observables, this::castObjectsToInts)
                         )

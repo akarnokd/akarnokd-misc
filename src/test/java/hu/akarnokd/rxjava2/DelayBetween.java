@@ -12,7 +12,7 @@ public class DelayBetween {
     static Maybe<String> getId(String id) {
         return Maybe.just(id);
     }
-    
+
     @Test
     public void test() {
         String[] ids = {"1", "2", "3", "4", "5", "6", "7", "8"};

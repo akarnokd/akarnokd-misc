@@ -12,7 +12,7 @@ public class ObservableConcatEagerTest {
     @Test
     public void test() {
         //Set<Integer> set = Ix.range(1, 1_000_000).toSet();
-        
+
         Observable.range(1, 100000)
         .buffer(10)
         .concatMapEager(value -> Observable.just(value)

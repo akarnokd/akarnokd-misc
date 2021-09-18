@@ -33,7 +33,7 @@ public class RetryWhenPlain {
             }).doFinally(() -> d.dispose());
         });
     }
-    
+
     @Test
     public void test() {
         int[] count = { 3 };
@@ -43,7 +43,7 @@ public class RetryWhenPlain {
             }
             return Observable.error(new IOException());
         })
-        .compose(o -> retryWhen(o, 
+        .compose(o -> retryWhen(o,
                 f -> f.flatMap(e -> {
                     System.out.println("Retrying...");
                     return Observable.timer(1, TimeUnit.SECONDS);

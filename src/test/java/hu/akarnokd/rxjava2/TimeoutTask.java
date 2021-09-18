@@ -22,13 +22,13 @@ public class TimeoutTask {
         .concatMap(call ->
             Observable.fromCallable(call)
                .subscribeOn(Schedulers.computation())
-               .timeout(1, TimeUnit.SECONDS, Observable.just("timeout")) 
+               .timeout(1, TimeUnit.SECONDS, Observable.just("timeout"))
         );
-        
+
         source
         .blockingSubscribe(s -> System.out.println("RECEIVED: " + s));
     }
-    
+
     static String task(int i, String s) {
         return i + " " + s;
     }

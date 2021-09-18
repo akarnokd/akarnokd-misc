@@ -13,7 +13,7 @@ public class OnErrorCrash {
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.computation())
         .subscribe(v -> { }, e -> { throw new RuntimeException(e); });
-        
+
         Thread.sleep(50000);
     }
 }

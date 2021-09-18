@@ -21,7 +21,7 @@ public class NumberFrom1to10NoConcat {
             }
         }
         for (int i = 0; i < s.length() - 2; i++) {
-            if (s.charAt(i) == '(' 
+            if (s.charAt(i) == '('
                     && Character.isDigit(s.charAt(i + 1))
                     && s.charAt(i + 2) == ')') {
                 return false;
@@ -33,7 +33,7 @@ public class NumberFrom1to10NoConcat {
         }
         return true;
     }
-    
+
     static long ipow(int base, int exp) {
         long result = 1;
         for (int i = 0; i < exp; i++) {
@@ -41,15 +41,15 @@ public class NumberFrom1to10NoConcat {
         }
         return result;
     }
-    
+
     static final class MultiIndex {
-        
+
         final int[] indices;
-        
+
         final int[] limits;
 
         long counter;
-        
+
         MultiIndex(int numIndices) {
             this.indices = new int[numIndices];
             this.limits = new int[numIndices];
@@ -74,7 +74,7 @@ public class NumberFrom1to10NoConcat {
     }
 
     static final int report = 10_000_000;
-    
+
     static String findExpression(Map<Integer, String> map, boolean noDivide, int maxParen, boolean noConcat) throws Exception {
         List<String> first = new ArrayList<>(Arrays.asList(
                 ""
@@ -142,7 +142,7 @@ public class NumberFrom1to10NoConcat {
             between.removeIf(v -> v.contains("/"));
             beforeLast.removeIf(v -> v.contains("/"));
         }
-        
+
         String maxParenStart = Ix.repeatValue("(").take(maxParen + 1).join("").first();
         String maxParenEnd = Ix.repeatValue(")").take(maxParen + 1).join("").first();
 
@@ -156,7 +156,7 @@ public class NumberFrom1to10NoConcat {
             between.removeIf(String::isEmpty);
             beforeLast.removeIf(String::isEmpty);
         }
-        
+
         long all = first.size() * ipow(between.size(), 7) * second.size() * beforeLast.size();
         System.out.printf("%,d%n", all);
 
@@ -182,18 +182,18 @@ public class NumberFrom1to10NoConcat {
                 b.append(between.get(indices[i]));
                 b.append((char)('0' + (i + 1)));
             }
-            
+
             b.append(beforeLast.get(indices[9]));
             b.append('9');
-            
+
             if (validParent(b)) {
                 String expr = b.toString();
                 double result;
-                
+
                 try {
                     result = new ExpressionBuilder(expr)
                     .build().evaluate();
-                    
+
                     valid++;
                 } catch (ArithmeticException ignored) {
                     invalid++;
@@ -212,7 +212,7 @@ public class NumberFrom1to10NoConcat {
                 invalid++;
             }
             if (mi.counter % report == 0) {
-                System.out.printf("Total: %,d (%.6f%%), Valid: %,d (%.6f%%), Invalid: %,d, Found: %,d%n", 
+                System.out.printf("Total: %,d (%.6f%%), Valid: %,d (%.6f%%), Invalid: %,d, Found: %,d%n",
                         mi.counter + 1,
                         ((mi.counter + 1) * 100d) / all,
                         valid, (valid * 100d / (mi.counter + 1)),
@@ -228,7 +228,7 @@ public class NumberFrom1to10NoConcat {
         Map<Integer, String> map = new HashMap<>();
 
         findExpression(map, true, 1, true);
-        
+
         System.out.print("Numbers found: " + map.size());
         for (int i = 1; i < 11112; i++) {
             if (!map.containsKey(i)) {

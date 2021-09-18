@@ -7,9 +7,9 @@ import org.junit.Test;
 import io.reactivex.*;
 
     public class AndThenTest {
-    
+
         Integer value;
-        
+
         @Test
         public void test() {
             getFromLocal()
@@ -21,14 +21,14 @@ import io.reactivex.*;
             .awaitDone(5, TimeUnit.SECONDS)
             .assertResult(10);
         }
-        
+
         Maybe<Integer> getFromLocal() {
             return Maybe.fromCallable(() -> {
                 System.out.println("FromLocal called");
                 return value;
             });
         }
-        
+
         Single<Integer> getFromNetwork() {
             return Single.fromCallable(() -> {
                 System.out.println("FromNetwork called");
@@ -36,7 +36,7 @@ import io.reactivex.*;
             }).delay(100, TimeUnit.MILLISECONDS)
                     ;
         }
-        
+
         Completable saveFoo(Integer v) {
             return Completable.fromRunnable(() -> {
                 System.out.println("SaveFoo called");

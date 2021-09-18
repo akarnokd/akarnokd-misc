@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class EmptyPublisherTckTest extends PublisherVerification<Integer> {
-    
+
     public EmptyPublisherTckTest() {
         super(new TestEnvironment(50));
     }

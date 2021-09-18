@@ -13,13 +13,13 @@ public class ThrottleLastSO {
     @Test
     public void test() {
         TestScheduler ts = new TestScheduler();
-        
+
         TestObserver<Object> to = Observable.error(new RuntimeException())
         .onErrorReturnItem(0)
         .startWith(-1)
         .throttleLast(50, TimeUnit.MILLISECONDS, ts)
         .test();
-        
+
         ts.advanceTimeBy(1, TimeUnit.SECONDS);
 
         to.assertResult(0);

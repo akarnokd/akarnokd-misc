@@ -20,7 +20,7 @@ public class BufferStartStop {
         .flatMap(v -> Observable.timer(v * 100, TimeUnit.MILLISECONDS).map(w -> v))
         .compose(BufferWithTimeout.create(700, TimeUnit.MILLISECONDS, Schedulers.computation()))
         .blockingSubscribe(System.out::println);
-        
+
     }
 
 public static final class BufferWithTimeout<T> {
@@ -28,25 +28,25 @@ public static final class BufferWithTimeout<T> {
     Scheduler.Worker trampoline = Schedulers.trampoline().createWorker();
 
     final long timeout;
-    
+
     final TimeUnit unit;
-    
+
     final Scheduler.Worker worker;
-    
+
     final SerialDisposable timer = new SerialDisposable();
-    
+
     final PublishSubject<List<T>> output = PublishSubject.create();
-    
+
     List<T> current;
-    
+
     long bufferIndex;
-    
+
     BufferWithTimeout(long timeout, TimeUnit unit, Scheduler scheduler) {
         this.worker = scheduler.createWorker();
         this.timeout = timeout;
         this.unit = unit;
     }
-    
+
     void onValue(T value) {
         trampoline.schedule(() -> {
             if (timer.isDisposed()) {
@@ -93,7 +93,7 @@ public static final class BufferWithTimeout<T> {
             }
         });
     }
-    
+
     void dispose() {
         timer.dispose();
         worker.dispose();
@@ -103,7 +103,7 @@ public static final class BufferWithTimeout<T> {
     }
 
     public static <T> ObservableTransformer<T, List<T>> create(long timeout, TimeUnit unit, Scheduler scheduler) {
-        return o -> 
+        return o ->
             Observable.defer(() -> {
                 BufferWithTimeout<T> state = new BufferWithTimeout<>(timeout, unit, scheduler);
 

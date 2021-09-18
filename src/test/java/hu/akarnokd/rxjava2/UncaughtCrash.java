@@ -7,7 +7,7 @@ import org.junit.*;
 import io.reactivex.plugins.RxJavaPlugins;
 
 public class UncaughtCrash {
-    
+
     @Before
     public void before() {
         RxJavaPlugins.setErrorHandler(e -> {

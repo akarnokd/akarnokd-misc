@@ -30,7 +30,7 @@ public class PublishFuncExample {
             forkAndJoin.subscribe(System.out::println);
             forkAndJoin.subscribe(System.out::println);
             forkAndJoin.subscribe(System.out::println);
-        
+
             Thread.sleep(10000);
     }
 }

@@ -29,7 +29,7 @@ public class ConnectConnect {
           .map(v -> v * 10)
           .publishOn(single())
           .log()
-          .subscribeOn(elastic())
+          .subscribeOn(boundedElastic())
           .subscribe(v -> {} , e -> {}, latch::countDown);
 
       Thread.sleep(100);
@@ -58,7 +58,7 @@ public class ConnectConnect {
           .subscribe(v -> {} , e -> {}, latch::countDown);
 
       Thread.sleep(100);
-      
+
       connectableFlux.connect();
       latch.await();
     }

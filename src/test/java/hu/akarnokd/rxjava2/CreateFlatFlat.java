@@ -53,7 +53,7 @@ public class CreateFlatFlat {
             , () -> log("complete!")
         );
     }
-    
+
     static void log(String s) {
         System.out.println(s);
     }

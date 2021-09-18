@@ -17,10 +17,10 @@ public class UnicastSingleTest {
         )
                 .window(10, TimeUnit.MILLISECONDS)
                 .subscribe(flx -> flx.subscribe(System.out::println));
-        
+
         Thread.sleep(5000);
         */
-        
+
         Flux.<Object>concat(
                 Flux.just("#").delayElements(Duration.ofMillis(20)),
                 Flux.range(1, 10),
@@ -29,7 +29,7 @@ public class UnicastSingleTest {
         .subscribeWith(new TestSubscriber<>())
         .awaitDone(5, TimeUnit.SECONDS)
         .assertResult("#", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-        
+
         Flux.concat(
                 Flux.just("#").delayElements(Duration.ofMillis(20)),
                 Flux.range(1, 10),

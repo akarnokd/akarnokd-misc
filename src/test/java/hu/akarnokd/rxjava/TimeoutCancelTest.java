@@ -25,7 +25,7 @@ Assert.assertFalse(ps.hasObservers());
 
 as.assertResult(1);
     }
-    
+
     @Test
     public void test2() throws Exception {
         Subject<Long, Long> subject = PublishSubject.create();

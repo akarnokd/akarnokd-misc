@@ -12,11 +12,11 @@ public class ListFlatMappingTest {
     Single<List<Integer>> getList() {
         return null;
     }
-    
+
     Observable<Boolean> getSubdetails(Integer item) {
         return null;
     }
-    
+
     @Test
     public void test() {
         getList()
@@ -29,7 +29,7 @@ public class ListFlatMappingTest {
             }
             @Override
             public void onError(Throwable error) {
-            } 
+            }
             @Override
             public void onCompleted() {
             }

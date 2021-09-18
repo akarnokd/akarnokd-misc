@@ -16,7 +16,7 @@ public class FirstAndSample {
         .blockingSubscribe(System.out::println)
         ;
     }
-    
+
     public static <T> FlowableTransformer<T, T> firstAndSample(long delay, TimeUnit unit) {
         return f -> {
             Scheduler s = new SingleScheduler();

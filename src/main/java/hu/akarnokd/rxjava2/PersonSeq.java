@@ -58,7 +58,7 @@ public class PersonSeq {
                 Arrays.asList(new Person("Lobna", 24, "EGY")));
     }
     public static void main(String[] args) {
-        Observable<List<Person>> observables = 
+        Observable<List<Person>> observables =
                 Observable.fromIterable(getPersons());
                 observables
                 //.subscribeOn(Schedulers.io())

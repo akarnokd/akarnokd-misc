@@ -9,7 +9,7 @@ import io.reactivex.Flowable;
 
 public class JoinPairwise {
 
-    static abstract class Pair implements Comparable<Pair> { 
+    static abstract class Pair implements Comparable<Pair> {
         int value;
 
         @Override
@@ -17,7 +17,7 @@ public class JoinPairwise {
             return Integer.compare(value, o.value);
         }
     }
-    
+
     static final class Left extends Pair {
         Left(int value) {
             this.value = value;
@@ -28,7 +28,7 @@ public class JoinPairwise {
             return "[" + value + ", _]";
         }
     }
-    
+
     static final class Right extends Pair {
         Right(int value) {
             this.value = value;
@@ -39,12 +39,12 @@ public class JoinPairwise {
             return "[_, " + value + "]";
         }
     }
-    
+
     static final class Both extends Pair {
         Both(int value) {
             this.value = value;
         }
-        
+
         @Override
         public int hashCode() {
             return value;
@@ -63,7 +63,7 @@ public class JoinPairwise {
             return "[" + value + ", " + value + "]";
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     @Test
     public void test() {

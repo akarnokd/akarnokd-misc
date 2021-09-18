@@ -21,20 +21,18 @@ import java.util.Map.Entry;
 import java.util.concurrent.*;
 
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.runner.Runner;
-import org.openjdk.jmh.runner.options.*;
 
 import com.typesafe.config.*;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.japi.function.Function;
-import akka.stream.ActorMaterializer;
+import akka.stream.Materializer;
 import akka.stream.javadsl.*;
 
 /**
  * Shakespeare with Akka-Stream Optimized.
- * 
+ *
  * @author José
  * @author akarnokd
  */
@@ -42,14 +40,14 @@ public class ShakespearePlaysScrabbleWithAkkaStreamBeta extends ShakespearePlays
 
     ActorSystem actorSystem;
 
-    ActorMaterializer materializer;
+    Materializer materializer;
 
     @Setup
     public void setup() {
 
         Config cfg = ConfigFactory.parseResources(ShakespearePlaysScrabbleWithAkkaStreamOpt.class, "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
-        materializer = ActorMaterializer.create(actorSystem);
+        materializer = Materializer.createMaterializer(actorSystem);
 
     }
 

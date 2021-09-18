@@ -24,7 +24,7 @@ public final class FluxCharSequence extends Flux<Integer> {
     public void subscribe(CoreSubscriber<? super Integer> actual) {
         actual.onSubscribe(new CharSequenceSubscription(actual, string));
     }
-    
+
     static final class CharSequenceSubscription
     implements Fuseable.QueueSubscription<Integer> {
         final CoreSubscriber<? super Integer> actual;

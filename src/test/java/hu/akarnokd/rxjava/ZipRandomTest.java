@@ -11,7 +11,7 @@ public class ZipRandomTest {
     static long randomTime() {
         return 2;
     }
-    
+
     @Test
     public void test() throws Exception {
         Observable<String> delay = Observable.just("")

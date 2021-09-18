@@ -24,7 +24,7 @@ public class QueueDrainPerf {
 
             for (;;) {
                 counter++;
-                
+
                 missed = wip.addAndGet(-missed);
                 if (missed == 0) {
                     break;
@@ -41,7 +41,7 @@ public class QueueDrainPerf {
 
             for (;;) {
                 counter++;
-                
+
                 missed = w.addAndGet(-missed);
                 if (missed == 0) {
                     break;
@@ -58,7 +58,7 @@ public class QueueDrainPerf {
 
             for (;;) {
                 counter++;
-                
+
                 int u = w.get();
                 if (missed == u) {
                     missed = w.addAndGet(-missed);

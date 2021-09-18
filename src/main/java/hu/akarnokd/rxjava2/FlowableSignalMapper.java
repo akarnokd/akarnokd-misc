@@ -12,7 +12,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 public final class FlowableSignalMapper<R> extends Flowable<R> {
 
     final Flowable<Object> source;
-    
+
     final Callable<R> mapper;
 
     public FlowableSignalMapper(Flowable<Object> source, Callable<R> mapper) {

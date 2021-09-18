@@ -26,7 +26,7 @@ public class ZipRxJava {
 
 
     private static CartPlanResponse createPlanResponse(ZipRxJava z) {
-        System.out.println("Plan ********** " + Thread.currentThread().getName());  
+        System.out.println("Plan ********** " + Thread.currentThread().getName());
         CartPlanResponse res = z.new CartPlanResponse();
         res.setPlanId("123");
         System.out.println("Before Return Plan ********** " + Thread.currentThread().getName());
@@ -72,7 +72,7 @@ public class ZipRxJava {
 
         public void setPlanId(String planId) {
             this.planId = planId;
-        }   
+        }
     }
 
     private class CartFeatureResponse {

@@ -26,7 +26,7 @@ public class EditorIDFinder {
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 
             MappedByteBuffer mbb = raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
-            
+
             while (mbb.remaining() > 0) {
                 if (mbb.get() == 'E') {
                     if (mbb.get() == 'D') {
@@ -52,34 +52,34 @@ public class EditorIDFinder {
                 }
             }
         }
-        
+
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame();
             frame.setTitle("Find Editor IDs");
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.setSize(1000, 800);
-            
+
             frame.setLocationRelativeTo(null);
-            
+
             JTextField search = new JTextField();
             frame.add(search, BorderLayout.PAGE_START);
             Font f = new Font(Font.SANS_SERIF, Font.PLAIN, 22);
             search.setFont(f);
-            
+
             JTextPane text = new JTextPane();
             JScrollPane scroll = new JScrollPane(text);
             frame.add(scroll, BorderLayout.CENTER);
             f = new Font(Font.MONOSPACED, Font.PLAIN, 22);
             text.setFont(f);
-            
+
             frame.setVisible(true);
-            
+
             search.addActionListener(e -> {
                 text.setText("");
-                
+
                 String find = search.getText().trim().toLowerCase();
                 String[] ands = find.split("\\s+");
-                
+
                 List<String> found = new ArrayList<>();
                 if (find.length() > 0) {
                     for (String s : editorIds) {
@@ -94,7 +94,7 @@ public class EditorIDFinder {
                             found.add(s);
                         }
                     }
-                    
+
                     if (found.size() == 0) {
                         text.setText("<not found>");
                     } else {

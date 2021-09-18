@@ -16,7 +16,7 @@ public class RetryEmptyErrorTest {
         .test()
         .assertFailureAndMessage(Exception.class, "2");
     }
-    
+
     @Test
     public void nonEmptyError() {
         Observable.just(1).concatWith(Observable.error(new Exception()))
@@ -25,15 +25,15 @@ public class RetryEmptyErrorTest {
         .test()
         .assertResult(1, 1, 1, 1);
     }
-    
+
     static <T> ObservableTransformer<T, T> retryEmpty(int count) {
         return o ->
             Observable.defer(() -> {
                 AtomicInteger remaining = new AtomicInteger(count);
                 AtomicBoolean nonEmpty = new AtomicBoolean();
-                
+
                 return o.doOnNext(v -> nonEmpty.lazySet(true))
-                .retryWhen(err -> 
+                .retryWhen(err ->
                     err.flatMap(e -> {
                         if (nonEmpty.get()) {
                             nonEmpty.lazySet(false);

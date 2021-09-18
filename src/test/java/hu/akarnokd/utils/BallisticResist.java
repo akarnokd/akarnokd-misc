@@ -7,7 +7,7 @@ public class BallisticResist {
         double baseDamage = 103;
         double armorRemaining = (1 - 0.36) * (1 - 0.5);
         double speedCoeff = 1.0;
-        
+
         System.out.println(baseDamage + "-" + (25 * armorRemaining) + ": " + damageFormula(baseDamage, 25 * armorRemaining) * speedCoeff);
         System.out.println(baseDamage + "-" + (50* armorRemaining) + ": " + damageFormula(baseDamage, 50 * armorRemaining) * speedCoeff);
         System.out.println(baseDamage + "-" + (75 * armorRemaining) + ": " + damageFormula(baseDamage, 75 * armorRemaining) * speedCoeff);
@@ -27,12 +27,12 @@ public class BallisticResist {
         System.out.println("Protectron TR: " + (damageFormula(baseDamage * 1.3, 125)));
 
         System.out.println("----------");
-        
+
         System.out.println("Damage: " + (damageFormula(125, 120 * (1 - 0.36) * (1 - 0.4))));
 
         System.out.println("----------");
 
-        
+
         /*
         System.out.println("42-25: " + damageFormula(42, 25));
         System.out.println("42-50: " + damageFormula(42, 50));
@@ -75,7 +75,7 @@ public class BallisticResist {
         System.out.println("TS Lever' * 36% :  " + (damageFormula(118, 80) + damageFormula(118 * 0.25, 80)));
 
         System.out.println("---------");
-        
+
         double h = 700;
 
         System.out.println("Plain Lever: " + h / damageFormula(118, 125));
@@ -88,7 +88,7 @@ public class BallisticResist {
         System.out.println("TS Lever' * 36% :  " + h / (damageFormula(118, 80) + damageFormula(118 * 0.25, 80)));
         System.out.println("TS Lever\" * 36%  :  " + h / damageFormula(140 * 1.1, 80));
 
-        
+
         System.out.println("---------");
 
         double baseDr = 300;
@@ -104,9 +104,9 @@ public class BallisticResist {
         }
         */
     }
-    
+
     static double damageFormula(double damage, double dr) {
         return Math.min(0.99, 0.5 * Math.pow((damage / dr), 0.366)) * damage;
     }
-    
+
 }

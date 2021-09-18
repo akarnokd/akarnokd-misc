@@ -1,15 +1,14 @@
 package hu.akarnokd.rxjava2;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-
-import com.google.api.client.util.Charsets;
 
 public class JavadocScrape {
 
     public static void main(String[] args) throws Exception {
-        String s = new String(Files.readAllBytes(Paths.get("..\\RxJava\\src\\main\\java\\io\\reactivex\\Flowable.java")), Charsets.UTF_8);
-        
+        String s = new String(Files.readAllBytes(Paths.get("..\\RxJava\\src\\main\\java\\io\\reactivex\\Flowable.java")), StandardCharsets.UTF_8);
+
         int fidx = 1;
         int j = 0;
         @SuppressWarnings("resource")
@@ -23,13 +22,13 @@ public class JavadocScrape {
             if (idx < 0) {
                 break;
             }
-            
+
             int jdx = s.indexOf("*/", idx + 2);
             if (jdx < 0) {
                 System.err.println("No end comment tag?!");
                 break;
             }
-            
+
             String doc = s.substring(idx + 3, jdx);
             doc = doc.replace("<p>", "");
             doc = doc.replace("</p>", "");
@@ -67,32 +66,32 @@ public class JavadocScrape {
                 }
                 int nn = doc.indexOf(" ", jj + 2);
                 int mm = doc.indexOf("}", jj + 2);
-                
+
                 doc = doc.substring(0, jj) + doc.substring(nn + 1, mm) + doc.substring(mm + 1);
 
                 kk = mm + 1;
             }
-            
+
             for (String line : doc.split("\n")) {
                 line = line.trim();
                 if (line.startsWith("*")) {
                     line = line.substring(1);
                 }
-                
+
                 // remove images
                 int k = line.indexOf("<img ");
                 if (k >= 0) {
                     int m = line.indexOf(">", k + 4);
                     line = line.substring(0, k) + line.substring(m + 1);
                 }
-                
+
                 // remove anchors
                 k = line.indexOf("<a ");
                 if (k >= 0) {
                     int m = line.indexOf(">", k + 4);
                     line = line.substring(0, k) + line.substring(m + 1);
                 }
-                
+
                 line = line.trim();
                 if (line.length() != 0) {
                     out.print(line);

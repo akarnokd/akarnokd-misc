@@ -414,7 +414,7 @@ public class RxSynchronousProfiler {
             }
         }
     }
-    
+
 
     static final class SingleProfiler<T> extends Single<T> {
 
@@ -497,7 +497,7 @@ public class RxSynchronousProfiler {
             public void dispose() {
                 s.dispose();
             }
-            
+
             @Override
             public boolean isDisposed() {
                 return s.isDisposed();

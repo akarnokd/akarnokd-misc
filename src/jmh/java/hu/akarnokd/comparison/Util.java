@@ -37,7 +37,7 @@ public final class Util {
             return Paths.get("files", resourceName);
         }
     }
-    
+
     public static Set<String> readScrabbleWords() {
         Set<String> scrabbleWords = new HashSet<>() ;
         try (Stream<String> scrabbleWordsStream = Files.lines(findPath("ospd.txt"))) {

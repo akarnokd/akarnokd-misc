@@ -54,7 +54,7 @@ public class SubjectRaceTest {
             String key = value.toString();
             //System.out.println("Adding key "+key);
             singlePropertyUpdateSubject.onNext(key);
-//[2]           
+//[2]
  if (value == 1998){
                 subscribeToSubject();;
             }

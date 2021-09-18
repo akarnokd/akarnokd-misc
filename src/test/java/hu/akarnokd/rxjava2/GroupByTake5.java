@@ -10,7 +10,7 @@ public class GroupByTake5 {
     public void test() {
         Observable.range(1, 50)
         .groupBy(v -> v / 10)
-        .flatMap(group -> 
+        .flatMap(group ->
             group.publish(p -> p.take(5).mergeWith(p.ignoreElements()))
         )
         .subscribe(System.out::println);

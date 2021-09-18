@@ -18,5 +18,5 @@ public class ZipInfinite {
         flo2.onNext(2);
         flo2.onNext(3);
     }
-    
+
 }

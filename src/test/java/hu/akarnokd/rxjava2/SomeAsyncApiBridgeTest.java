@@ -4,18 +4,18 @@ package hu.akarnokd.rxjava2;
 import java.util.function.Consumer;
 
 import org.junit.Test;
-    
+
     public class SomeAsyncApiBridgeTest {
-    
+
         static final class AsyncRange {
             final int max;
             int index;
-            
+
             public AsyncRange(int start, int count) {
                 this.index = start;
                 this.max = start + count;
             }
-    
+
             public CompletableFuture<Void> next(Consumer<? super Integer> consumer) {
                 int i = index;
                 if (i == max) {
@@ -33,11 +33,11 @@ import org.junit.Test;
                 return cancel;
             }
         }
-    
+
         @Test
         public void simple() {
             AsyncRange r = new AsyncRange(1, 10);
-            
+
             new SomeAsyncApiBridge<Integer>(
                     consumer -> r.next(consumer)
             )

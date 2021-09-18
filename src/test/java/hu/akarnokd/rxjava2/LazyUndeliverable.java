@@ -12,7 +12,7 @@ public class LazyUndeliverable {
         Thread.sleep(2000);
         return "Done";
     }
-    
+
     @Test
     public void deferObservable() throws Exception {
         Disposable disposable = Observable.defer(() -> Observable.just(simulateHeavyWork()))
@@ -23,7 +23,7 @@ public class LazyUndeliverable {
 
        Thread.sleep(5000);
     }
-    
+
     @Test
     public void deferFlowable() throws Exception {
         Disposable disposable = Flowable.defer(() -> Flowable.just(simulateHeavyWork()))

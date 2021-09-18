@@ -12,7 +12,7 @@ public class ParallelFileProcessing {
 
     @Test
     public void test() {
-        //ParallelFlowable<Path> pf = 
+        //ParallelFlowable<Path> pf =
                 Flowable.<Path, Stream<Path>>using(
                     () -> Files.list(Paths.get("/my/dir/with/files")),
                     files -> Flowable.fromIterable((Iterable<Path>)() -> files.iterator()),

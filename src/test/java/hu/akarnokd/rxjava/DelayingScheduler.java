@@ -12,15 +12,15 @@ public class DelayingScheduler {
         ExecutorService exec = Executors.newSingleThreadExecutor();
         final Scheduler sch = Schedulers.from(exec);
         final long delayMillis = 1000;
-        
+
         Scheduler newScheduler = new Scheduler() {
             @Override public Worker createWorker() {
                 return new NewWorker(sch.createWorker());
             }
-            
+
             class NewWorker extends Scheduler.Worker {
                 final Worker actual;
-                
+
                 NewWorker(Worker actual) {
                     this.actual = actual;
                 }
@@ -52,7 +52,7 @@ public class DelayingScheduler {
         .observeOn(newScheduler)
         .toBlocking()
         .subscribe(System.out::println);
-        
+
         exec.shutdown();
     }
 }

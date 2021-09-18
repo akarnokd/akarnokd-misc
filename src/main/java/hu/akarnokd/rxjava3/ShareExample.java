@@ -17,7 +17,7 @@ public class ShareExample {
         source.subscribe(e -> System.out.println("Observer 2: " + e));
 
         source.connect();
-        
+
         Observable<String> source2 = Observable.<String>create(emitter -> {
             emitter.onNext("Hello");
             emitter.onNext("Foo");

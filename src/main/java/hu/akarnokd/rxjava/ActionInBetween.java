@@ -9,17 +9,17 @@ public class ActionInBetween {
 
     public static void main(String[] args) throws Exception {
     PublishSubject<Integer> ps = PublishSubject.create();
-    
-    ps.publish(o -> 
+
+    ps.publish(o ->
         o.mergeWith(
-            o.switchMap(e -> 
+            o.switchMap(e ->
                  Observable.just(1).delay(200, TimeUnit.MILLISECONDS)
                 .ignoreElements()
                 .doOnCompleted(() -> System.out.println("Timeout action: " + e))
             )
         )
     ).subscribe(System.out::println);
-    
+
     ps.onNext(1);
     ps.onNext(2);
 

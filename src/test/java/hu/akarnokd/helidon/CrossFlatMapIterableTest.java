@@ -12,12 +12,12 @@ public class CrossFlatMapIterableTest {
         Integer[] outerArray = new Integer[times];
         Arrays.fill(outerArray, 777);
         Iterable<Integer> outerIterable = Arrays.asList(outerArray);
-        
+
         Integer[] innerArray = new Integer[1_000_000 / times];
         Arrays.fill(innerArray, 777);
         Iterable<Integer> innerIterable = Arrays.asList(innerArray);
 
-        Multi.from(outerIterable).flatMapIterable(v -> innerIterable)
+        Multi.create(outerIterable).flatMapIterable(v -> innerIterable)
         .subscribe(v -> { }, Throwable::printStackTrace);
     }
 

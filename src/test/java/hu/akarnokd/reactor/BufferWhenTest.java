@@ -24,15 +24,16 @@ public class BufferWhenTest {
     @Test
     public void test() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
-        final UnicastProcessor<Wrapper> processor = UnicastProcessor.create();
-        processor.buffer(Duration.ofMillis(3000), Duration.ofMillis(2000))
+        final Sinks.Many<Wrapper> processor = Sinks.many().unicast().onBackpressureBuffer();
+
+        processor.asFlux().buffer(Duration.ofMillis(3000), Duration.ofMillis(2000))
                  .doOnNext(t -> System.out.println(String.format("tuple %s", t)))
                  .subscribe();
 
         Flux.range(1, Integer.MAX_VALUE)
             .delayElements(Duration.ofMillis(10))
-            .doOnNext(i -> processor.onNext(new Wrapper(i)))
-            .doOnComplete(processor::onComplete)
+            .doOnNext(i -> processor.tryEmitNext(new Wrapper(i)))
+            .doOnComplete(processor::tryEmitComplete)
             .subscribe();
 
         latch.await(10, TimeUnit.MINUTES);

@@ -24,7 +24,7 @@ import com.typesafe.config.*;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import akka.stream.*;
 import akka.stream.javadsl.*;
 import io.reactivex.*;
 import io.reactivex.Observable;
@@ -87,7 +87,7 @@ public class ReactiveStreamsImpls {
 
     ActorSystem actorSystem;
 
-    private ActorMaterializer materializer;
+    private Materializer materializer;
 
     private List<Integer> values;
 
@@ -137,7 +137,7 @@ public class ReactiveStreamsImpls {
         Config cfg = ConfigFactory.parseResources(ReactiveStreamsImpls.class, "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
 
-        materializer = ActorMaterializer.create(actorSystem);
+        materializer = Materializer.createMaterializer(actorSystem);
 
         akRange = s -> {
             Source.range(1, times)

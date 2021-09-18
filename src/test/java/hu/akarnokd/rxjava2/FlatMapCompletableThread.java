@@ -15,7 +15,7 @@ public class FlatMapCompletableThread {
     public void test() {
         for (int j = 0; j < 1; j++) {
             List<String> writerObj = new ArrayList<>();
-    
+
             Observable.range(0, 1000)
                     .map(i -> Observable.just("hello world"))
                     .flatMap(obs -> obs

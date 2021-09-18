@@ -16,7 +16,7 @@ public class LatestSuccessTest {
         .test()
         .assertResult(2);
     }
-    
+
     @SafeVarargs
     public static <T> Single<T> latestSuccess(Single<T>... sources) {
         return Single.defer(() -> {

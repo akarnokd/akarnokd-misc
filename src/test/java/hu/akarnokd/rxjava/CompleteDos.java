@@ -10,7 +10,7 @@ public class CompleteDos {
     @Test
     public void test() throws Exception {
         Completable.fromAction(() -> System.out.println("A1"))
-        .doOnSubscribe(s -> 
+        .doOnSubscribe(s ->
             System.out.println("---> A1 doOnSubscribe")
         )
         .doOnCompleted(() -> System.out.println("---> A1 doOnCompleted"))
@@ -29,7 +29,7 @@ public class CompleteDos {
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.computation())
         .subscribe();
-        
+
         Thread.sleep(10000);
     }
 }

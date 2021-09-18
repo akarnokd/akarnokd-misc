@@ -17,10 +17,10 @@ public class BufferStartEndTest {
         TestScheduler scheduler = new TestScheduler();
         PublishProcessor<String> pp = PublishProcessor.create();
 
-        Function<Flowable<String>, Flowable<List<String>>> f = o -> 
-                o.buffer(o.filter(v -> v.contains("Start")), 
-                         v -> Flowable.merge(o.filter(w -> w.contains("Start")), 
-                                             Flowable.timer(5, TimeUnit.MINUTES, scheduler))); 
+        Function<Flowable<String>, Flowable<List<String>>> f = o ->
+                o.buffer(o.filter(v -> v.contains("Start")),
+                         v -> Flowable.merge(o.filter(w -> w.contains("Start")),
+                                             Flowable.timer(5, TimeUnit.MINUTES, scheduler)));
 
         pp.publish(f)
         .doOnNext(v -> {

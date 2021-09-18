@@ -18,11 +18,11 @@ public class PagingFeedbackLoop {
         }
         return list;
     }
-    
+
     Flowable<List<Integer>> getPage(int index) {
         FlowableProcessor<Integer> pager = UnicastProcessor.<Integer>create().toSerialized();
         pager.onNext(index);
-        
+
         return pager.observeOn(Schedulers.trampoline(), true, 1)
         .map(v -> {
             List<Integer> list = service(v);

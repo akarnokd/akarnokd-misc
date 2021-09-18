@@ -17,7 +17,7 @@ public class DoOnErrorInside {
         )
         .subscribe(v -> System.out.println(v), e -> System.out.println("Error " + e));
     }
-    
+
     Single<Integer> single(Integer v) {
         return Single.error(new IOException());
     }

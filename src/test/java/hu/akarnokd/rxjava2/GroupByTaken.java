@@ -27,7 +27,7 @@ public class GroupByTaken {
         })
         .blockingForEach(System.out::println);
     }
-    
+
     @Test
     public void test3() {
         Observable.intervalRange(0, 20, 0, 1, TimeUnit.MILLISECONDS)

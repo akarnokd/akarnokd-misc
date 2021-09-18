@@ -9,8 +9,8 @@ public class FlatMapFatal {
     @Test(expected = UnknownError.class)
     public void test() {
         Observable.just(1)
-        .flatMap(v -> { 
-            throw new UnknownError(); 
+        .flatMap(v -> {
+            throw new UnknownError();
         })
         .onErrorReturnItem(2)
         .test()

@@ -44,7 +44,7 @@ public class ShakespearePlaysScrabbleWithDirect extends ShakespearePlaysScrabble
     public List<Entry<Integer, List<String>>> measureThroughput() throws InterruptedException {
 
         TreeMap<Integer, List<String>> treemap = new TreeMap<Integer, List<String>>(Comparator.reverseOrder());
-        
+
         for (String word : shakespeareWords) {
             if (scrabbleWords.contains(word)) {
                 HashMap<Integer, MutableLong> wordHistogram = new LinkedHashMap<>();
@@ -91,12 +91,12 @@ public class ShakespearePlaysScrabbleWithDirect extends ShakespearePlaysScrabble
                     for (int i = 3; i < word.length(); i++) {
                         max2 = Math.max(max2, letterScores[word.charAt(i) - 'a']);
                     }
-                    
+
                     sum2 += max2;
                     sum2 = 2 * sum2 + (word.length() == 7 ? 50 : 0);
-                    
+
                     Integer key = sum2;
-                    
+
                     List<String> list = treemap.get(key) ;
                     if (list == null) {
                         list = new ArrayList<>() ;
@@ -106,9 +106,9 @@ public class ShakespearePlaysScrabbleWithDirect extends ShakespearePlaysScrabble
                 }
             }
         }
-        
+
         List<Entry<Integer, List<String>>> list = new ArrayList<Entry<Integer, List<String>>>();
-        
+
         int i = 4;
         for (Entry<Integer, List<String>> e : treemap.entrySet()) {
             if (--i == 0) {

@@ -20,7 +20,7 @@ public class SingleAsync {
             System.out.println("caught error " + e.getMessage());
             e.printStackTrace();
         });
-        
+
         Thread.sleep(2000);
     }
 }

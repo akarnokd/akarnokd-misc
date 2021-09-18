@@ -74,10 +74,10 @@ public final class MethodDiff {
 
         for (String e : methods) {
 
-            Integer old = rx1.get(e);
-            Integer overloads = rx2.get(e);
+            Integer old = rx1.getOrDefault(e, -1);
+            Integer overloads = rx2.getOrDefault(e, -1);
 
-            if (overloads == null) {
+            if (overloads == -1) {
                 System.out.print(e);
                 System.out.print("(");
                 System.out.print(old);

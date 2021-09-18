@@ -13,7 +13,7 @@ import io.reactivex.internal.util.Pow2;
 public final class StripedCompositeDisposable implements DisposableContainer, Disposable {
 
     final CompositeDisposable[] stripes;
-    
+
     StripedCompositeDisposable(int stripeCount) {
         this.stripes = new CompositeDisposable[Pow2.roundToPowerOfTwo(stripeCount)];
         for (int i = 0; i < stripes.length; i++) {

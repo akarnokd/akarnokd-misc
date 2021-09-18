@@ -45,7 +45,7 @@ public class ShakespearePlaysScrabbleWithReactor3ParallelOpt extends Shakespeare
 
     @Setup
     public void localSetup() {
-        scheduler = Schedulers.newElastic("RcParallel");
+        scheduler = Schedulers.newBoundedElastic(10, 60, "RcParallel");
     }
 
     @TearDown

@@ -106,7 +106,7 @@ public class RxSynchronousCoarseProfiler {
             Subscription s;
 
             QueueSubscription<T> qs;
-            
+
             long startTime;
 
             ProfilerSubscriber(Subscriber<? super T> actual, CallStatistics calls) {
@@ -294,7 +294,7 @@ public class RxSynchronousCoarseProfiler {
             }
         }
     }
-    
+
 
     static final class SingleProfiler<T> extends Single<T> {
 
@@ -326,7 +326,7 @@ public class RxSynchronousCoarseProfiler {
             Disposable s;
 
             QueueSubscription<T> qs;
-            
+
             long startTime;
 
             ProfilerSingleObserver(SingleObserver<? super T> actual, CallStatistics calls) {
@@ -370,7 +370,7 @@ public class RxSynchronousCoarseProfiler {
             public void dispose() {
                 s.dispose();
             }
-            
+
             @Override
             public boolean isDisposed() {
                 return s.isDisposed();

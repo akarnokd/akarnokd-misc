@@ -13,11 +13,11 @@ import org.openjdk.jmh.infra.Blackhole;
 @Fork(value = 1)
 @State(Scope.Thread)
 public class TerminalAtomics {
-    
+
     final AtomicReference<Object> ref = new AtomicReference<>();
-    
+
     final Object o = new Object();
-    
+
     void getGetAndSet(Blackhole bh) {
         Object o = ref.get();
         if (o != null) {
@@ -27,7 +27,7 @@ public class TerminalAtomics {
             }
         }
     }
-    
+
     void getAndSet(Blackhole bh) {
         Object o = ref.getAndSet(null);
         if (o != null) {

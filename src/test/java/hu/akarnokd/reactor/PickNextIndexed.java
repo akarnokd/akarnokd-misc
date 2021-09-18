@@ -9,19 +9,19 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 public class PickNextIndexed {
-    
+
     @Test
     public void test() {
         int parallelism = 8;
         int bufferSize = 256;
         AtomicInteger indexer = new AtomicInteger();
-        
+
         @SuppressWarnings("unchecked")
         SpscLinkedArrayQueue<AtomicInteger>[] queues = new SpscLinkedArrayQueue[parallelism];
         for (int i = 0; i < queues.length; i++) {
             queues[i] = new SpscLinkedArrayQueue<AtomicInteger>(bufferSize);
         }
-        
+
         Flux.range(0, 1000)
         .map(AtomicInteger::new)
         .parallel(parallelism)
@@ -48,5 +48,5 @@ public class PickNextIndexed {
         .forEach(System.out::println);
     }
 
-    
+
 }

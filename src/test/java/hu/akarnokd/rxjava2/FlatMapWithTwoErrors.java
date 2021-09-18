@@ -13,7 +13,7 @@ public class FlatMapWithTwoErrors {
     public void innerCancelled() {
         PublishProcessor<Integer> pp1 = PublishProcessor.create();
         PublishProcessor<Integer> pp2 = PublishProcessor.create();
-        
+
         pp1
         .flatMap(v -> pp2)
         .test();
@@ -22,7 +22,7 @@ public class FlatMapWithTwoErrors {
         assertTrue("No subscribers?", pp2.hasSubscribers());
 
         pp1.onError(new Exception());
-        
+
         assertFalse("Has subscribers?", pp2.hasSubscribers());
     }
 
@@ -30,7 +30,7 @@ public class FlatMapWithTwoErrors {
     public void innerCancelled2() {
         PublishProcessor<Integer> pp1 = PublishProcessor.create();
         PublishProcessor<Integer> pp2 = PublishProcessor.create();
-        
+
         pp1
         .concatMap(v -> pp2)
         .test();
@@ -39,16 +39,16 @@ public class FlatMapWithTwoErrors {
         assertTrue("No subscribers?", pp2.hasSubscribers());
 
         pp1.onError(new Exception());
-        
+
         assertFalse("Has subscribers?", pp2.hasSubscribers());
     }
-    
+
 
     @Test
     public void innerCancelled3() {
         PublishSubject<Integer> pp1 = PublishSubject.create();
         PublishSubject<Integer> pp2 = PublishSubject.create();
-        
+
         pp1
         .flatMap(v -> pp2)
         .test();
@@ -57,7 +57,7 @@ public class FlatMapWithTwoErrors {
         assertTrue("No subscribers?", pp2.hasObservers());
 
         pp1.onError(new Exception());
-        
+
         assertFalse("Has subscribers?", pp2.hasObservers());
     }
 
@@ -65,7 +65,7 @@ public class FlatMapWithTwoErrors {
     public void innerCancelled4() {
         PublishSubject<Integer> pp1 = PublishSubject.create();
         PublishSubject<Integer> pp2 = PublishSubject.create();
-        
+
         pp1
         .concatMap(v -> pp2)
         .test();
@@ -74,7 +74,7 @@ public class FlatMapWithTwoErrors {
         assertTrue("No subscribers?", pp2.hasObservers());
 
         pp1.onError(new Exception());
-        
+
         assertFalse("Has subscribers?", pp2.hasObservers());
     }
 }

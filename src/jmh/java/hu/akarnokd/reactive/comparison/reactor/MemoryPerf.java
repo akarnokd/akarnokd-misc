@@ -113,19 +113,19 @@ public final class MemoryPerf {
         checkMemory(() -> Flux.range(1, 10).subscribeOn(reactor.core.scheduler.Schedulers.parallel()).publishOn(reactor.core.scheduler.Schedulers.parallel()).subscribeWith(new MyReactorSubscriber()),
                 "range+subscribeOn+observeOn+consumer", "ReactorFlux");
 
-        checkMemory(() -> reactor.core.publisher.DirectProcessor.create(), "Publish", "ReactorFlux");
+        checkMemory(() -> Sinks.many().multicast().directBestEffort(), "Publish", "ReactorFlux");
 
-        checkMemory(() -> reactor.core.publisher.ReplayProcessor.create(), "Replay", "ReactorFlux");
+        checkMemory(() -> Sinks.many().replay(), "Replay", "ReactorFlux");
 
-        checkMemory(() -> reactor.core.publisher.UnicastProcessor.create(), "Unicast", "ReactorFlux");
+        checkMemory(() -> Sinks.many().unicast(), "Unicast", "ReactorFlux");
 
-        checkMemory(() -> reactor.core.publisher.DirectProcessor.create().subscribeWith(new MyReactorSubscriber()),
+        checkMemory(() -> Sinks.many().multicast().directBestEffort().asFlux().subscribeWith(new MyReactorSubscriber()),
                 "Publish+consumer", "ReactorFlux");
 
-        checkMemory(() -> reactor.core.publisher.ReplayProcessor.create().subscribeWith(new MyReactorSubscriber()),
+        checkMemory(() -> Sinks.many().replay().all().asFlux().subscribeWith(new MyReactorSubscriber()),
                 "Replay+consumer", "ReactorFlux");
 
-        checkMemory(() -> reactor.core.publisher.UnicastProcessor.create().subscribeWith(new MyReactorSubscriber()),
+        checkMemory(() -> Sinks.many().unicast().onBackpressureBuffer().asFlux().subscribeWith(new MyReactorSubscriber()),
                 "Unicast+consumer", "ReactorFlux");
 
         // ---------------------------------------------------------------------------------------------------------------------

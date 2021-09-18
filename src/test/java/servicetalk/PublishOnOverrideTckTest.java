@@ -40,7 +40,7 @@ public class PublishOnOverrideTckTest extends PublisherVerification<Integer> {
         return ReactiveStreamsAdapters.toReactiveStreamsPublisher(
                 io.servicetalk.concurrent.api.Publisher.from(items(elements))
                 .publishOn(exec0)
-                .publishOnOverride(exec)
+                .publishOn(exec)
         );
     }
 

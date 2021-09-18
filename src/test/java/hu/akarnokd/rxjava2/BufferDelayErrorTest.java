@@ -9,7 +9,7 @@ import io.reactivex.processors.PublishProcessor;
 
 public class BufferDelayErrorTest {
 
-    
+
     @Test
     public void test() {
         Flowable.range(0, 10)
@@ -21,7 +21,7 @@ public class BufferDelayErrorTest {
         .compose(bufferDelayError(5))
         .subscribe(System.out::println, System.out::println);
     }
-    
+
     static <T> FlowableTransformer<T, List<T>> bufferDelayError(int size) {
         return o -> Flowable.defer(() -> {
             PublishProcessor<List<T>> ps = PublishProcessor.create();

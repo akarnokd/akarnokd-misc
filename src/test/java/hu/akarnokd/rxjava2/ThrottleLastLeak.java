@@ -11,11 +11,11 @@ public class ThrottleLastLeak {
         Disposable d = PublishSubject.create()
         .throttleLast(100, TimeUnit.MILLISECONDS)
         .subscribe(System.out::println);
-        
+
         Thread.sleep(10000);
-        
+
         d.dispose();
-        
+
         Thread.sleep(1000000);
     }
 }

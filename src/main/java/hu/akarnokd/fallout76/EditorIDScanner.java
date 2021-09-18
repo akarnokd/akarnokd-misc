@@ -21,8 +21,8 @@ public class EditorIDScanner {
             try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 
                 MappedByteBuffer mbb = raf.getChannel().map(MapMode.READ_ONLY, 0, raf.length());
-                
-                
+
+
                 while (mbb.remaining() > 0) {
                     if (mbb.get() == 'E') {
                         if (mbb.get() == 'D') {

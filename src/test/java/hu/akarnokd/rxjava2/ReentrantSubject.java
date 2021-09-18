@@ -18,7 +18,7 @@ public class ReentrantSubject {
                 .subscribe();
 
         publisher.onNext(0);
-        
+
         Thread.sleep(100000);
     }
 

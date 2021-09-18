@@ -10,7 +10,7 @@ public class ShiftByCount {
         Flowable.range(1, 7)
         .flatMap(v -> Flowable.timer(v * 200, TimeUnit.MILLISECONDS).map(w -> v))
         .doOnNext(v -> System.out.println(v))
-        .publish(f -> 
+        .publish(f ->
             f.skip(3).zipWith(f, (a, b) -> b).mergeWith(f.takeLast(3))
         )
         .blockingSubscribe(v -> System.out.println("<-- " + v))

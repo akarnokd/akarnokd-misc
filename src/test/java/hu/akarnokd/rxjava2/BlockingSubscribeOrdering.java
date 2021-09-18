@@ -10,7 +10,7 @@ public class BlockingSubscribeOrdering {
     public void test() {
         Flowable.just(1, 2)
         .concatWith(Flowable.error(new Exception("whoops")))
-        .blockingSubscribe(v -> System.out.println("received: " + v), 
+        .blockingSubscribe(v -> System.out.println("received: " + v),
                 e -> {
                     e.printStackTrace(System.out);
                 }, () -> System.out.println("completed"));

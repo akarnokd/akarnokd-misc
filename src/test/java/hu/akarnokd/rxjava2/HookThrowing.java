@@ -21,17 +21,17 @@ public class HookThrowing {
             throw new RuntimeException("Fail up");
         });
     }
-    
+
     @SuppressWarnings("unchecked")
     static <E extends Throwable> void sneakyThrow(Throwable ex) throws E {
         throw (E)ex;
     }
-    
+
     @After
     public void after() {
         RxJavaPlugins.reset();
     }
-    
+
     @Test
     public void test() {
         Observable.error(new IOException())

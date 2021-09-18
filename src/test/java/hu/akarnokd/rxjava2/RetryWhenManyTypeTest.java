@@ -9,7 +9,7 @@ import io.reactivex.*;
 
 public class RetryWhenManyTypeTest {
 
-    
+
     @Test
     public void test1() {
         Single.timer(1, TimeUnit.SECONDS)
@@ -26,7 +26,7 @@ public class RetryWhenManyTypeTest {
             })
             .blockingGet();
     }
-    
+
     @Test
     public void test2() {
         Maybe.timer(1, TimeUnit.SECONDS)
@@ -43,7 +43,7 @@ public class RetryWhenManyTypeTest {
             })
             .blockingGet();
     }
-    
+
     @Test
     public void test3() {
         Completable.timer(1, TimeUnit.SECONDS)

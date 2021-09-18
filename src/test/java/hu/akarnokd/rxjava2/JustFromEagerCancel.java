@@ -12,13 +12,13 @@ public class JustFromEagerCancel {
     @Test
     public void test() {
         AtomicInteger cnt = new AtomicInteger();
-        
-        Callable<Integer> a = () -> cnt.incrementAndGet(); 
+
+        Callable<Integer> a = () -> cnt.incrementAndGet();
         Observable.fromCallable(() -> a)
         .map(v -> v.call())
         .test(true)
         .assertEmpty();
-        
+
         Assert.assertEquals(0, cnt.get());
     }
 }

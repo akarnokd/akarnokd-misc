@@ -12,7 +12,7 @@ public class MatchIndex {
         Observable.range(1, 10)
         .compose(indexOf(v -> v == 5))
         .subscribe(System.out::println);
-        
+
         Observable.range(1, 10)
         .compose(indexOf(v -> v == 12))
         .subscribe(System.out::println);

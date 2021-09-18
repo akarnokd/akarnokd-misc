@@ -10,7 +10,7 @@ import io.reactivex.observers.DisposableObserver;
 public class FromIterableFlatMap {
 
     static class Result { }
-    
+
     public static Observable<Result> getResults(List<Long> requests) {
         return Observable.fromIterable(requests)
                 .flatMap( aLong -> {
@@ -18,7 +18,7 @@ public class FromIterableFlatMap {
                     return Observable.fromIterable(Arrays.asList(items));
                 });
     }
-    
+
     @Test
     public void test() {
         List<Long> ids = new ArrayList<>(Arrays.asList(1L, 2L, 3L));

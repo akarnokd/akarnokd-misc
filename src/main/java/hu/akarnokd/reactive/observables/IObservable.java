@@ -13,7 +13,7 @@ import io.reactivex.internal.util.ExceptionHelper;
 public interface IObservable<T> {
 
     void subscribe(IObserver<? super T> observer);
-    
+
     static <T> IObservable<T> just(T element) {
         return o -> {
             BooleanDisposable d = new BooleanDisposable();
@@ -45,64 +45,71 @@ public interface IObservable<T> {
 
     @SafeVarargs
     static <T> IObservable<T> concatArray(IObservable<T>... sources) {
-        return o -> {
-            class ConcatObserver implements IObserver<T>, IDisposable {
+        class ConcatObserver implements IObserver<T>, IDisposable {
 
-                IDisposable d;
-                
-                boolean disposed;
-                
-                int wip;
-                
-                int index;
-                
-                @Override
-                public void dispose() {
-                    disposed = true;
-                    d.dispose();
-                }
+            final IObserver<? super T> o;
 
-                @Override
-                public void onSubscribe(IDisposable d) {
-                    if (disposed) {
-                        d.dispose();
-                    } else {
-                        this.d = d;
-                    }
-                }
-
-                @Override
-                public void onNext(T element) {
-                    o.onNext(element);
-                }
-
-                @Override
-                public void onError(Throwable cause) {
-                    o.onError(cause);
-                }
-
-                @Override
-                public void onComplete() {
-                    if (wip++ == 0) {
-                        do {
-                            if (disposed) {
-                                return;
-                            }
-                            
-                            if (index == sources.length) {
-                                o.onComplete();
-                                return;
-                            }
-                            
-                            sources[index++].subscribe(this);
-                        } while (--wip != 0);
-                    }
-                }
-                
+            ConcatObserver(IObserver<? super T> o) {
+                this.o = o;
             }
-            
-            ConcatObserver obs = new ConcatObserver();
-            
+
+            IDisposable d;
+
+            boolean disposed;
+
+            int wip;
+
+            int index;
+
+            @Override
+            public void dispose() {
+                disposed = true;
+                d.dispose();
+            }
+
+            @Override
+            public void onSubscribe(IDisposable d) {
+                if (disposed) {
+                    d.dispose();
+                } else {
+                    this.d = d;
+                }
+            }
+
+            @Override
+            public void onNext(T element) {
+                o.onNext(element);
+            }
+
+            @Override
+            public void onError(Throwable cause) {
+                o.onError(cause);
+            }
+
+            @Override
+            public void onComplete() {
+                if (wip++ == 0) {
+                    do {
+                        if (disposed) {
+                            return;
+                        }
+
+                        if (index == sources.length) {
+                            o.onComplete();
+                            return;
+                        }
+
+                        sources[index++].subscribe(this);
+                    } while (--wip != 0);
+                }
+            }
+
+        }
+
+        return o -> {
+
+            ConcatObserver obs = new ConcatObserver(o);
+
             o.onSubscribe(obs);
             obs.onComplete();
         };
@@ -123,11 +130,11 @@ public interface IObservable<T> {
             }
         };
     }
-    
+
     default <C> IObservable<C> collect(Callable<C> collectionSupplier, BiConsumer<? super C, ? super T> collector) {
         return o -> {
             C collection;
-            
+
             try {
                 collection = collectionSupplier.call();
             } catch (Throwable ex) {
@@ -136,7 +143,7 @@ public interface IObservable<T> {
                 o.onError(ex);
                 return;
             }
-            
+
             class Collector implements IObserver<T>, IDisposable {
 
                 IDisposable d;
@@ -177,18 +184,18 @@ public interface IObservable<T> {
                         o.onComplete();
                     }
                 }
-                
+
             }
-            
+
             subscribe(new Collector());
         };
     }
-    
+
     default <R> IObservable<R> flatMapIterable(Function<? super T, ? extends Iterable<? extends R>> mapper) {
         return o -> {
             class FlatMapper implements IObserver<T>, IDisposable {
                 IDisposable d;
-                
+
                 boolean disposed;
 
                 @Override
@@ -206,7 +213,7 @@ public interface IObservable<T> {
                 @Override
                 public void onNext(T element) {
                     Iterator<? extends R> it;
-                    
+
                     try {
                         it = mapper.apply(element).iterator();
                     } catch (Throwable ex) {
@@ -214,7 +221,7 @@ public interface IObservable<T> {
                         o.onError(ex);
                         return;
                     }
-                    
+
                     while (it.hasNext()) {
                         if (disposed) {
                             break;
@@ -241,7 +248,7 @@ public interface IObservable<T> {
         return o -> {
             class Mapper implements IObserver<T>, IDisposable {
                 IDisposable d;
-                
+
                 @Override
                 public void dispose() {
                     d.dispose();
@@ -256,7 +263,7 @@ public interface IObservable<T> {
                 @Override
                 public void onNext(T element) {
                     R v;
-                    
+
                     try {
                         v = mapper.apply(element);
                     } catch (Throwable ex) {
@@ -264,7 +271,7 @@ public interface IObservable<T> {
                         o.onError(ex);
                         return;
                     }
-                    
+
                     o.onNext(v);
                 }
 
@@ -286,7 +293,7 @@ public interface IObservable<T> {
         return o -> {
             class Filterer implements IObserver<T>, IDisposable {
                 IDisposable d;
-                
+
                 @Override
                 public void dispose() {
                     d.dispose();
@@ -301,7 +308,7 @@ public interface IObservable<T> {
                 @Override
                 public void onNext(T element) {
                     boolean v;
-                    
+
                     try {
                         v = predicate.test(element);
                     } catch (Throwable ex) {
@@ -309,7 +316,7 @@ public interface IObservable<T> {
                         o.onError(ex);
                         return;
                     }
-                    
+
                     if (v) {
                         o.onNext(element);
                     }
@@ -334,10 +341,10 @@ public interface IObservable<T> {
         return o -> {
             class SumInt implements IObserver<Number>, IDisposable {
                 IDisposable d;
-                
+
                 int sum;
                 boolean hasValue;
-                
+
                 @Override
                 public void dispose() {
                     d.dispose();
@@ -379,10 +386,10 @@ public interface IObservable<T> {
         return o -> {
             class SumLong implements IObserver<Number>, IDisposable {
                 IDisposable d;
-                
+
                 long sum;
                 boolean hasValue;
-                
+
                 @Override
                 public void dispose() {
                     d.dispose();
@@ -424,10 +431,10 @@ public interface IObservable<T> {
         return o -> {
             class MaxInt implements IObserver<Number>, IDisposable {
                 IDisposable d;
-                
+
                 int max;
                 boolean hasValue;
-                
+
                 @Override
                 public void dispose() {
                     d.dispose();
@@ -470,13 +477,13 @@ public interface IObservable<T> {
         return o -> {
             class Take implements IObserver<T>, IDisposable {
                 IDisposable d;
-                
+
                 long remaining;
-                
+
                 Take(long n) {
                     this.remaining = n;
                 }
-                
+
                 @Override
                 public void dispose() {
                     d.dispose();
@@ -526,9 +533,9 @@ public interface IObservable<T> {
         return o -> {
             class Skip implements IObserver<T>, IDisposable {
                 IDisposable d;
-                
+
                 long remaining;
-                
+
                 Skip(long n) {
                     this.remaining = n;
                 }
@@ -575,7 +582,7 @@ public interface IObservable<T> {
             Throwable error;
 
             IDisposable d;
-            
+
             @Override
             public void onSubscribe(IDisposable d) {
                 this.d = d;
@@ -596,7 +603,7 @@ public interface IObservable<T> {
             public void onComplete() {
             }
         }
-        
+
         First f = new First();
         subscribe(f);
         if (f.error != null) {
@@ -632,7 +639,7 @@ public interface IObservable<T> {
             public void onComplete() {
             }
         }
-        
+
         Last f = new Last();
         subscribe(f);
         if (f.error != null) {

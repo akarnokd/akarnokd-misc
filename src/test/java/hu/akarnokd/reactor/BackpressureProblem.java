@@ -42,7 +42,7 @@ public class BackpressureProblem {
                 }).
                 onBackpressureError().
                 subscribeOn(Schedulers.newSingle("production")).
-                publishOn(Schedulers.elastic()).
+                publishOn(Schedulers.boundedElastic()).
                 subscribe(i -> {
                     //logger.info("Consuming {}", i);
                     if (i == 0) {

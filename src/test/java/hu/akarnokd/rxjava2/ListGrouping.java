@@ -7,22 +7,22 @@ import org.junit.Test;
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.functions.Predicate;
-    
+
     public class ListGrouping {
-    
+
         static class Group {
             List<String> grouped;
             String groupKey;
         }
-    
-    
+
+
         static boolean groupCE(String t) {
             return "C".equals(t) || "E".equals(t);
         }
-    
+
         static ObservableTransformer<String, Object> group(
                 Predicate<? super String> groupCheck) {
-            return strings -> 
+            return strings ->
             Observable.defer(() -> {
                 Group gr = new Group();
                 return strings
@@ -68,16 +68,16 @@ import io.reactivex.functions.Predicate;
                         }));
             });
         }
-    
+
         @Test
         public void test() {
             Observable.fromArray("ABCCCDEF".split(""))
             .compose(group(ListGrouping::groupCE))
             .subscribe(System.out::println);
             ;
-    
+
             System.out.println("----");
-    
+
             Observable.fromArray("ABCEFEECCC".split(""))
             .compose(group(ListGrouping::groupCE))
             .subscribe(System.out::println);

@@ -9,7 +9,7 @@ import org.reactivestreams.*;
 import com.typesafe.config.*;
 
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import akka.stream.Materializer;
 import akka.stream.javadsl.*;
 
 @BenchmarkMode(Mode.Throughput)
@@ -27,7 +27,7 @@ public class AkkaStreamsFlatMapPerf {
 
     ActorSystem actorSystem;
 
-    ActorMaterializer materializer;
+    Materializer materializer;
 
     Publisher<Integer> akRangeFlatMapJust;
 
@@ -38,7 +38,7 @@ public class AkkaStreamsFlatMapPerf {
         Config cfg = ConfigFactory.parseResources(AkkaStreamsFlatMapPerf.class, "/akka-streams.conf");
         actorSystem = ActorSystem.create("sys", cfg);
 
-        materializer = ActorMaterializer.create(actorSystem);
+        materializer = Materializer.createMaterializer(actorSystem);
 
         akRangeFlatMapJust = s ->
         Source.range(1, times)

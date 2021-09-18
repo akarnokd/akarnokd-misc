@@ -16,7 +16,7 @@ public class RepeatWhenSO {
         TestScheduler testScheduler = new TestScheduler();
 
         AtomicInteger counter = new AtomicInteger();
-        
+
         TestObserver<String> to = Observable.<String>fromCallable(() -> {
             if (counter.getAndIncrement() == 0) {
                 return "PENDING";
@@ -26,7 +26,7 @@ public class RepeatWhenSO {
         .repeatWhen(o -> o.delay(5, TimeUnit.SECONDS, testScheduler))
         .takeUntil (item ->
         !item.equals("PENDING")
-                ).doOnNext(item -> 
+                ).doOnNext(item ->
                 System.out.println("doOnNext called")
                         )
         .lastElement()

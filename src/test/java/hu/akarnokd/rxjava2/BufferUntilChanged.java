@@ -1,7 +1,6 @@
 package hu.akarnokd.rxjava2;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
 

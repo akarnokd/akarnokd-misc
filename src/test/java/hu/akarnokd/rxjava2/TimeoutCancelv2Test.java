@@ -32,8 +32,8 @@ public class TimeoutCancelv2Test {
 
         TestObserver<Long> subscriber = new TestObserver<>();
         initialObservable
-        .doOnDispose(() -> { 
-            System.out.println("Unsubscribed"); 
+        .doOnDispose(() -> {
+            System.out.println("Unsubscribed");
             new Exception().printStackTrace(System.out);
         })
         .timeout(1, TimeUnit.SECONDS, sch, timeoutObservable).subscribe(subscriber);
@@ -66,8 +66,8 @@ public class TimeoutCancelv2Test {
 
         TestSubscriber<Long> subscriber = new TestSubscriber<>();
         initialObservable
-        .doOnCancel(() -> { 
-            System.out.println("Unsubscribed"); 
+        .doOnCancel(() -> {
+            System.out.println("Unsubscribed");
             new Exception().printStackTrace(System.out);
         })
         .timeout(1, TimeUnit.SECONDS, sch, timeoutObservable).subscribe(subscriber);

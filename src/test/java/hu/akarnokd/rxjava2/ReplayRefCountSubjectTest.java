@@ -17,8 +17,8 @@ public void test() {
     BehaviorSubject<Integer> subject = BehaviorSubject.create();
 
     Observable<Integer> observable = subject
-            .doOnNext(e -> { 
-                System.out.println("This emits for second subscriber"); 
+            .doOnNext(e -> {
+                System.out.println("This emits for second subscriber");
             })
             .doOnSubscribe(s -> System.out.println("OnSubscribe"))
             .doOnDispose(() -> System.out.println("OnDispose"))
@@ -43,8 +43,8 @@ public void test2() {
     BehaviorProcessor<Integer> subject = BehaviorProcessor.create();
 
     Flowable<Integer> observable = subject
-            .doOnNext(e -> { 
-                System.out.println("This emits for second subscriber"); 
+            .doOnNext(e -> {
+                System.out.println("This emits for second subscriber");
             })
             .doOnSubscribe(s -> System.out.println("OnSubscribe"))
             .doOnCancel(() -> System.out.println("OnDispose"))

@@ -11,21 +11,21 @@ import io.reactivex.subjects.PublishSubject;
 public class PSTestWithTS {
 
     PublishSubject<String> source = PublishSubject.create();
-    
+
     String value = "initial";
-    
+
     void prepare(Scheduler sub, Scheduler on) {
         source
         .subscribeOn(sub)
         .observeOn(on)
         .subscribe(v -> value = v);
     }
-    
+
     @Test
     public void test() {
         String testString = "testString";
         TestScheduler sch = new TestScheduler();
-        
+
         prepare(sch, sch);
 
         sch.triggerActions();

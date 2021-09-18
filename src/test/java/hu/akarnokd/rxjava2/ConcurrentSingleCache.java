@@ -16,7 +16,7 @@ public class ConcurrentSingleCache {
         return Single.just(new Entity())
         .delay(1, TimeUnit.SECONDS);
     }
-    
+
     public Single<Entity> getEntity(String guid) {
         SingleSubject<Entity> e = map.get(guid);
         if (e == null) {
@@ -30,14 +30,14 @@ public class ConcurrentSingleCache {
         }
         return e;
     }
-    
+
     @Test
     public void test() throws Exception {
         String g = "Key";
         getEntity(g).subscribe(System.out::println);
         getEntity(g).subscribe(System.out::println);
         getEntity(g).subscribe(System.out::println);
-        
+
         Thread.sleep(2000);
     }
 }

@@ -35,7 +35,7 @@ public final class EsmExport {
             "c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\",
             "e:\\Games\\Fallout76\\Data\\"
     };
-    
+
     static String basePath;
 
     public static void main(String[] args) throws Throwable {
@@ -46,12 +46,12 @@ public final class EsmExport {
                 basePath = s;
             }
         }
-        
+
         if (basePath == null) {
             System.err.println("Game not found");
             return;
         }
-        
+
         Map<String, Ba2FileEntry> localization = new HashMap<>();
         loadStringsBa2(localization, basePath + "SeventySix - Localization.ba2");
 
@@ -158,7 +158,7 @@ public final class EsmExport {
         saveGlobs("");
 
     }
-    
+
     static void saveCurvs(String postfix, Map<String, Ba2FileEntry> curveMap) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(
                 basePath + "Dump\\SeventySix_CURVs" + postfix + ".js"))) {
@@ -186,7 +186,7 @@ public final class EsmExport {
             pw.println("}");
         }
     }
-    
+
     static void saveEdids(String postfix, Map<Integer, String> descriptionLookup) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(
                 basePath + "Dump\\SeventySix_EDIDs" + postfix + ".js"))) {
@@ -212,7 +212,7 @@ public final class EsmExport {
             pw.println("}");
         }
     }
-    
+
     static void saveGlobs(String postfix) throws IOException {
         try (PrintWriter pw = new PrintWriter(new FileWriter(
                 basePath + "Dump\\SeventySix_GLOBs" + postfix + ".js"))) {

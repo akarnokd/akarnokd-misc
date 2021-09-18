@@ -20,14 +20,14 @@ public class FileReaderTest {
         .observeOn(Schedulers.io())
         .doOnNext(v -> System.out.println(Thread.currentThread().getName() + " xxx"))
         .subscribe(System.out::println);
-        
+
         Thread.sleep(10000);
     }
-    
+
 
     @Test
     public void fileReader2() throws Exception {
-        Flowable.<String>create(emitter -> { 
+        Flowable.<String>create(emitter -> {
             try (Stream<String> s = Files.lines(Paths.get("files/ospd.txt"))) {
                 s.limit(30).forEach(emitter::onNext);
                 emitter.onComplete();
@@ -39,8 +39,8 @@ public class FileReaderTest {
         .subscribeOn(Schedulers.io(), false)
         .doOnNext(v -> System.out.println(Thread.currentThread().getName() + " xxx"))
         .subscribe(System.out::println);
-        
+
         Thread.sleep(10000);
     }
-    
+
 }

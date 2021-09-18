@@ -12,7 +12,7 @@ public class TrackedRefcount {
     @Test
     public void test() throws Exception {
         RxJavaAssemblyTracking.enable();
-        
+
         System.out.println("start");
 
         PublishSubject<String> stringsEmitter = PublishSubject.create();

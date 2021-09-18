@@ -38,7 +38,7 @@ public class IsDisposedTest {
             }
         });
     }
-    
+
     @Test
     public void test2() {
         Observable.create(new ObservableOnSubscribe<Integer>() {
@@ -74,6 +74,6 @@ public class IsDisposedTest {
                 System.out.println("Complete");
                 System.out.println(disposable.isDisposed());
             }
-        }); 
+        });
     }
 }

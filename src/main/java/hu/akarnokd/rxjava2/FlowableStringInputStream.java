@@ -122,7 +122,7 @@ public final class FlowableStringInputStream {
                             }
                             break;
                         }
-                    } 
+                    }
                 }
             }
             return a;

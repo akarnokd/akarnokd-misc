@@ -36,7 +36,7 @@ public class ZipCrash {
                 );
         Thread.sleep(2000);
     }
-    
+
     @Test
     public void testUncaughtExceptionWithFlatMap() throws InterruptedException {
         Observable<Object> testObservable = Observable.create(e -> e.onNext(""))

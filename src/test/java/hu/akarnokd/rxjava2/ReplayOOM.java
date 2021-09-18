@@ -7,7 +7,7 @@ import io.reactivex.Flowable;
 public class ReplayOOM {
 
     static int i;
-    
+
     @Test
     public void test() {
         Flowable.range(1, 5000)

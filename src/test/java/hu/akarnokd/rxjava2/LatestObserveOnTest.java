@@ -23,7 +23,7 @@ public class LatestObserveOnTest {
                 Thread.sleep(100);
                 ts.onNext(v);
             }, ts::onError, ts::onComplete);
-            
+
             ts.awaitDone(5, TimeUnit.SECONDS)
             .assertResult(1, 100);
         }

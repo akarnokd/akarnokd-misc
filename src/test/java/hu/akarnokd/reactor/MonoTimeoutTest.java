@@ -23,7 +23,7 @@ public class MonoTimeoutTest {
             })
             .doOnCancel(() -> System.out.println("Cancel"))
             .timeout(Duration.ofSeconds(1L))
-            .subscribeOn(Schedulers.elastic())
+            .subscribeOn(Schedulers.boundedElastic())
             .onErrorResume(t -> Mono.fromCallable(() -> {
                 System.out.println("plan B running on thread:" + Thread.currentThread().getName());
                 return "result from plan B";

@@ -16,7 +16,7 @@ public class FindGT {
                     BasicFileAttributes attrs) throws IOException {
                 if (file.toString().endsWith(".java")) {
                     String s = Ix.from(Files.readAllLines(file)).join("\n").first();
-                    
+
                     int j = 0;
                     for (;;) {
                         int idx = s.indexOf("<code>", j);
@@ -24,14 +24,14 @@ public class FindGT {
                             break;
                         }
                         int jdx = s.indexOf("</code>", idx + 6);
-                        
+
                         int k = idx + 6;
                         for (;;) {
                             int kdx = s.indexOf('>', k);
                             if (kdx < 0) {
                                 break;
                             }
-                            
+
                             if (kdx < jdx) {
                                 String fn = file.toString().replace(".java", "");
                                 fn = fn.replace("\\RxJava\\src\\main\\java\\", "");
@@ -48,7 +48,7 @@ public class FindGT {
                             }
                             k = kdx + 1;
                         }
-                        
+
                         j = jdx + 7;
                     }
                 }
@@ -58,7 +58,7 @@ public class FindGT {
         System.err.println("Found >");
         System.err.println(b);
     }
-    
+
     static int countLine(String s, int kdx) {
         int c = 1;
         for (int i = kdx; i >= 0; i--) {

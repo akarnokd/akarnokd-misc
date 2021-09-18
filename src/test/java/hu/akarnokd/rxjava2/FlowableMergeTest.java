@@ -6,10 +6,10 @@ import io.reactivex.*;
 import io.reactivex.internal.schedulers.SingleScheduler;
 
 public class FlowableMergeTest {
-    
-    static final Scheduler SCHEDULER1 = new SingleScheduler(); 
 
-    static final Scheduler SCHEDULER2 = new SingleScheduler();  
+    static final Scheduler SCHEDULER1 = new SingleScheduler();
+
+    static final Scheduler SCHEDULER2 = new SingleScheduler();
 
     @Test
     public void nameLoop() throws Exception {
@@ -20,7 +20,7 @@ public class FlowableMergeTest {
             name();
         }
     }
-    
+
     @Test(timeout = 1000)
     public void name() throws Exception {
         Flowable<Integer> f1 = Flowable.<Integer>create(sink -> {

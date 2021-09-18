@@ -13,9 +13,12 @@ public class InferenceError<T> {
     }
 
     static void n() {
+        /*
         InferenceError<Long> p = new InferenceError<>();
         java.util.List<Long> list = new java.util.ArrayList<>();
         //p.method(new Klass<>(list::add));
+         * 
+         */
     }
 }
 

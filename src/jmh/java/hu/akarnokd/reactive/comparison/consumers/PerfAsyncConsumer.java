@@ -11,13 +11,13 @@ import reactor.core.CoreSubscriber;
 
 public final class PerfAsyncConsumer
 extends CountDownLatch
-implements 
+implements
 FlowableSubscriber<Object>,
 CoreSubscriber<Object>,
-Observer<Object>, 
+Observer<Object>,
 SingleObserver<Object>,
-CompletableObserver, 
-MaybeObserver<Object>, 
+CompletableObserver,
+MaybeObserver<Object>,
 rx.CompletableSubscriber {
 
     final Blackhole bh;

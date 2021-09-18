@@ -11,8 +11,8 @@ import rx.subscriptions.CompositeSubscription;
 public class AutoRemoveSubscription {
 
     public static <T> void subscribeAutoRelease(
-            Observable<T> source, 
-            final Action1<T> onNext, 
+            Observable<T> source,
+            final Action1<T> onNext,
             CompositeSubscription composite) {
         Subscriber<T> subscriber = new Subscriber<T>() {
             @Override
@@ -41,13 +41,13 @@ public class AutoRemoveSubscription {
     @Test
     public void test() {
         CompositeSubscription composite = new CompositeSubscription();
-        
+
         PublishSubject<Integer> ps = PublishSubject.create();
-        
+
         subscribeAutoRelease(ps, System.out::println, composite);
-        
+
         Assert.assertTrue(composite.hasSubscriptions());
-        
+
         ps.onNext(1);
         ps.onCompleted();
 

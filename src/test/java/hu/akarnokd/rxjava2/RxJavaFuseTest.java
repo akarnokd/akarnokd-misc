@@ -46,7 +46,7 @@ public class RxJavaFuseTest {
                 .doOnNext(aLong -> System.out.println(aLong + " processing on " + Thread.currentThread().getName()))
                 .sequential()
                 .subscribe(sequentialSubscriber);
-        
+
         Thread.sleep(5000);
     }
 }

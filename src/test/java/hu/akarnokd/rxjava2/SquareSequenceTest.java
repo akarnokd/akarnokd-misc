@@ -8,17 +8,17 @@ public class SquareSequenceTest {
 
     static final HashSet<Integer> squares = new HashSet<>();
     static final int[] squaresInt = new int[1024];
-    
+
     static {
         for (int i = 1; i < 32; i++) {
             squares.add(i * i);
         }
-        
+
         for (int i = 1; i <= squaresInt.length; i++) {
             squaresInt[i - 1] = i * i;
         }
     }
-    
+
 //    @Test
     public void test() {
         for (int i = 15; i < 30; i++) {

@@ -13,7 +13,7 @@ public class WindowDisposed {
             emitter.setCancellable(() -> System.out.println("Cancelled " + n));
         });
     }
-    
+
     static Flowable<Integer> flowable(int n) {
         return Flowable.create(emitter -> {
             System.out.println("Subscribed: " + n);
@@ -23,7 +23,7 @@ public class WindowDisposed {
             emitter.setCancellable(() -> System.out.println("Cancelled " + n));
         }, BackpressureStrategy.MISSING);
     }
-    
+
     public static void main(String[] args) {
         observable(1)
         .window(observable(2).filter(v -> v == 1)
@@ -33,9 +33,9 @@ public class WindowDisposed {
         .doOnNext(System.out::println)
         .subscribe()
         .dispose();
-        
+
         System.out.println("---");
-        
+
         flowable(1)
         .window(flowable(2).filter(v -> v == 1)
                 .doOnCancel(() -> System.out.println("Dispose 2"))

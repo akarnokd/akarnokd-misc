@@ -4,10 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
-import org.reactivestreams.Processor;
 
 import hu.akarnokd.reactive.comparison.consumers.PerfConsumer;
-import reactor.core.publisher.DirectProcessor;
+import reactor.core.publisher.Sinks;
 import reactor.util.concurrent.Queues;
 
 @BenchmarkMode(Mode.Throughput)
@@ -23,28 +22,28 @@ public class SubjectPerf {
 
     // ************************************************************************
 
-    final void run(Processor<Integer, Integer> subject, Blackhole bh) {
-        subject.subscribe(new PerfConsumer(bh));
+    final void run(Sinks.Many<Integer> subject, Blackhole bh) {
+        subject.asFlux().subscribe(new PerfConsumer(bh));
         int e = count;
         for (int i = 0; i < e; i++) {
-            subject.onNext(1);
+            subject.tryEmitNext(1);
         }
-        subject.onComplete();
+        subject.tryEmitComplete();
         bh.consume(subject);
     }
 
     @Benchmark
     public void rangeReactorDirectProcessor(Blackhole bh) {
-        run(DirectProcessor.create(), bh);
+        run(Sinks.many().multicast().directBestEffort(), bh);
     }
 
     @Benchmark
     public void rangeReactorReplayProcessor(Blackhole bh) {
-        run(reactor.core.publisher.ReplayProcessor.create(128, false), bh);
+        run(Sinks.many().replay().all(128), bh);
     }
 
     @Benchmark
     public void rangeReactorUnicastProcessor(Blackhole bh) {
-        run(reactor.core.publisher.UnicastProcessor.create(Queues.<Integer>unbounded(128).get()), bh);
+        run(Sinks.many().unicast().onBackpressureBuffer(Queues.<Integer>unbounded(128).get()), bh);
     }
 }

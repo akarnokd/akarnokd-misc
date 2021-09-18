@@ -29,7 +29,7 @@ public class ThrottleLastTest {
                 .throttleLast(1, TimeUnit.SECONDS, Schedulers.single())
                 .doOnNext(v -> System.out.println("a: " + v + " " + tag))
                 ;
-        
+
         Flowable<Integer> fb = Flowable.<Integer>generate(emitter -> emitter.onNext(2))
                 .doOnSubscribe(v -> System.out.println("Sub B " + tag))
 //                .compose(pingPongOn(Schedulers.computation()))
@@ -48,44 +48,44 @@ public class ThrottleLastTest {
     static <T> FlowableTransformer<T, T> requestObserveOn(Scheduler scheduler) {
         return f -> new RequestObserveOn<>(f, scheduler);
     }
-    
+
     static final class RequestObserveOn<T> extends Flowable<T> {
-        
+
         final Flowable<T> source;
-        
+
         final Scheduler scheduler;
 
         RequestObserveOn(Flowable<T> source, Scheduler scheduler) {
             this.source = source;
             this.scheduler = scheduler;
         }
-        
+
         @Override
         protected void subscribeActual(Subscriber<? super T> s) {
             source.subscribe(new RequestObserveOnSubscriber<>(s, scheduler.createWorker()));
         }
-        
-        static final class RequestObserveOnSubscriber<T> 
+
+        static final class RequestObserveOnSubscriber<T>
         extends AtomicLong
         implements FlowableSubscriber<T>, Subscription, Runnable {
 
             private static final long serialVersionUID = 3167152788131496136L;
 
             final Subscriber<? super T> actual;
-            
+
             final Worker worker;
-            
+
             final Runnable requestOne;
 
             Subscription upstream;
-            
+
             volatile T item;
             Throwable error;
             volatile boolean done;
-            
+
             long emitted;
             boolean terminated;
-            
+
             RequestObserveOnSubscriber(Subscriber<? super T> actual, Scheduler.Worker worker) {
                 this.actual = actual;
                 this.worker = worker;
@@ -98,7 +98,7 @@ public class ThrottleLastTest {
                 actual.onSubscribe(this);
                 worker.schedule(requestOne);
             }
-            
+
             @Override
             public void onNext(T t) {
                 item = t;
@@ -126,7 +126,7 @@ public class ThrottleLastTest {
                 boolean d = done;
                 T v = item;
                 boolean empty = v == null;
-                
+
                 if (d && empty) {
                     Throwable ex = error;
                     if (ex != null) {

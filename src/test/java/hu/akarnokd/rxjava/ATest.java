@@ -36,7 +36,7 @@ public class ATest {
     private TestScheduler uiScheduler;
 
     @Before public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         ioScheduler = Schedulers.test();
         uiScheduler = Schedulers.test();

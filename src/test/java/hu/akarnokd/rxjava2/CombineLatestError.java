@@ -21,7 +21,7 @@ public class CombineLatestError {
                     return ((int) ints[0]) + ((int) ints[1]);
                 }
         ).blockingFirst();
-        
+
         Assert.assertEquals(42, result);
     }
 }

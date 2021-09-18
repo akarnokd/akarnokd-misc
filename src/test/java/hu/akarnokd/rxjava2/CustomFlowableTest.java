@@ -12,7 +12,7 @@ public class CustomFlowableTest {
         new CustomFlowable().distinctUntilChanged((integer, integer2) -> integer.intValue() == integer2.intValue())
         .subscribe(integer -> System.out.println("Consumer | Value: " + integer.intValue()));
     }
-    
+
     public static final class CustomFlowable extends Flowable<Integer> {
 
         @Override

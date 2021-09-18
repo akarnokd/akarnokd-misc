@@ -37,7 +37,7 @@ public class ReduceAnonymous {
         inOrder.verify(mock, times(1))
                 .onSuccess(any());
     }
-    
+
     @Test
     public void howLong() {
         for (int i = 1; i <= 1_000_000; i *= 10) {

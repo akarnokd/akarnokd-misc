@@ -24,7 +24,7 @@ public class GroupByConcatMapTest {
         .toList()
         .subscribe(System.out::println);
     }
-    
+
     public static class Shop {
         public int id;
         public String name;
@@ -91,13 +91,13 @@ public class GroupByConcatMapTest {
                 new String[] {"4", "Dev", "lat4-5", "long4-5"}
         );
     }
-    
+
     static void sout(Object o, Object o2) {
         System.out.print(o);
         System.out.print(' ');
         System.out.println(o2);
     }
-    
+
     @Test
     public void so() throws Exception {
         rx.Observable
@@ -116,7 +116,7 @@ public class GroupByConcatMapTest {
         .subscribeOn(Schedulers.io())
         .observeOn(Schedulers.computation())
         .subscribe(shops -> sout("RX_TAG_SUBSCRIBE", String.valueOf(shops)));
-        
+
         Thread.sleep(1000);
     }
 }

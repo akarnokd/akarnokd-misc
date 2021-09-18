@@ -11,7 +11,7 @@ public class PublishExamples {
         Observable<Object> mixedSource = Observable.<Object>just("a", 1, "b", 2, "c", 3)
                 .doOnSubscribe(s -> System.out.println("Subscribed!"));
 
-          
+
           mixedSource.compose(f ->
              Observable.merge(
                 f.ofType(Integer.class).compose(g -> g.map(v -> v + 1)),
@@ -26,7 +26,7 @@ public class PublishExamples {
         Observable<Object> mixedSource = Observable.<Object>just("a", 1, "b", 2, "c", 3)
                 .doOnSubscribe(s -> System.out.println("Subscribed!"));
 
-          
+
           mixedSource.publish(f ->
              Observable.merge(
                 f.ofType(Integer.class).compose(g -> g.map(v -> v + 1)),

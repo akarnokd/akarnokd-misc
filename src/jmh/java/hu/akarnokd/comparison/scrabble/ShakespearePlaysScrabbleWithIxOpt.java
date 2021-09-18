@@ -42,7 +42,7 @@ public class ShakespearePlaysScrabbleWithIxOpt extends ShakespearePlaysScrabble 
     @BenchmarkMode(Mode.SampleTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
     @Warmup(
-        iterations = 5, time = 1 
+        iterations = 5, time = 1
     )
     @Measurement(
         iterations = 5, time = 1

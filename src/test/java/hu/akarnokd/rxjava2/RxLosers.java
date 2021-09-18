@@ -31,12 +31,12 @@ public class RxLosers {
         hot.subscribe(this::printWithTime, Throwable::printStackTrace, () -> System.out.println("Done"));
         Thread.sleep(3000);
     }
-    
+
     void printWithTime(String msg)
     {
         System.out.println(LocalTime.now().toString() + ": " + msg);
     }
-    
+
     String slowOperation() throws Exception
     {
         printWithTime("Starting long operation");

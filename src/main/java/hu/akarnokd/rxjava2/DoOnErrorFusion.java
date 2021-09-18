@@ -14,7 +14,7 @@ public class DoOnErrorFusion {
                     throw new IllegalStateException(e);
                 }).publish();
         f.subscribe(
-                i -> { throw new AssertionError(); }, 
+                i -> { throw new AssertionError(); },
                 e -> e.printStackTrace());
         f.connect();
     }

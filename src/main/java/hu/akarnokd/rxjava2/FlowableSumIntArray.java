@@ -16,7 +16,7 @@ import io.reactivex.internal.subscriptions.*;
 public final class FlowableSumIntArray<T extends Number> extends Flowable<Integer> {
 
     final Publisher<T>[] sources;
-    
+
     @SafeVarargs
     public FlowableSumIntArray(Publisher<T>... sources) {
         this.sources = sources;
@@ -28,7 +28,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
         s.onSubscribe(parent);
         parent.onComplete();
     }
-    
+
     static final class SumIntArraySubscriber<T extends Number> extends DeferredScalarSubscription<Integer>
     implements Subscriber<T> {
 
@@ -37,7 +37,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
         final Publisher<T>[] sources;
 
         final AtomicInteger wip;
-        
+
         final AtomicReference<Subscription> current;
 
         int index;
@@ -50,7 +50,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
             this.sources = sources;
             this.wip = new AtomicInteger();
             this.current = new AtomicReference<>();
-            
+
         }
 
         @Override
@@ -95,7 +95,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
                         } else {
                             downstream.onComplete();
                         }
-                        
+
                         return;
                     }
                     index = i + 1;
@@ -103,9 +103,9 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
                     if (p instanceof Callable) {
                         @SuppressWarnings("unchecked")
                         Callable<T> callable = (Callable<T>) p;
-                        
+
                         T v;
-                        
+
                         try {
                             v = callable.call();
                         } catch (Throwable ex) {
@@ -113,7 +113,7 @@ public final class FlowableSumIntArray<T extends Number> extends Flowable<Intege
                             downstream.onError(ex);
                             return;
                         }
-                        
+
                         if (v != null) {
                             hasValue = true;
                             sum += v.intValue();

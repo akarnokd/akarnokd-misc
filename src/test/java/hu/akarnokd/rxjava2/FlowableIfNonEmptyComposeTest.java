@@ -32,7 +32,7 @@ public class FlowableIfNonEmptyComposeTest {
         Function<Flux<Integer>, Flux<Integer>> transform = g -> g.doOnNext(System.out::println);
         Mono<Integer> source = Flux.range(1, 5)
                 .publish(f ->
-                    f.limitRequest(1)
+                    f.take(1, true)
                         .concatMap(first -> transform.apply(f.startWith(first)))
                 )
                 .ignoreElements()
@@ -41,7 +41,7 @@ public class FlowableIfNonEmptyComposeTest {
         source.subscribeWith(new TestSubscriber<Integer>())
         .assertResult();
     }
-    
+
     @Test
     public void error() {
         Flux.error(new IOException())
@@ -99,14 +99,14 @@ public class FlowableIfNonEmptyComposeTest {
 
     static <T> Function<Flux<T>, Mono<Void>> composeIfNonEmpty(Function<? super Flux<T>, ? extends Mono<Void>> f) {
         return g ->
-            g.publish(h -> 
-                h.limitRequest(1).concatMap(first -> f.apply(h.startWith(first)))
+            g.publish(h ->
+                h.take(1, true).concatMap(first -> f.apply(h.startWith(first)))
             ).ignoreElements();
     }
 
     static <T> FlowableTransformer<T, Void> composeIfNonEmptyRx(Function<? super Flowable<T>, ? extends Flowable<Void>> f) {
         return g ->
-            g.publish(h -> 
+            g.publish(h ->
                 h.limit(1).concatMap(first -> f.apply(h.startWith(first)))
             ).ignoreElements().toFlowable();
     }
@@ -131,19 +131,19 @@ public class FlowableIfNonEmptyComposeTest {
     implements CoreSubscriber<T>, Subscription {
 
         final Subscriber<? super Void> outputMonoSubscriber;
-        
+
         final Function<? super Flux<T>, ? extends Mono<Void>> transformer;
-        
+
         final Queue<T> queue;
 
         final AtomicReference<TransformSubscription<T>> transformProducer;
 
         final TransformConsumer<T> transformConsumer;
-        
+
         static final TransformSubscription<Object> TERMINATED = new TransformSubscription<>(null, null);
 
         final int prefetch;
-        
+
         final AtomicInteger wip;
 
         Subscription upstream;
@@ -152,9 +152,9 @@ public class FlowableIfNonEmptyComposeTest {
         Throwable error;
 
         volatile boolean cancelled;
-        
+
         int consumed;
-        
+
         long emitted;
 
         boolean nonEmpty;
@@ -175,7 +175,7 @@ public class FlowableIfNonEmptyComposeTest {
             outputMonoSubscriber.onSubscribe(this);
             s.request(1);
         }
-        
+
         @Override
         public void onNext(T t) {
             if (!nonEmpty) {
@@ -183,7 +183,7 @@ public class FlowableIfNonEmptyComposeTest {
                 if (prefetch != 1) {
                     upstream.request(prefetch - 1);
                 }
-                
+
                 try {
                     transformer.apply(this).subscribe(transformConsumer);
                 } catch (Throwable ex) {
@@ -195,7 +195,7 @@ public class FlowableIfNonEmptyComposeTest {
             queue.offer(t);
             drain();
         }
-        
+
         @Override
         public void onError(Throwable t) {
             upstream = Operators.cancelledSubscription();
@@ -207,7 +207,7 @@ public class FlowableIfNonEmptyComposeTest {
                 drain();
             }
         }
-        
+
         @Override
         public void onComplete() {
             upstream = Operators.cancelledSubscription();
@@ -233,7 +233,7 @@ public class FlowableIfNonEmptyComposeTest {
                 queue.clear();
             }
         }
-        
+
         @Override
         public void subscribe(CoreSubscriber<? super T> actual) {
             TransformSubscription<T> sub = new TransformSubscription<>(actual, this);
@@ -257,13 +257,13 @@ public class FlowableIfNonEmptyComposeTest {
                 }
             }
         }
-        
+
         @SuppressWarnings({"unchecked", "rawtypes"})
         void drain() {
             if (wip.getAndIncrement() != 0) {
                 return;
             }
-            
+
             int missed = 1;
             long e = emitted;
             int c = consumed;
@@ -273,10 +273,10 @@ public class FlowableIfNonEmptyComposeTest {
 
             outer:
             for (;;) {
-                
+
                 if (current != null && !current.cancelled) {
                     long r = current.get();
-                    
+
                     while (e != r) {
                         if (cancelled) {
                             queue.clear();
@@ -286,11 +286,11 @@ public class FlowableIfNonEmptyComposeTest {
                         if (current.cancelled) {
                             break;
                         }
-                        
+
                         boolean d = done;
                         T v = queue.poll();
                         boolean empty = v == null;
-                        
+
                         if (d && empty) {
                             Throwable ex = error;
                             current = transformProducer.getAndSet((TransformSubscription)TERMINATED);
@@ -303,7 +303,7 @@ public class FlowableIfNonEmptyComposeTest {
                             }
                             return;
                         }
-                        
+
                         if (empty) {
                             break;
                         }
@@ -311,28 +311,28 @@ public class FlowableIfNonEmptyComposeTest {
                         current.transformSubscriber.onNext(v);
 
                         e++;
-                        
+
                         if (++c == lim) {
                             c = 0;
                             upstream.request(lim);
                         }
-                        
+
                         TransformSubscription<T> fresh = transformProducer.get();
                         if (current.cancelled || current != fresh) {
                             current = fresh;
                             continue outer;
                         }
                     }
-                    
+
                     if (e == r) {
                         if (cancelled) {
                             queue.clear();
                             return;
                         }
-                        
+
                         boolean d = done;
                         boolean empty = queue.isEmpty();
-                        
+
                         if (d && empty) {
                             Throwable ex = error;
                             current = transformProducer.getAndSet((TransformSubscription)TERMINATED);
@@ -347,16 +347,16 @@ public class FlowableIfNonEmptyComposeTest {
                         }
                     }
                 }
-                
+
                 missed = wip.addAndGet(-missed);
                 if (missed == 0) {
                     break;
                 }
-                
+
                 current = transformProducer.get();
             }
         }
-        
+
         static final class TransformSubscription<T> extends AtomicLong
         implements Subscription {
 
@@ -365,14 +365,14 @@ public class FlowableIfNonEmptyComposeTest {
             final Subscriber<? super T> transformSubscriber;
 
             final ComposeIfNotEmptySubscriber<T> parent;
-            
+
             volatile boolean cancelled;
 
             TransformSubscription(Subscriber<? super T> transformSubscriber, ComposeIfNotEmptySubscriber<T> parent) {
                 this.transformSubscriber = transformSubscriber;
                 this.parent = parent;
             }
-            
+
             @Override
             public void request(long n) {
                 for (;;) {
@@ -386,28 +386,28 @@ public class FlowableIfNonEmptyComposeTest {
                         break;
                     }
                 }
-                
+
             }
-            
+
             @Override
             public void cancel() {
                 cancelled = true;
                 parent.transformProducer.compareAndSet(this, null);
             }
         }
-        
-        static final class TransformConsumer<T> 
+
+        static final class TransformConsumer<T>
         extends AtomicReference<Subscription>
         implements CoreSubscriber<Void> {
 
             private static final long serialVersionUID = -3146687172085237026L;
 
             final ComposeIfNotEmptySubscriber<T> parent;
-            
+
             TransformConsumer(ComposeIfNotEmptySubscriber<T> parent) {
                 this.parent = parent;
             }
-            
+
             @Override
             public void onSubscribe(Subscription s) {
                 if (compareAndSet(null, s)) {
@@ -416,11 +416,11 @@ public class FlowableIfNonEmptyComposeTest {
                     s.cancel();
                 }
             }
-            
+
             @Override
             public void onNext(Void t) {
             }
-            
+
             @Override
             public void onError(Throwable t) {
                 parent.upstream.cancel();
@@ -432,7 +432,7 @@ public class FlowableIfNonEmptyComposeTest {
                 parent.upstream.cancel();
                 parent.outputMonoSubscriber.onComplete();
             }
-            
+
             void cancel() {
                 Subscription s = getAndSet(Operators.cancelledSubscription());
                 if (s != null && s != Operators.cancelledSubscription()) {

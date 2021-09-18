@@ -6,7 +6,7 @@ import com.typesafe.config.*;
 
 import akka.NotUsed;
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import akka.stream.Materializer;
 import akka.stream.javadsl.*;
 import akka.stream.scaladsl.Source;
 import io.reactivex.Flowable;
@@ -37,24 +37,24 @@ public class AkkaHello {
             }
         };
     }
-    
+
     public static void main(String[] args) throws Exception {
         Config cfg = ConfigFactory.parseResources(AkkaHello.class, "/akka-streams.conf").resolve();
         ActorSystem actorSystem = ActorSystem.create("sys", cfg);
 
-        ActorMaterializer materializer = ActorMaterializer.create(actorSystem);
+        Materializer materializer = Materializer.createMaterializer(actorSystem);
 
         Integer[] c = { 0 };
-        
+
         Source<Integer, NotUsed> source = Source.fromPublisher(Flowable.fromCallable(() -> c[0]++));
-        
+
         Publisher<Integer> p = source.runWith(Sink.asPublisher(AsPublisher.WITH_FANOUT), materializer);
 
         p.subscribe(println());
 
         Thread.sleep(1000);
-        
-        
+
+
         try {
             p.subscribe(println());
 
@@ -62,7 +62,7 @@ public class AkkaHello {
         } catch (Throwable ex) {
             ex.printStackTrace();
         }
-        
+
         p = source.runWith(Sink.asPublisher(AsPublisher.WITH_FANOUT), materializer);
 
         try {

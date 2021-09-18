@@ -21,9 +21,9 @@ public class MpmcPollTest {
     public void atomic() {
         for (int i = 0; i < 100000; i++) {
             MpmcAtomicArrayQueue<Integer> q = new MpmcAtomicArrayQueue<>(128);
-            
+
             q.offer(1);
-            
+
             Integer[] result = new Integer[] { 2, 2 };
 
             race(() -> {
@@ -31,7 +31,7 @@ public class MpmcPollTest {
             }, () -> {
                 result[1] = q.poll();
             }, exec);
-            
+
             assertTrue(Arrays.toString(result), (result[0] == null && result[1] == 1) || (result[0] == 1 && result[1] == null));
         }
     }
@@ -40,9 +40,9 @@ public class MpmcPollTest {
     public void unsafe() {
         for (int i = 0; i < 100000; i++) {
             MpmcArrayQueue<Integer> q = new MpmcArrayQueue<>(128);
-            
+
             q.offer(1);
-            
+
             Integer[] result = new Integer[] { 2, 2 };
 
             race(() -> {
@@ -50,7 +50,7 @@ public class MpmcPollTest {
             }, () -> {
                 result[1] = q.poll();
             }, exec);
-            
+
             assertTrue(Arrays.toString(result), (result[0] == null && result[1] == 1) || (result[0] == 1 && result[1] == null));
         }
     }

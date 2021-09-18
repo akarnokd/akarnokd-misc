@@ -6,10 +6,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.*;
 
 public class FluxMergeTest {
-    
-    static final Scheduler SCHEDULER1 = Schedulers.newSingle("A"); 
 
-    static final Scheduler SCHEDULER2 = Schedulers.newSingle("B"); 
+    static final Scheduler SCHEDULER1 = Schedulers.newSingle("A");
+
+    static final Scheduler SCHEDULER2 = Schedulers.newSingle("B");
 
     @Test
     public void nameLoop() throws Exception {
@@ -20,7 +20,7 @@ public class FluxMergeTest {
             name();
         }
     }
-    
+
     @Test(timeout = 1000)
     public void name() throws Exception {
         Flux<Integer> f1 = Flux.<Integer>create(sink -> {

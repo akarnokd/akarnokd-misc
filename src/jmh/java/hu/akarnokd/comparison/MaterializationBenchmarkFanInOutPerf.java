@@ -43,14 +43,14 @@ public class MaterializationBenchmarkFanInOutPerf {
 
     ActorSystem actorSystem;
 
-    ActorMaterializer materializer;
+    Materializer materializer;
 
     @Setup
     public void setup() {
         Config cfg = ConfigFactory.parseResources(getClass(), "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
 
-        materializer = ActorMaterializer.create(actorSystem);
+        materializer = Materializer.createMaterializer(actorSystem);
 
         akka = RunnableGraph.fromGraph(GraphDSL.create(b -> {
             Shape broadcast = b.add(new Broadcast(complexity, false));

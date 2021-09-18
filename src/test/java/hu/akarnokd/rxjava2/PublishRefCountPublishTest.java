@@ -11,7 +11,7 @@ public class PublishRefCountPublishTest {
     @Test
     public void test() {
         int[] calls = { 0 };
-        
+
         Flowable.range(1, 10)
         .doOnCancel(() -> calls[0]++)
         .publish()
@@ -20,14 +20,14 @@ public class PublishRefCountPublishTest {
         .take(5)
         .test()
         .assertResult(1, 2, 3, 4, 5);
-        
+
         Assert.assertEquals(1, calls[0]);
     }
 
     @Test
     public void test2() {
         int[] calls = { 0 };
-        
+
         Flux.range(1, 10)
         .doOnCancel(() -> calls[0]++)
         .publish()
@@ -36,7 +36,7 @@ public class PublishRefCountPublishTest {
         .take(5)
         .subscribeWith(new TestSubscriber<Integer>())
         .assertResult(1, 2, 3, 4, 5);
-        
+
         Assert.assertEquals(1, calls[0]);
     }
 }

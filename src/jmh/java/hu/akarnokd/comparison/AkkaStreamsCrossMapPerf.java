@@ -10,7 +10,7 @@ import org.reactivestreams.Publisher;
 import com.typesafe.config.*;
 
 import akka.actor.ActorSystem;
-import akka.stream.ActorMaterializer;
+import akka.stream.*;
 import akka.stream.javadsl.*;
 import hu.akarnokd.reactive.comparison.consumers.PerfAsyncConsumer;
 import io.reactivex.Flowable;
@@ -27,7 +27,7 @@ public class AkkaStreamsCrossMapPerf {
 
     ActorSystem actorSystem;
 
-    ActorMaterializer materializer;
+    Materializer materializer;
 
     Publisher<Integer> flatMapAkkaAkka;
 
@@ -54,7 +54,7 @@ public class AkkaStreamsCrossMapPerf {
         Config cfg = ConfigFactory.parseResources(getClass(), "/akka-streams.conf").resolve();
         actorSystem = ActorSystem.create("sys", cfg);
 
-        materializer = ActorMaterializer.create(actorSystem);
+        materializer = Materializer.createMaterializer(actorSystem);
 
         Integer[] outer = new Integer[count];
         Arrays.fill(outer, 777);
@@ -210,7 +210,7 @@ public class AkkaStreamsCrossMapPerf {
         Config cfg = ConfigFactory.parseResources(AkkaStreamsCrossMapPerf.class, "/akka-streams.conf").resolve();
         ActorSystem actorSystem = ActorSystem.create("sys", cfg);
 
-        ActorMaterializer materializer = ActorMaterializer.create(actorSystem);
+        Materializer materializer = Materializer.createMaterializer(actorSystem);
 
 
         Integer[] outer = new Integer[100];

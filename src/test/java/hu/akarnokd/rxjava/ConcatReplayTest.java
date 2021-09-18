@@ -17,7 +17,7 @@ public class ConcatReplayTest {
             emitter.onNext(2);
             emitter.onCompleted();
         }, Emitter.BackpressureMode.BUFFER);
-        
+
         Observable<Integer> both = Observable
                 .concatDelayError(obs1, obs2)
                 .replay().autoConnect();

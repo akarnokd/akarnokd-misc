@@ -33,7 +33,7 @@ public class SingleConcatTest {
         testScheduler.advanceTimeBy(3, TimeUnit.SECONDS);
 
         System.out.println(testObserver.values());
-        testObserver.assertValue(list -> list.equals(Arrays.asList(1, 2, 3, 4, 5))); 
+        testObserver.assertValue(list -> list.equals(Arrays.asList(1, 2, 3, 4, 5)));
         // 5 is currently missing ; fourth was never subscribed in the first place
     }
 }

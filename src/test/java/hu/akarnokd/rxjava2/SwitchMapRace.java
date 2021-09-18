@@ -16,7 +16,7 @@ public class SwitchMapRace {
 
     AtomicInteger outer = new AtomicInteger();
     AtomicInteger inner = new AtomicInteger();
-    
+
     @Test
     public void test() throws Throwable {
         int n = 10_000;
@@ -32,12 +32,12 @@ public class SwitchMapRace {
                 .take(1)
                 .blockingSubscribe(v -> { }, Throwable::printStackTrace);
         }
-        
+
         Thread.sleep(1000);
         assertEquals(inner.get(), outer.get());
         assertEquals(n, inner.get());
     }
-    
+
     Flowable<Integer> createFlowable() {
         return Flowable.<Integer>unsafeCreate(s -> {
             SerializedSubscriber<Integer> it = new SerializedSubscriber<>(s);
@@ -56,7 +56,7 @@ public class SwitchMapRace {
                 System.out.println("Inner finally: " + inner.incrementAndGet());
             });
     }
-    
+
     /*
     Flowable<Integer> createFlowable() {
         return Flowable

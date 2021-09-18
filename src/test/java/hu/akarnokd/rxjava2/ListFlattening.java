@@ -13,7 +13,7 @@ public class ListFlattening {
     Observable<User> getUserDetails(User u) {
         return Observable.empty();
     }
-    
+
     @Test
     public void test() {
         Observable<ArrayList<User>> users = Observable.just(new ArrayList<>());
