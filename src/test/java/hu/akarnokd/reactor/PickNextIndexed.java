@@ -19,7 +19,7 @@ public class PickNextIndexed {
         @SuppressWarnings("unchecked")
         SpscLinkedArrayQueue<AtomicInteger>[] queues = new SpscLinkedArrayQueue[parallelism];
         for (int i = 0; i < queues.length; i++) {
-            queues[i] = new SpscLinkedArrayQueue<AtomicInteger>(bufferSize);
+            queues[i] = new SpscLinkedArrayQueue<>(bufferSize);
         }
 
         Flux.range(0, 1000)

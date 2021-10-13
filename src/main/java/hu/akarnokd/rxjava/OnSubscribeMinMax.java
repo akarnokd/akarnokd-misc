@@ -31,7 +31,7 @@ public final class OnSubscribeMinMax<T> implements OnSubscribe<T> {
     final int compensator;
 
     @SuppressWarnings("rawtypes")
-    public static final Comparator<Comparable> COMPARABLE_MIN = new Comparator<Comparable>() {
+    public static final Comparator<Comparable> COMPARABLE_MIN = new Comparator<>() {
         @SuppressWarnings("unchecked")
         @Override
         public int compare(Comparable a, Comparable b) {

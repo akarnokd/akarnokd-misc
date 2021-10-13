@@ -112,10 +112,10 @@ public class FlowableIfNonEmptyComposeTest {
     }
 
     static <T> Function<Flux<T>, Mono<Void>> composeIfNonEmptyDedicated(Function<? super Flux<T>, ? extends Mono<Void>> f) {
-        return new Function<Flux<T>, Mono<Void>>() {
+        return new Function<>() {
             @Override
             public Mono<Void> apply(Flux<T> g) {
-                return new Mono<Void>() {
+                return new Mono<>() {
 
                     @Override
                     public void subscribe(CoreSubscriber<? super Void> actual) {
