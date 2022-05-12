@@ -151,7 +151,7 @@ dependencies {
     testImplementation "org.testng:testng:7.5"
     testImplementation "org.reactivestreams:reactive-streams-tck:1.0.3"
 
-    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.42.8'
+    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.42.10'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'org.apache.commons:commons-math3:3.6.1'
