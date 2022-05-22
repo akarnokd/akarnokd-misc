@@ -16,8 +16,13 @@ public class BuildMap {
     static void buildMapOf(String mode) throws Exception {
 
         int step = 200;
-        int nHorizontal = 6000 / step;
-        int nVertical = 4000 / step;
+        int maxZ = 3000;
+        int minZ = -1400;
+        int maxX = 2400;
+        int minX = -1000;
+
+        int nHorizontal = (maxZ - minZ) / step;
+        int nVertical = (maxX - minX) / step;
 
         int w = 80;
         int h = 60;
@@ -27,12 +32,12 @@ public class BuildMap {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         int outx = 0;
-        for (int z = 4000; z >= -2000; z-= step) {
+        for (int z = maxZ; z >= minZ; z-= step) {
 
             int outy = 0;
-            for (int x = 3000; x >= -1000; x -= step) {
+            for (int x = maxX; x >= minX; x -= step) {
 
-                System.out.println(mode + " - " + z + " : " + x);
+                //System.out.println(mode + " - " + z + " : " + x);
 
                 BufferedImage image = ImageIO.read(new File("c:\\temp\\" + mode + "\\map_" + z + "_" + x + ".png"));
 
@@ -46,5 +51,6 @@ public class BuildMap {
 
         ImageIO.write(bimg, "png", new File("c:\\temp\\" + mode + "\\map_" + mode + ".png"));
         System.out.println(mode + " Done");
+        System.out.printf("CenterX: %d, CenterZ: %d%n", minX + (maxX - minX) / 2, minZ + (maxZ - minZ) / 2);
     }
 }
