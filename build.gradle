@@ -18,8 +18,8 @@ apply plugin: 'java-library'
 
 apply plugin: "me.champeau.gradle.jmh"
 
-targetCompatibility = JavaVersion.VERSION_1_9
-sourceCompatibility = JavaVersion.VERSION_1_9
+targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_17
 
 group = "com.github.akarnokd" 
 ext.githubProjectName = 'akarnokd-misc'
