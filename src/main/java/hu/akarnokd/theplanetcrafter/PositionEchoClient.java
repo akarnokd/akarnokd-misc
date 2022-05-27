@@ -41,20 +41,21 @@ public class PositionEchoClient {
         String s = null;
         
         while ((s = bin.readLine()) != null) {
-            System.out.println("RECV=" + s);
-            
             if (s.startsWith("PlayerPosition|")) {
                 String[] parts = s.split("\\|");
                 parts[1] = Float.toString(Float.parseFloat(parts[1]) + 3);
                 
                 String joint = String.join("|", parts);
-                System.out.println("SEND=" + joint);
+                //System.out.println("SEND=" + joint);
                 out.print(joint);
                 out.print('\n');
                 out.flush();
                 if (out.checkError()) {
                     break;
-                }
+                }   
+            } else {
+                System.out.println("RECV=" + s);
+                
             }
         }
     }
