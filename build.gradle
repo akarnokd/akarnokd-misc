@@ -44,7 +44,7 @@ repositories {
 apply plugin: 'maven-publish'
 
 dependencies {
-    api 'org.reactivestreams:reactive-streams:1.0.3'
+    api 'org.reactivestreams:reactive-streams:1.0.4'
 
     implementation 'io.reactivex:rxjava:1.+'
     implementation 'io.reactivex:rxjava-string:+'
