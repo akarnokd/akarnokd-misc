@@ -25,7 +25,7 @@ public class BuildMap {
         int minZ = -1400;
         int maxX = 2400;
         int minX = -1000;
-        int defaultY = 50;
+        int defaultY = 500;
 
         int nHorizontal = (maxZ - minZ) / step;
         int nVertical = (maxX - minX) / step;
