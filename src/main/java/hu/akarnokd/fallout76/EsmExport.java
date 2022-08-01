@@ -32,8 +32,9 @@ public final class EsmExport {
     static Map<Integer, String> curveTables;
 
     static String[] basePaths = {
-            "c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\",
-            "e:\\Games\\Fallout76\\Data\\"
+            //"c:\\Program Files (x86)\\Bethesda.net Launcher\\games\\Fallout76\\Data\\",
+            //"e:\\Games\\Fallout76\\Data\\",
+            "e:\\Steam\\steamapps\\common\\Fallout76\\Data\\"
     };
 
     static String basePath;
