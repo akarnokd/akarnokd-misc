@@ -16,6 +16,14 @@ public class CleanupCS {
                 lines.set(i, "");
                 modified = true;
             }
+            if (line.trim().startsWith("// (get) Token")) {
+                lines.set(i, "");
+                modified = true;
+            }
+            if (line.trim().startsWith("// (set) Token")) {
+                lines.set(i, "");
+                modified = true;
+            }
         }
         
         if (modified) {
