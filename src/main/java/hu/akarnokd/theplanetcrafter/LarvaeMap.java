@@ -53,8 +53,8 @@ public class LarvaeMap {
             
             double x = (s.x - px0) * dx;
             double y = (pz0 - s.z) * dz;
-            double w = s.w * dx;
-            double h = s.d * dz;
+            double w = s.w * dx * 2;
+            double h = s.d * dz * 2;
             
             var back1 = new Color(32, 32, 32, 128);
             var back2 = new Color(32, 32, 32, 192);
