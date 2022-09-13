@@ -58,7 +58,7 @@ dependencies {
 
     implementation group: 'io.projectreactor.addons', name: 'reactor-extra', version: '3+'
 
-    implementation group: 'io.helidon.common', name: 'helidon-common-reactive', version: '3.0.0'
+    implementation group: 'io.helidon.common', name: 'helidon-common-reactive', version: '3.0.1'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
     implementation 'com.typesafe.akka:akka-stream_2.13:2.6.19'
@@ -77,7 +77,7 @@ dependencies {
 
     implementation 'com.annimon:stream:+'
 
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.36'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0'
 
     // -------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ dependencies {
     
     jmhImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'junit', name: 'junit', version: '4.13.1'
-    testImplementation 'org.mockito:mockito-core:4.6.1'
+    testImplementation 'org.mockito:mockito-core:4.8.0'
 
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     //compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
@@ -151,7 +151,7 @@ dependencies {
     testImplementation "org.testng:testng:7.6.1"
     testImplementation "org.reactivestreams:reactive-streams-tck:1.0.4"
 
-    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.42.13'
+    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.42.16'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'org.apache.commons:commons-math3:3.6.1'
