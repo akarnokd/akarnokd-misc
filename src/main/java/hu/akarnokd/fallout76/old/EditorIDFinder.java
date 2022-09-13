@@ -1,4 +1,4 @@
-package hu.akarnokd.fallout76;
+package hu.akarnokd.fallout76.old;
 
 import java.awt.*;
 import java.io.*;

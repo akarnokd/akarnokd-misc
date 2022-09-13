@@ -1,11 +1,18 @@
-package hu.akarnokd.fallout76;
+package hu.akarnokd.fallout76.old;
 
-import java.io.*;
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import hu.akarnokd.fallout76.Ba2File;
+import hu.akarnokd.fallout76.Ba2FileEntry;
 import io.reactivex.functions.BiConsumer;
 
 public class Fallout76EnemyInfo {

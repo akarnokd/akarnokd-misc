@@ -1,4 +1,4 @@
-package hu.akarnokd.fallout76;
+package hu.akarnokd.fallout76.old;
 
 import java.io.*;
 import java.nio.MappedByteBuffer;
