@@ -61,7 +61,7 @@ dependencies {
     implementation group: 'io.helidon.common', name: 'helidon-common-reactive', version: '3.0.1'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
-    implementation 'com.typesafe.akka:akka-stream_2.13:2.6.19'
+    implementation 'com.typesafe.akka:akka-stream_2.13:2.6.20'
     
     implementation 'org.jctools:jctools-core:4.+'
 
