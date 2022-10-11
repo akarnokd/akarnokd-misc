@@ -24,6 +24,10 @@ public class CleanupCS {
                 lines.set(i, "");
                 modified = true;
             }
+            if (line.trim().startsWith("// (Invoke) Token")) {
+                lines.set(i, "");
+                modified = true;
+            }
         }
         
         if (modified) {
