@@ -59,7 +59,7 @@ public class DropProbabilityCalc {
         System.out.println("--------");
         RunMonteCarlo(
                 new Larvae("Bee", 1),
-                new Larvae("Silkworm", 0.8)
+                new Larvae("Silkworm", 0.7)// new Larvae("Silkworm", 0.8)
         );
         System.out.println("Rare");
         System.out.println("----");
@@ -67,7 +67,10 @@ public class DropProbabilityCalc {
                 new Larvae("Penga", 0.7),
                 new Larvae("Chevrone", 0.6),
                 new Larvae("Aemel", 0.5),
-                new Larvae("Liux", 0.5)
+                new Larvae("Liux", 0.5),
+                new Larvae("Imeo", 0.8),
+                new Larvae("Serena", 0.7),
+                new Larvae("Golden", 0.15)
         );
 
         System.out.println("Base");
