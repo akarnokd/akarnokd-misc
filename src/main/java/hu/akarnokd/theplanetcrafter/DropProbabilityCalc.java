@@ -122,5 +122,15 @@ public class DropProbabilityCalc {
                 new Larvae("Fiorente", 0.05),
                 new Larvae("Alben", 0.05)
         );
+        
+        System.out.println("LostParadise");
+        System.out.println("----");
+        RunMonteCarlo(
+                new Larvae("Golden", 0.15),
+                new Larvae("Serena", 0.70),
+                new Larvae("Fiorente", 0.05),
+                new Larvae("Alben", 0.05),
+                new Larvae("Lorpen", 0.05)
+        );
     }
 }
