@@ -1,0 +1,30 @@
+package hu.akarnokd.rxjava2;
+
+import java.util.concurrent.*;
+
+import org.junit.Test;
+
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+public class SingleTimeout7514 {
+
+    @Test
+    public void test() throws Exception {
+        for (int i = 0; i < 10000000; i++) {
+            final int y = i;
+            final CountDownLatch latch = new CountDownLatch(1);
+            Disposable d = Single.never()
+                    .timeout(0, TimeUnit.NANOSECONDS, Schedulers.computation())
+                    .subscribe(v -> {}, e -> {
+                        System.out.println("timeout " + y);
+                        latch.countDown();
+                    });
+            if (!latch.await(2, TimeUnit.SECONDS)) {
+                System.out.println(d);
+                throw new IllegalStateException("Timeout was not happening!");
+            }
+        }
+    }
+}
