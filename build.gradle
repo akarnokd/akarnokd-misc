@@ -51,7 +51,7 @@ dependencies {
     implementation 'io.reactivex:rxjava-reactive-streams:+'
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.5'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.6'
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     implementation 'io.projectreactor:reactor-core:3+'
     testImplementation 'io.projectreactor:reactor-test:3+'
@@ -61,7 +61,7 @@ dependencies {
     implementation group: 'io.helidon.common', name: 'helidon-common-reactive', version: '3.0.2'
     
     //compile 'com.typesafe.akka:akka-stream_2.11:2.5-M2'
-    implementation 'com.typesafe.akka:akka-stream_2.13:2.6.20'
+    implementation 'com.typesafe.akka:akka-stream_2.13:2.7.0'
     
     implementation 'org.jctools:jctools-core:4.+'
 
@@ -77,7 +77,7 @@ dependencies {
 
     implementation 'com.annimon:stream:+'
 
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.3'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.4'
 
     // -------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ dependencies {
     testImplementation "org.testng:testng:7.6.1"
     testImplementation "org.reactivestreams:reactive-streams-tck:1.0.4"
 
-    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.42.21'
+    testImplementation group: 'io.servicetalk', name: 'servicetalk-concurrent-reactivestreams', version: '0.42.22'
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'org.apache.commons:commons-math3:3.6.1'
