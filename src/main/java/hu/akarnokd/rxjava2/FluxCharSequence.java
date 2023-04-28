@@ -4,10 +4,9 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import org.reactivestreams.Subscriber;
 
+import io.reactivex.rxjava3.internal.subscriptions.SubscriptionHelper;
 import reactor.core.*;
-import reactor.core.publisher.Flux;
-import rsc.subscriber.SubscriptionHelper;
-import rsc.util.BackpressureHelper;
+import reactor.core.publisher.*;
 
 /**
  * Streams the characters of a string.
@@ -55,7 +54,7 @@ public final class FluxCharSequence extends Flux<Integer> {
         @Override
         public void request(long n) {
             if (SubscriptionHelper.validate(n)) {
-                if (BackpressureHelper.getAndAddCap(REQUESTED, this, n) == 0) {
+                if (Operators.addCap(REQUESTED, this, n) == 0) {
                     if (n == Long.MAX_VALUE) {
                         fastPath();
                     } else {

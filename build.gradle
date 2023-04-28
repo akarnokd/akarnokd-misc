@@ -83,7 +83,7 @@ dependencies {
 
     //compile 'com.github.akarnokd:rxjava2-backport:2.0.0-RC3'
     
-    implementation 'io.projectreactor:reactive-streams-commons:0.6.0.BUILD-SNAPSHOT'
+    //implementation 'io.projectreactor:reactive-streams-commons:0.6.0.BUILD-SNAPSHOT'
 
     implementation('com.github.akarnokd:ixjava:1.+') {
     	exclude group: "io.reactivex", module: "rxjava"

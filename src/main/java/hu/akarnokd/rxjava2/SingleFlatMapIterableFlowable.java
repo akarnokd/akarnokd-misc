@@ -11,7 +11,7 @@ import io.reactivex.exceptions.Exceptions;
 import io.reactivex.functions.Function;
 import io.reactivex.internal.disposables.DisposableHelper;
 import io.reactivex.internal.util.BackpressureHelper;
-import rsc.subscriber.SubscriptionHelper;
+import io.reactivex.rxjava3.internal.subscriptions.SubscriptionHelper;
 
 public final class SingleFlatMapIterableFlowable<T, R> extends Flowable<R> {
 
