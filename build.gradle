@@ -130,7 +130,7 @@ dependencies {
     
     jmhImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
 
     //compile 'io.projectreactor:reactor-stream:2.0.5.RELEASE'
     //compile 'com.typesafe.akka:akka-stream-experimental_2.11:2.+'
