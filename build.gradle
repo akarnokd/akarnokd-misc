@@ -51,7 +51,7 @@ dependencies {
     implementation 'io.reactivex:rxjava-reactive-streams:+'
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.7'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     implementation 'io.projectreactor:reactor-core:3+'
     testImplementation 'io.projectreactor:reactor-test:3+'
