@@ -28,6 +28,14 @@ public class CleanupCS {
                 lines.set(i, "");
                 modified = true;
             }
+            if (line.trim().startsWith("// (add) Token")) {
+                lines.set(i, "");
+                modified = true;
+            }
+            if (line.trim().startsWith("// (remove) Token")) {
+                lines.set(i, "");
+                modified = true;
+            }
         }
         
         if (modified) {
