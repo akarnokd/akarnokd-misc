@@ -140,7 +140,7 @@ dependencies {
     
     implementation 'it.unimi.dsi:fastutil:8.5.13'
     
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.10.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.10.0'
     implementation('com.squareup.retrofit2:adapter-rxjava2:2.10.0') {
         exclude group: "io.reactivex.rxjava2", module: "rxjava"
