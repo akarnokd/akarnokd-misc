@@ -16,7 +16,19 @@ public class HumbleMap {
         BufferedImage bimg = new BufferedImage(4000, 4000, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D g2 = bimg.createGraphics();
 
+        
+        
         List<POI> pois = List.of(
+                new POI(254, 120, "Dolomite", 0xFF0000),
+                new POI(-86, -1177, "Bauxite", 0x00FF00),
+                new POI(-1065, 231, "Uranite", 0x606060),
+                new POI(177, -776, "Sulfur", 0xFFFF00),
+                new POI(82, 696, "Osmium", 0x0000FF),
+                new POI(742, 626, "Zeolite", 0xB0B0B0),
+                new POI(955, -1404, "Obsidian", 0x202020),
+                new POI(-152, 123, "Landing", 0x000000),
+                new POI(362, 202, "Base 1", 0x000000)
+                /*
                 new POI(-86, -1395, "Iridium", 0xFF0000),
                 new POI(1979, -946, "Uranium", 0x00FF00),
                 new POI(938, 95, "Aluminium", 0x606060),
@@ -27,6 +39,7 @@ public class HumbleMap {
                 new POI(881, -1441, "Obsidian", 0x202020),
                 new POI(-152, 123, "Landing", 0x000000),
                 new POI(362, 202, "Base 1", 0x000000)
+                */
         );
 
         int cx = bimg.getWidth() * 3 / 5;

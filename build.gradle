@@ -7,7 +7,6 @@ buildscript {
     }
 
     dependencies {
-        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
         classpath "me.champeau.gradle:jmh-gradle-plugin:0.5.3"
     }
 }
@@ -158,7 +157,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.7'
 
     
-    jmh configurations.api
+    // jmh configurations.api
 }
 
 processResources {
@@ -166,10 +165,6 @@ processResources {
     include '**/*.conf'
   }
 }
-
-apply plugin: 'license'
-
-apply from: file('gradle/license.gradle')
 
 jmh {
     jmhVersion = '1.23'
