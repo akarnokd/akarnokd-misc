@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 
 public class HumbleMap {
 
-    record POI(int x, int z, String name, int color) { }
+    record POI(int x, int z, String name, int color, boolean above) { }
 
     public static void main(String[] args) throws Throwable {
         BufferedImage bimg = new BufferedImage(4000, 4000, BufferedImage.TYPE_4BYTE_ABGR);
@@ -19,15 +19,15 @@ public class HumbleMap {
         
         
         List<POI> pois = List.of(
-                new POI(254, 120, "Dolomite", 0xFF0000),
-                new POI(-86, -1177, "Bauxite", 0x00FF00),
-                new POI(-1065, 231, "Uranite", 0x606060),
-                new POI(177, -776, "Sulfur", 0xFFFF00),
-                new POI(82, 696, "Osmium", 0x0000FF),
-                new POI(742, 626, "Zeolite", 0xB0B0B0),
-                new POI(955, -1404, "Obsidian", 0x202020),
-                new POI(-152, 123, "Landing", 0x000000),
-                new POI(362, 202, "Base 1", 0x000000)
+                new POI(254, 120, "Dolomite", 0xFF0000, false),
+                new POI(-86, -1177, "Bauxite", 0x00FF00, false),
+                new POI(-1065, 231, "Uranite", 0x606060, false),
+                new POI(177, -776, "Sulfur", 0xFFFF00, false),
+                new POI(82, 696, "Osmium", 0x0000FF, false),
+                new POI(742, 626, "Zeolite", 0xB0B0B0, false),
+                new POI(955, -1404, "Obsidian", 0x202020, false),
+                new POI(-152, 123, "Landing", 0x000000, false),
+                new POI(362, 202, "Base 1", 0x000000, true)
                 /*
                 new POI(-86, -1395, "Iridium", 0xFF0000),
                 new POI(1979, -946, "Uranium", 0x00FF00),
@@ -78,14 +78,25 @@ public class HumbleMap {
             var str2 = "[ " + poi.x + " * " + poi.z + " ]";
             var strw2 = g2.getFontMetrics().stringWidth(str2);
 
-            g2.setColor(Color.white);
-
-            g2.fillRect(cy - poi.z - strw / 2, cx - poi.x + spotSize / 2 + 0 * fontSize, strw, fontSize);
-            g2.fillRect(cy - poi.z - strw2 / 2, cx - poi.x + spotSize / 2 + 0 * fontSize + fontSize, strw2, fontSize);
-
-            g2.setColor(Color.black);
-            g2.drawString(str, cy - poi.z - strw / 2, cx - poi.x + spotSize / 2 + fontSize);
-            g2.drawString(str2, cy - poi.z - strw2 / 2, cx - poi.x + spotSize / 2 + fontSize + fontSize);
+            if (poi.above) {
+                g2.setColor(Color.white);
+                
+                g2.fillRect(cy - poi.z - strw / 2, cx - poi.x - 0 * spotSize / 2 + -3 * fontSize, strw, fontSize);
+                g2.fillRect(cy - poi.z - strw2 / 2, cx - poi.x - 0 *  spotSize / 2 + -2 * fontSize, strw2, fontSize);
+    
+                g2.setColor(Color.black);
+                g2.drawString(str, cy - poi.z - strw / 2, cx - poi.x - 0 * spotSize / 2 + -2* fontSize);
+                g2.drawString(str2, cy - poi.z - strw2 / 2, cx - poi.x - 0 * spotSize / 2 + -1 * fontSize);
+            } else {
+                g2.setColor(Color.white);
+    
+                g2.fillRect(cy - poi.z - strw / 2, cx - poi.x + spotSize / 2 + 0 * fontSize, strw, fontSize);
+                g2.fillRect(cy - poi.z - strw2 / 2, cx - poi.x + spotSize / 2 + 0 * fontSize + fontSize, strw2, fontSize);
+    
+                g2.setColor(Color.black);
+                g2.drawString(str, cy - poi.z - strw / 2, cx - poi.x + spotSize / 2 + fontSize);
+                g2.drawString(str2, cy - poi.z - strw2 / 2, cx - poi.x + spotSize / 2 + fontSize + fontSize);
+            }
         }
 
         g2.dispose();
