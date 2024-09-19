@@ -19,6 +19,22 @@ public class HumbleMap {
         
         
         List<POI> pois = List.of(
+                new POI(171, 149, "Dolomite", 0xFF0000, false),
+                new POI(1330, 716, "Dolomite", 0xFF0000, false),
+                new POI(-323, -538, "Bauxite", 0x00FF00, false),
+                new POI(980, 105, "Bauxite", 0x00FF00, false),
+                new POI(1297, -1834, "Uranite", 0x606060, false),
+                new POI(441, 1147, "Uranite", 0x606060, false),
+                new POI(177, -776, "Sulfur", 0xFFFF00, false),
+                new POI(82, 696, "Osmium", 0x0000FF, false),
+                new POI(723, 626, "Zeolite", 0xB0B0B0, false),
+                new POI(810, -1239, "Obsidian", 0x202020, false),
+                new POI(-152, 123, "Landing", 0x000000, false),
+                new POI(362, 202, "Base 1", 0x000000, true),
+                new POI(-541, 299, "Alloy", 0xFFCC00, false),
+                new POI(-1202, 189, "Cobalt", 0x0000CF, false)
+                
+                /*
                 new POI(254, 120, "Dolomite", 0xFF0000, false),
                 new POI(-86, -1177, "Bauxite", 0x00FF00, false),
                 new POI(-1065, 231, "Uranite", 0x606060, false),
@@ -28,6 +44,7 @@ public class HumbleMap {
                 new POI(955, -1404, "Obsidian", 0x202020, false),
                 new POI(-152, 123, "Landing", 0x000000, false),
                 new POI(362, 202, "Base 1", 0x000000, true)
+                */
                 /*
                 new POI(-86, -1395, "Iridium", 0xFF0000),
                 new POI(1979, -946, "Uranium", 0x00FF00),
@@ -43,7 +60,7 @@ public class HumbleMap {
         );
 
         int cx = bimg.getWidth() * 3 / 5;
-        int cy = bimg.getHeight() * 2 / 4;
+        int cy = bimg.getHeight() * 4 / 10;
         g2.setColor(Color.white);
         g2.fillRect(0, 0, bimg.getWidth(), bimg.getHeight());
 
