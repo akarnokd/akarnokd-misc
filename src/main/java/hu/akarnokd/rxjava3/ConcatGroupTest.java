@@ -39,6 +39,11 @@ public class ConcatGroupTest {
         .flatMapSingle(v -> v.toList())
         .concatMapIterable(v -> v)
         .subscribe(System.out::println);
+
+        Observable.<String>create(e -> { });
+
+        //Observable<String>.create(e -> { });
+
     }
 
 }
