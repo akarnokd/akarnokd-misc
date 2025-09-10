@@ -50,7 +50,7 @@ dependencies {
     implementation 'io.reactivex:rxjava-reactive-streams:+'
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
-    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.10'
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     implementation 'io.projectreactor:reactor-core:3+'
     testImplementation 'io.projectreactor:reactor-test:3+'
@@ -158,6 +158,11 @@ dependencies {
 
     
     // jmh configurations.api
+    
+    testImplementation "com.google.truth:truth:1.4.4"
+    
+    // testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    // testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 processResources {
