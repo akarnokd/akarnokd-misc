@@ -17,8 +17,8 @@ apply plugin: 'java-library'
 
 apply plugin: "me.champeau.gradle.jmh"
 
-targetCompatibility = JavaVersion.VERSION_17
-sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_21
+sourceCompatibility = JavaVersion.VERSION_21
 
 group = "com.github.akarnokd" 
 ext.githubProjectName = 'akarnokd-misc'
@@ -160,9 +160,7 @@ dependencies {
     // jmh configurations.api
     
     testImplementation "com.google.truth:truth:1.4.4"
-    
-    // testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    // testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'io.minio:minio:8.5.17'
 }
 
 processResources {

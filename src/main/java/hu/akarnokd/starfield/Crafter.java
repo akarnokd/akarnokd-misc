@@ -16,7 +16,7 @@ public class Crafter {
             Thread.sleep(1000);
         }
         
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 1500; i++) {
             robot.keyPress(KeyEvent.VK_E);
             robot.keyRelease(KeyEvent.VK_E);
 
