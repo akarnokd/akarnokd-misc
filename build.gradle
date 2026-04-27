@@ -76,7 +76,7 @@ dependencies {
 
     implementation 'com.annimon:stream:+'
 
-    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.13'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.17'
 
     // -------------------------------------------------------------------
 
