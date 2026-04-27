@@ -42,7 +42,7 @@ public class MinioUploader {
                 .object(dt.toString().replace(':', '-') + "/input_alt.csv")
                 //.object("input_alt.csv")
                 .userMetadata(Map.of("meta-attribute", "meta-value-2"))
-                .stream(ins, ins.available(), -1)
+                .stream(ins, (long)ins.available(), -1L)
                 .build()
                 );
 
