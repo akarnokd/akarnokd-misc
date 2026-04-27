@@ -1,24 +1,11 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-
-    dependencies {
-        classpath "me.champeau.gradle:jmh-gradle-plugin:0.5.3"
-    }
+plugins {
+  id("me.champeau.jmh") version "0.7.3"
 }
 
 apply plugin: 'java-library'
 
-//apply plugin: 'eclipse'
-
-apply plugin: "me.champeau.gradle.jmh"
-
-targetCompatibility = JavaVersion.VERSION_21
-sourceCompatibility = JavaVersion.VERSION_21
+java.targetCompatibility = JavaVersion.VERSION_26
+java.sourceCompatibility = JavaVersion.VERSION_26
 
 group = "com.github.akarnokd" 
 ext.githubProjectName = 'akarnokd-misc'
@@ -184,12 +171,12 @@ jmh {
     jvmArgsAppend = ["-Djmh.separateClasspathJAR=true", "-XX:+UseParallelGC"]
     // ---------------------------------------------------------------------------------------
     
-    if (project.hasProperty('jmh')) {
-        include = ".*" + project.jmh + ".*"
-        println(include)
-    } else {
-        include = ".*"
-    }
+    // if (project.hasProperty('jmh')) {
+    //    include = ".*" + project.jmh + ".*"
+    //    println(include)
+    // } else {
+    //    include = ".*"
+    // }
     
     //jvmArgs = '-XX:MaxInlineLevel=20' use @Fork attribute
 }
