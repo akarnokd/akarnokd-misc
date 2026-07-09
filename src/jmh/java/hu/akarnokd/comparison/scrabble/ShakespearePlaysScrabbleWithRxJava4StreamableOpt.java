@@ -80,7 +80,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
         Function<String, Single<HashMap<Integer, Long>>> histoOfLetters =
                 word -> toIntegerStreamable.apply(word)
                             .collect(Collectors.groupingBy(v -> v, Collectors.counting())
-                            ).toSingle();
+                            ).lastOrError();
 
         // number of blanks for a given letter
         Function<Entry<Integer, MutableLong>, Long> blank =
