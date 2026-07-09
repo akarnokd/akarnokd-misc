@@ -25,6 +25,7 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/groups/public' }
     //maven { url 'https://oss.jfrog.org/libs-snapshot' }
     maven { url 'https://repo.spring.io/libs-snapshot' }
+    maven { url 'https://central.sonatype.com/repository/maven-snapshots' }
 }
 
 apply plugin: 'maven-publish'
@@ -38,6 +39,7 @@ dependencies {
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
     implementation 'io.reactivex.rxjava3:rxjava:3.1.12'
+    implementation 'io.reactivex.rxjava4:rxjava:4.0.0-SNAPSHOT'
     //compile 'io.projectreactor:reactor-core:3.0.0.BUILD-SNAPSHOT'
     implementation 'io.projectreactor:reactor-core:3+'
     testImplementation 'io.projectreactor:reactor-test:3+'
