@@ -1,5 +1,6 @@
 plugins {
   id("me.champeau.jmh") version "0.7.3"
+  id "com.github.ben-manes.versions" version "0.54.0"
 }
 
 apply plugin: 'java-library'
@@ -159,10 +160,10 @@ processResources {
 }
 
 jmh {
-    jmhVersion = '1.23'
-    humanOutputFile = null
+    jmhVersion = '1.37'
     includeTests = false
     duplicateClassesStrategy = 'warn'
+    verbosity = 'EXTRA' // Verbosity mode. Available modes are: [SILENT, NORMAL, EXTRA]
     
     // For Epsilon GC, add: "-Xmx12G", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseEpsilonGC"
     // For Shenandoah, add: "-XX:+UseShenandoahGC" [optionally "-XX:+UnlockDiagnosticVMOptions", "-XX:ShenandoahGCHeuristics=passive"]
@@ -173,14 +174,12 @@ jmh {
     jvmArgsAppend = ["-Djmh.separateClasspathJAR=true", "-XX:+UseParallelGC"]
     // ---------------------------------------------------------------------------------------
     
-    // if (project.hasProperty('jmh')) {
-    //    include = ".*" + project.jmh + ".*"
-    //    println(include)
-    // } else {
-    //    include = ".*"
-    // }
     
     //jvmArgs = '-XX:MaxInlineLevel=20' use @Fork attribute
+    includes = [".*ShakespearePlaysScrabble.*"]
+    // humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt") // human-readable output file
+    humanOutputFile = null
+    resultsFile = project.file("${project.buildDir}/reports/jmh/results.txt") // results file
 }
 
 plugins.withType(EclipsePlugin) {
