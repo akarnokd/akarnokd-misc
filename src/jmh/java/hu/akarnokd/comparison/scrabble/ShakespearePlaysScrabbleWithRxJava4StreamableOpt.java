@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 José Paumard
+ * Copyright (C) 2019 Josï¿½ Paumard
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava4.math.MathFlowable;
 import io.reactivex.rxjava4.core.*;
 import io.reactivex.rxjava4.functions.Function;
 
@@ -37,7 +36,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
     static Streamable<Integer> chars(String word) {
 //        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
 //        return StringFlowable.characters(word);
-        Streamable.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return Streamable.range(0, word.length()).map(i -> (int)word.charAt(i));
     }
 
     @SuppressWarnings("unused")
@@ -63,11 +62,11 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
         Function<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
 
         // score of the same letters in a word
-        Function<Entry<Integer, MutableLong>, Integer> letterScore =
+        Function<Entry<Integer, Long>, Integer> letterScore =
                 entry ->
                         letterScores[entry.getKey() - 'a'] *
                         Integer.min(
-                                (int)entry.getValue().get(),
+                                entry.getValue().intValue(),
                                 scrabbleAvailableLetters[entry.getKey() - 'a']
                             )
                     ;
@@ -77,29 +76,30 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                 string -> chars(string);
 
         // Histogram of the letters in a given word
-        Function<String, Single<HashMap<Integer, Long>>> histoOfLetters =
+        Function<String, Single<Map<Integer, Long>>> histoOfLetters =
                 word -> toIntegerStreamable.apply(word)
                             .collect(Collectors.groupingBy(v -> v, Collectors.counting())
                             ).lastOrError();
 
         // number of blanks for a given letter
-        Function<Entry<Integer, MutableLong>, Long> blank =
+        Function<Entry<Integer, Long>, Long> blank =
                 entry ->
                         Long.max(
                             0L,
-                            entry.getValue().get() -
+                            entry.getValue() -
                             scrabbleAvailableLetters[entry.getKey() - 'a']
                         )
                     ;
 
         // number of blanks for a given word
         Function<String, Streamable<Long>> nBlanks =
-                word -> MathFlowable.sumLong(
-                            histoOfLetters.apply(word).flattenAsStreamable(
-                                    map -> map.entrySet()
-                            )
-                            .map(blank)
+                word -> histoOfLetters.apply(word).flattenAsStreamable(
+                                map -> map.entrySet()
                         )
+                        .map(blank)
+                        .collect(Collectors.summarizingLong(v -> v))
+                        .map(ss -> ss.getSum())
+
                     ;
 
 
@@ -110,12 +110,13 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
 
         // score taking blanks into account letterScore1
         Function<String, Streamable<Integer>> score2 =
-                word -> MathFlowable.sumInt(
-                            histoOfLetters.apply(word).flattenAsStreamable(
-                                map -> map.entrySet()
-                            )
-                            .map(letterScore)
-                            ) ;
+                word -> histoOfLetters.apply(word).flattenAsStreamable(
+                            map -> map.entrySet()
+                        )
+                        .map(letterScore)
+                        .collect(Collectors.summarizingInt(v -> v))
+                        .map(ss -> (int)ss.getSum())
+                    ;
 
         // Placing the word on the board
         // Building the streams of first and last letters
@@ -156,10 +157,17 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                                 .filter(scrabbleWords::contains)
                                 .filter(word -> checkBlanks.apply(word).blockingFirst())
                                 .collect(Collectors.groupingBy(
-                                        word -> score.apply(word).blockingFirst(),
+                                        word -> {
+                                            try {
+                                                return score.apply(word).blockingFirst();
+                                            } catch (Throwable e) {
+                                                e.printStackTrace();
+                                                return 0;
+                                            }
+                                        },
                                         () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()),
                                         Collectors.toList()
-                                ).lastOrError();
+                                )).lastOrError();
 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
