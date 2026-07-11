@@ -24,11 +24,12 @@ import java.util.stream.Collectors;
 
 import org.openjdk.jmh.annotations.*;
 
+import hu.akarnokd.rxjava4.StreamableCharSequence;
 import io.reactivex.rxjava4.core.*;
 import io.reactivex.rxjava4.functions.Function;
 
 /**
- * Shakespeare plays Scrabble with RxJava 4 Flowable optimized.
+ * Shakespeare plays Scrabble with RxJava 4 Streamable optimized.
  * @author José
  * @author akarnokd
  */
@@ -36,7 +37,8 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
     static Streamable<Integer> chars(String word) {
 //        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
 //        return StringFlowable.characters(word);
-        return Streamable.range(0, word.length()).map(i -> (int)word.charAt(i));
+//        return Streamable.range(0, word.length()).map(i -> (int)word.charAt(i));
+        return new StreamableCharSequence(word);
     }
 
     @SuppressWarnings("unused")
@@ -171,17 +173,12 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                    buildHistoOnScore.apply(score3).flattenAsFlowable(
+                    buildHistoOnScore.apply(score3).flattenAsStreamable(
                             map -> map.entrySet()
                     )
                     .take(3)
-                    .collect(
-                        () -> new ArrayList<Entry<Integer, List<String>>>(),
-                        (list, entry) -> {
-                            list.add(entry) ;
-                        }
-                    )
-                    .blockingGet() ;
+                    .collect(Collectors.toList())
+                    .blockingFirst() ;
 
         return finalList2 ;
     }

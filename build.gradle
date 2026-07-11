@@ -181,6 +181,9 @@ jmh {
     
     //jvmArgs = '-XX:MaxInlineLevel=20' use @Fork attribute
     includes = [".*ShakespearePlaysScrabble.*"]
+    if (project.hasProperty("jmhIncludes")) {
+        includes = ".*" + project.getProperty("jmhIncludes") + ".*"
+    }
     // humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt") // human-readable output file
     humanOutputFile = null
     resultsFile = project.file("${project.buildDir}/reports/jmh/results.txt") // results file
