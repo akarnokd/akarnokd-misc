@@ -184,6 +184,10 @@ jmh {
     if (project.hasProperty("jmhIncludes")) {
         includes = ".*" + project.getProperty("jmhIncludes") + ".*"
     }
+    // If -Pjmh.profilers is provided, use it; otherwise, use no profilers
+    if (project.hasProperty('jmh.profilers')) {
+        profilers = project.property('jmh.profilers').split(',')
+    }
     // humanOutputFile = project.file("${project.buildDir}/reports/jmh/human.txt") // human-readable output file
     humanOutputFile = null
     resultsFile = project.file("${project.buildDir}/reports/jmh/results.txt") // results file
