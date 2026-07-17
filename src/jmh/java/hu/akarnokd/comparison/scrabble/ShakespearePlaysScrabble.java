@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 José Paumard
+ * Copyright (C) 2019 JosÃ© Paumard
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,11 @@ public class ShakespearePlaysScrabble {
 
         MutableLong incAndSet() {
             value++;
+            return this;
+        }
+
+        MutableLong add(long v) {
+            value += v;
             return this;
         }
 

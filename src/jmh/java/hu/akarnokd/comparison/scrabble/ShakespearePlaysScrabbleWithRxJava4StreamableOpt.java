@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Jos� Paumard
+ * Copyright (C) 2019 José Paumard
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ package hu.akarnokd.comparison.scrabble;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.*;
+import java.util.stream.*;
 
 import org.openjdk.jmh.annotations.*;
 
@@ -28,11 +29,27 @@ import hu.akarnokd.rxjava4.StreamableCharSequence;
 import io.reactivex.rxjava4.core.*;
 import io.reactivex.rxjava4.functions.Function;
 
-/**
- * Shakespeare plays Scrabble with RxJava 4 Streamable optimized.
- * @author José
- * @author akarnokd
- */
+/// Shakespeare plays Scrabble with RxJava 4 Streamable optimized.
+///
+/// # Oprimitation progress
+///
+/// i9 275HX, 32GB LPDDR5 6400MT CL52, Windows 25H2, JDK 26.0.1
+///
+/// | Step | Time (ms) | Improvement | vs Baseline |
+/// |------|------|-------------:|-------------:|
+/// | Baseline | 42,5119 | - | - |
+/// | Avoid `whenComplete` usage in `collect` | 37,566 | -11,65% | - |
+/// | IndexableSource in `collect` | 35,815 | -4,66% | -15,77% |
+/// | concatIterable optimizations | 31,971 | -10,73%  | -24,81% |
+/// | map fusions | 30,623 | -4,22% | -27,98% |
+/// | flattenAsFlowable deferred opt | 27,999 | -8,57%  | -34,15% |
+/// | MutableLong in the bench | 26,159 | -6,57% | -38,48% |
+/// | lastOrError opt | 25,164 | -3,80% | -40,82% |
+/// | custom  `Collector` summers | 24,885 | -1,11% | -41,47% |
+/// | skip optimizations | 24,791  | -0,38% | -41,69% |
+///
+/// @author José
+/// @author akarnokd
 public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends ShakespearePlaysScrabble {
     static Streamable<Integer> chars(String word) {
 //        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
@@ -64,11 +81,11 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
         Function<Integer, Integer> scoreOfALetter = letter -> letterScores[letter - 'a'];
 
         // score of the same letters in a word
-        Function<Entry<Integer, Long>, Integer> letterScore =
+        Function<Entry<Integer, MutableLong>, Integer> letterScore =
                 entry ->
                         letterScores[entry.getKey() - 'a'] *
                         Integer.min(
-                                entry.getValue().intValue(),
+                                (int)entry.getValue().get(),
                                 scrabbleAvailableLetters[entry.getKey() - 'a']
                             )
                     ;
@@ -78,17 +95,17 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                 string -> chars(string);
 
         // Histogram of the letters in a given word
-        Function<String, Single<Map<Integer, Long>>> histoOfLetters =
+        Function<String, Single<Map<Integer, MutableLong>>> histoOfLetters =
                 word -> toIntegerStreamable.apply(word)
-                            .collect(Collectors.groupingBy(v -> v, Collectors.counting())
-                            ).lastOrError();
+                            .collect(MutableLongMapCounter.INSTANCE)
+                            .lastOrError();
 
         // number of blanks for a given letter
-        Function<Entry<Integer, Long>, Long> blank =
+        Function<Entry<Integer, MutableLong>, Long> blank =
                 entry ->
                         Long.max(
                             0L,
-                            entry.getValue() -
+                            entry.getValue().get() -
                             scrabbleAvailableLetters[entry.getKey() - 'a']
                         )
                     ;
@@ -99,9 +116,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                                 map -> map.entrySet()
                         )
                         .map(blank)
-                        .collect(Collectors.summarizingLong(v -> v))
-                        .map(ss -> ss.getSum())
-
+                        .collect(SumLongCollector.INSTANCE)
                     ;
 
 
@@ -116,8 +131,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                             map -> map.entrySet()
                         )
                         .map(letterScore)
-                        .collect(Collectors.summarizingInt(v -> v))
-                        .map(ss -> (int)ss.getSum())
+                        .collect(SumIntCollector.INSTANCE)
                     ;
 
         // Placing the word on the board
@@ -181,6 +195,106 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                     .blockingFirst() ;
 
         return finalList2 ;
+    }
+
+    static final class MutableLongMapCounter
+    implements Collector<Integer, Map<Integer, MutableLong>, Map<Integer, MutableLong>> {
+
+        static final MutableLongMapCounter INSTANCE = new MutableLongMapCounter();
+
+        private MutableLongMapCounter() { }
+
+        @Override
+        public Supplier<Map<Integer, MutableLong>> supplier() {
+            return HashMap::new;
+        }
+
+        @Override
+        public BiConsumer<Map<Integer, MutableLong>, Integer> accumulator() {
+            return (m, v) -> {
+                m.computeIfAbsent(v, _ -> new MutableLong()).incAndSet();
+            };
+        }
+
+        @Override
+        public BinaryOperator<Map<Integer, MutableLong>> combiner() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public java.util.function.Function<Map<Integer, MutableLong>, Map<Integer, MutableLong>> finisher() {
+            return v -> v;
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return EnumSet.of(Characteristics.UNORDERED);
+        }
+    }
+
+    static final class SumIntCollector
+    implements Collector<Integer, MutableLong, Integer> {
+
+        static final SumIntCollector INSTANCE = new SumIntCollector();
+
+        private SumIntCollector() { }
+
+        @Override
+        public Supplier<MutableLong> supplier() {
+            return MutableLong::new;
+        }
+
+        @Override
+        public BiConsumer<MutableLong, Integer> accumulator() {
+            return (m, v) -> m.add(v);
+        }
+
+        @Override
+        public BinaryOperator<MutableLong> combiner() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public java.util.function.Function<MutableLong, Integer> finisher() {
+            return m -> (int)m.get();
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return null;
+        }
+    }
+    static final class SumLongCollector
+    implements Collector<Long, MutableLong, Long> {
+
+        static final SumLongCollector INSTANCE = new SumLongCollector();
+
+        private SumLongCollector() { }
+
+        @Override
+        public Supplier<MutableLong> supplier() {
+            return MutableLong::new;
+        }
+
+        @Override
+        public BiConsumer<MutableLong, Long> accumulator() {
+            return (m, v) -> m.add(v);
+        }
+
+        @Override
+        public BinaryOperator<MutableLong> combiner() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public java.util.function.Function<MutableLong, Long> finisher() {
+            return m -> m.get();
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return null;
+        }
     }
 
     public static void main(String[] args) throws Throwable {

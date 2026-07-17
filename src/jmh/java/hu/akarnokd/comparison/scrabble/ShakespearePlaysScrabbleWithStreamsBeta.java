@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 José Paumard
+ * Copyright (C) 2019 JosÃ© Paumard
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,8 +114,8 @@ public abstract class ShakespearePlaysScrabbleWithStreamsBeta extends Shakespear
         // score of the word put on the board
         Function<String, Integer> score3 =
             word ->
-               2 * (score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
-               + (word.length() == 7 ? 50 : 0);
+                 2 * (score2.apply(word) + bonusForDoubleLetter.applyAsInt(word))
+                 + (word.length() == 7 ? 50 : 0);
 
         Function<Function<String, Integer>, Map<Integer, List<String>>> buildHistoOnScore =
                 score -> buildShakerspeareWordsStream()
