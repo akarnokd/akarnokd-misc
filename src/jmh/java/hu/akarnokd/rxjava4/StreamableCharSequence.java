@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage;
 import io.reactivex.rxjava4.annotations.NonNull;
 import io.reactivex.rxjava4.core.*;
 import io.reactivex.rxjava4.disposables.StreamerCancellation;
+import io.reactivex.rxjava4.operators.IndexableSource;
 
 public record StreamableCharSequence(CharSequence string) implements Streamable<Integer> {
 
@@ -13,7 +14,7 @@ public record StreamableCharSequence(CharSequence string) implements Streamable<
         return new CharSequenceStreamer(string);
     }
 
-    static final class CharSequenceStreamer implements Streamer<Integer> {
+    static final class CharSequenceStreamer implements Streamer<Integer>, IndexableSource<Integer> {
 
         final CharSequence string;
 
@@ -23,7 +24,7 @@ public record StreamableCharSequence(CharSequence string) implements Streamable<
             this.string = string;
             this.index = -1;
         }
-        
+
         @Override
         public @NonNull CompletionStage<Boolean> next() {
             if (++index >= string.length()) {
@@ -41,6 +42,15 @@ public record StreamableCharSequence(CharSequence string) implements Streamable<
         public @NonNull CompletionStage<Void> finish() {
             return FINISHED;
         }
-        
+
+        @Override
+        public @NonNull Integer elementAt(long index) throws Throwable {
+            return (int)string.charAt((int)index);
+        }
+
+        @Override
+        public long limit() {
+            return string.length();
+        }
     }
 }

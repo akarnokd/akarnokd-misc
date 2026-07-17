@@ -52,7 +52,7 @@ public class ZipCrash {
                         throw new Exception("second exception");
                     });
 
-                    List<Observable<?>> observableList = new ArrayList<>();
+                    List<Observable<Object>> observableList = new ArrayList<>();
                     observableList.add(first);
                     observableList.add(second);
 
