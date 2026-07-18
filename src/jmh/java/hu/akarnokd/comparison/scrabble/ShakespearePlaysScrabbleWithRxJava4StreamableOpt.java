@@ -47,6 +47,9 @@ import io.reactivex.rxjava4.functions.Function;
 /// | lastOrError opt | 25,164 | -3,80% | -40,82% |
 /// | custom  `Collector` summers | 24,885 | -1,11% | -41,47% |
 /// | skip optimizations | 24,791  | -0,38% | -41,69% |
+/// | filter opt, filter+map fusion, lastOrError opt | 23,566 |  -4,94% | -44,58% |
+/// | slow path collect optimization  |  22,392 | -4,98% | -47,34% |
+/// | CharStreamer EnumerableSource marker | 21,843 | -2,45% | -48,63% |
 ///
 /// @author José
 /// @author akarnokd
@@ -172,18 +175,8 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                 score -> Streamable.fromIterable(shakespeareWords)
                                 .filter(scrabbleWords::contains)
                                 .filter(word -> checkBlanks.apply(word).blockingFirst())
-                                .collect(Collectors.groupingBy(
-                                        word -> {
-                                            try {
-                                                return score.apply(word).blockingFirst();
-                                            } catch (Throwable e) {
-                                                e.printStackTrace();
-                                                return 0;
-                                            }
-                                        },
-                                        () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder()),
-                                        Collectors.toList()
-                                )).lastOrError();
+                                .collect(new ReverseTreeMapListCollector(word -> score.apply(word).blockingFirst()))
+                                .lastOrError();
 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
@@ -289,6 +282,44 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
         @Override
         public java.util.function.Function<MutableLong, Long> finisher() {
             return m -> m.get();
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return null;
+        }
+    }
+
+    record ReverseTreeMapListCollector(Function<String, Integer> valueMapper)
+    implements Collector<String, TreeMap<Integer, List<String>>, TreeMap<Integer, List<String>>> {
+
+        @Override
+        public Supplier<TreeMap<Integer, List<String>>> supplier() {
+            return () -> new TreeMap<Integer, List<String>>(Comparator.reverseOrder());
+        }
+
+        @Override
+        public BiConsumer<TreeMap<Integer, List<String>>, String> accumulator() {
+            return (m, v) -> {
+                Integer result;
+
+                try {
+                    result = valueMapper.apply(v);
+                } catch (Throwable ex) {
+                    result = 0;
+                }
+                m.computeIfAbsent(result, _ -> new ArrayList<String>()).add(v);
+            };
+        }
+
+        @Override
+        public BinaryOperator<TreeMap<Integer, List<String>>> combiner() {
+            return null;
+        }
+
+        @Override
+        public java.util.function.Function<TreeMap<Integer, List<String>>, TreeMap<Integer, List<String>>> finisher() {
+            return v -> v;
         }
 
         @Override
