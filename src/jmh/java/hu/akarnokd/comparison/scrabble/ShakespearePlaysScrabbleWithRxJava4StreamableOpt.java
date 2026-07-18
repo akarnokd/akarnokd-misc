@@ -50,6 +50,7 @@ import io.reactivex.rxjava4.functions.Function;
 /// | filter opt, filter+map fusion, lastOrError opt | 23,566 |  -4,94% | -44,58% |
 /// | slow path collect optimization  |  22,392 | -4,98% | -47,34% |
 /// | CharStreamer EnumerableSource marker | 21,843 | -2,45% | -48,63% |
+/// | custom max collector |  20,369 | -6,75% | -52,09% |
 ///
 /// @author José
 /// @author akarnokd
@@ -154,8 +155,8 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
         Function<String, Streamable<Integer>> bonusForDoubleLetter =
             word -> toBeMaxed.apply(word)
                         .map(scoreOfALetter)
-                        .collect(Collectors.maxBy(Comparator.naturalOrder()))
-                        .mapOptional(v -> v)
+                        .collect(MaxCollector.INSTANCE)
+                        //.mapOptional(v -> v)
                         ;
 
         // score of the word put on the board
@@ -324,6 +325,38 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
 
         @Override
         public Set<Characteristics> characteristics() {
+            return null;
+        }
+    }
+
+    record MaxCollector() implements Collector<Integer, int[], Integer> {
+
+        static final MaxCollector INSTANCE = new MaxCollector();
+
+        @Override
+        public Supplier<int[]> supplier() {
+            return () -> new int[1];
+        }
+
+        @Override
+        public BiConsumer<int[], Integer> accumulator() {
+            return (m, i) -> {
+                m[0] = Math.max(m[0], i);
+            };
+        }
+
+        @Override
+        public java.util.function.Function<int[], Integer> finisher() {
+            return m -> m[0];
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return null;
+        }
+
+        @Override
+        public BinaryOperator<int[]> combiner() {
             return null;
         }
     }
