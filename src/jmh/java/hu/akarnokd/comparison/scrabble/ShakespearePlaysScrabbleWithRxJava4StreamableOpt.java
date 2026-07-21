@@ -27,6 +27,7 @@ import org.openjdk.jmh.annotations.*;
 
 import hu.akarnokd.rxjava4.StreamableCharSequence;
 import io.reactivex.rxjava4.core.*;
+import io.reactivex.rxjava4.disposables.DisposableStreamerCancellation;
 import io.reactivex.rxjava4.functions.Function;
 
 /// Shakespeare plays Scrabble with RxJava 4 Streamable optimized.
@@ -176,7 +177,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
         Function<Function<String, Streamable<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
                 score -> Streamable.fromIterable(shakespeareWords)
                                 .filter(scrabbleWords::contains)
-                                .filter(word -> checkBlanks.apply(word).blockingFirst())
+                                .filter(word -> checkBlanks.apply(word).blockingFirst(DisposableStreamerCancellation.never()))
                                 .collect(new ReverseTreeMapListCollector(word -> score.apply(word).blockingFirst()))
                                 .lastOrError();
 
@@ -187,7 +188,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                     )
                     .take(3)
                     .collect(Collectors.toList())
-                    .blockingFirst() ;
+                    .blockingFirst(DisposableStreamerCancellation.never()) ;
 
         return finalList2 ;
     }
