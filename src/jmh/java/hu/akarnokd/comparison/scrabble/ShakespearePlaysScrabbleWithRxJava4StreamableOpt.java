@@ -51,6 +51,7 @@ import io.reactivex.rxjava4.functions.Function;
 /// | slow path collect optimization  |  22,392 | -4,98% | -47,34% |
 /// | CharStreamer EnumerableSource marker | 21,843 | -2,45% | -48,63% |
 /// | custom max collector |  20,369 | -6,75% | -52,09% |
+/// | skip sync bias | 19,827 | -2,66% | -53,37% |
 ///
 /// @author José
 /// @author akarnokd
@@ -168,7 +169,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                             bonusForDoubleLetter.apply(word)
                         )
                 )
-                .collect(Collectors.summingInt(v -> v))
+                .collect(SumIntCollector.INSTANCE)
                 .map(v -> v * 2 + (word.length() == 7 ? 50 : 0))
                 ;
 
