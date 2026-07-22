@@ -14,21 +14,18 @@
 /*
  * Copyright (C) 2019 José Paumard
  */
-
 package hu.akarnokd.comparison.scrabble;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.*;
-import java.util.stream.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.openjdk.jmh.annotations.*;
 
-import hu.akarnokd.rxjava4.StreamableCharSequence;
-import io.reactivex.rxjava4.core.*;
-import io.reactivex.rxjava4.disposables.DisposableStreamerCancellation;
-import io.reactivex.rxjava4.functions.Function;
+import io.helidon.common.reactive.*;
 
 /// Shakespeare plays Scrabble with RxJava 4 Streamable optimized.
 ///
@@ -38,31 +35,15 @@ import io.reactivex.rxjava4.functions.Function;
 ///
 /// | Step | Time (ms) | Improvement | vs Baseline |
 /// |------|------|-------------:|-------------:|
-/// | Baseline | 42,5119 | - | - |
-/// | Avoid `whenComplete` usage in `collect` | 37,566 | -11,65% | - |
-/// | IndexableSource in `collect` | 35,815 | -4,66% | -15,77% |
-/// | concatIterable optimizations | 31,971 | -10,73%  | -24,81% |
-/// | map fusions | 30,623 | -4,22% | -27,98% |
-/// | flattenAsFlowable deferred opt | 27,999 | -8,57%  | -34,15% |
-/// | MutableLong in the bench | 26,159 | -6,57% | -38,48% |
-/// | lastOrError opt | 25,164 | -3,80% | -40,82% |
-/// | custom  `Collector` summers | 24,885 | -1,11% | -41,47% |
-/// | skip optimizations | 24,791  | -0,38% | -41,69% |
-/// | filter opt, filter+map fusion, lastOrError opt | 23,566 |  -4,94% | -44,58% |
-/// | slow path collect optimization  |  22,392 | -4,98% | -47,34% |
-/// | CharStreamer EnumerableSource marker | 21,843 | -2,45% | -48,63% |
-/// | custom max collector |  20,369 | -6,75% | -52,09% |
-/// | skip sync bias | 19,827 | -2,66% | -53,37% |
-/// | blockingFirst never cancellation | 18,406 | -7,17% | -56,71% |
+/// | Baseline | 17,266 | - | - |
+/// | char streaming | | | |
 ///
 /// @author José
 /// @author akarnokd
-public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends ShakespearePlaysScrabble {
-    static Streamable<Integer> chars(String word) {
-//        return Flowable.range(0, word.length()).map(i -> (int)word.charAt(i));
-//        return StringFlowable.characters(word);
-//        return Streamable.range(0, word.length()).map(i -> (int)word.charAt(i));
-        return new StreamableCharSequence(word);
+public class ShakespearePlaysScrabbleWithHelidonOpt extends ShakespearePlaysScrabble {
+    static Multi<Integer> chars(String word) {
+        // FIXME dedicated char producer
+        return Multi.range(0, word.length()).map(index -> (int)word.charAt(index));
     }
 
     @SuppressWarnings("unused")
@@ -98,14 +79,14 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                     ;
 
 
-        Function<String, Streamable<Integer>> toIntegerStreamable =
+        Function<String, Multi<Integer>> toIntegerStreamable =
                 string -> chars(string);
 
         // Histogram of the letters in a given word
         Function<String, Single<Map<Integer, MutableLong>>> histoOfLetters =
                 word -> toIntegerStreamable.apply(word)
-                            .collect(MutableLongMapCounter.INSTANCE)
-                            .lastOrError();
+                            .collectStream(MutableLongMapCounter.INSTANCE)
+                            ;
 
         // number of blanks for a given letter
         Function<Entry<Integer, MutableLong>, Long> blank =
@@ -118,80 +99,85 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
                     ;
 
         // number of blanks for a given word
-        Function<String, Streamable<Long>> nBlanks =
-                word -> histoOfLetters.apply(word).flattenAsStreamable(
+        Function<String, Single<Long>> nBlanks =
+                word -> histoOfLetters.apply(word).flatMapIterable(
                                 map -> map.entrySet()
                         )
                         .map(blank)
-                        .collect(SumLongCollector.INSTANCE)
+                        .collectStream(SumLongCollector.INSTANCE)
                     ;
 
 
         // can a word be written with 2 blanks?
-        Function<String, Streamable<Boolean>> checkBlanks =
+        Function<String, Single<Boolean>> checkBlanks =
                 word -> nBlanks.apply(word)
                             .map(l -> l <= 2L) ;
 
         // score taking blanks into account letterScore1
-        Function<String, Streamable<Integer>> score2 =
-                word -> histoOfLetters.apply(word).flattenAsStreamable(
+        Function<String, Single<Integer>> score2 =
+                word -> histoOfLetters.apply(word).flatMapIterable(
                             map -> map.entrySet()
                         )
                         .map(letterScore)
-                        .collect(SumIntCollector.INSTANCE)
+                        .collectStream(SumIntCollector.INSTANCE)
                     ;
 
         // Placing the word on the board
         // Building the streams of first and last letters
-        Function<String, Streamable<Integer>> first3 =
-                word -> chars(word).take(3) ;
-        Function<String, Streamable<Integer>> last3 =
+        Function<String, Multi<Integer>> first3 =
+                word -> chars(word).limit(3) ;
+        Function<String, Multi<Integer>> last3 =
                 word -> chars(word).skip(3) ;
 
 
         // Stream to be maxed
-        Function<String, Streamable<Integer>> toBeMaxed =
-            word -> Streamable.concat(List.of(first3.apply(word), last3.apply(word)))
+        Function<String, Multi<Integer>> toBeMaxed =
+            word -> Multi.concat(first3.apply(word), last3.apply(word))
             ;
 
         // Bonus for double letter
-        Function<String, Streamable<Integer>> bonusForDoubleLetter =
+        Function<String, Single<Integer>> bonusForDoubleLetter =
             word -> toBeMaxed.apply(word)
                         .map(scoreOfALetter)
-                        .collect(MaxCollector.INSTANCE)
-                        //.mapOptional(v -> v)
+                        .collectStream(MaxCollector.INSTANCE)
                         ;
 
         // score of the word put on the board
-        Function<String, Streamable<Integer>> score3 =
+        Function<String, Single<Integer>> score3 =
             word ->
-                Streamable.concat(
-                    List.of(
-                            score2.apply(word),
-                            bonusForDoubleLetter.apply(word)
-                        )
+                Multi.concat(
+                    score2.apply(word),
+                    bonusForDoubleLetter.apply(word)
                 )
-                .collect(SumIntCollector.INSTANCE)
+                .collectStream(SumIntCollector.INSTANCE)
                 .map(v -> v * 2 + (word.length() == 7 ? 50 : 0))
                 ;
 
-        Function<Function<String, Streamable<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
-                score -> Streamable.fromIterable(shakespeareWords)
+        Function<Function<String, Single<Integer>>, Single<TreeMap<Integer, List<String>>>> buildHistoOnScore =
+                score -> Multi.create(shakespeareWords)
                                 .filter(scrabbleWords::contains)
-                                .filter(word -> checkBlanks.apply(word).blockingFirst(DisposableStreamerCancellation.never()))
-                                .collect(new ReverseTreeMapListCollector(word -> score.apply(word).blockingFirst()))
-                                .lastOrError();
+                                .filter(word -> singleGet(checkBlanks.apply(word)))
+                                .collectStream(new ReverseTreeMapListCollector(word -> singleGet(score.apply(word))))
+                                ;
 
         // best key / value pairs
         List<Entry<Integer, List<String>>> finalList2 =
-                    buildHistoOnScore.apply(score3).flattenAsStreamable(
+                    buildHistoOnScore.apply(score3).flatMapIterable(
                             map -> map.entrySet()
                     )
-                    .take(3)
-                    .collect(Collectors.toList())
-                    .blockingFirst(DisposableStreamerCancellation.never()) ;
+                    .limit(3)
+                    .collectStream(Collectors.toList())
+                    .get();
 
         return finalList2 ;
+    }
+
+    static <T> T singleGet(Single<T> source) {
+        try {
+            return source.get();
+        } catch (Throwable ex) {
+            throw new CompletionException(ex);
+        }
     }
 
     static final class MutableLongMapCounter
@@ -365,7 +351,7 @@ public class ShakespearePlaysScrabbleWithRxJava4StreamableOpt extends Shakespear
     }
 
     public static void main(String[] args) throws Throwable {
-        ShakespearePlaysScrabbleWithRxJava4StreamableOpt s = new ShakespearePlaysScrabbleWithRxJava4StreamableOpt();
+        ShakespearePlaysScrabbleWithHelidonOpt s = new ShakespearePlaysScrabbleWithHelidonOpt();
         s.init();
         System.out.println(s.measureThroughput());
     }

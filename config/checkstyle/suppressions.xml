@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+
+  <suppress checks="MissingJavadocMethod|JavadocMethod" files=".*[\\/]src[\\/]main[\\/]java[\\/]io[\\/]reactivex[\\/]rxjava4[\\/]internal[\\/].*\.java$"/>
+  <suppress checks="MissingJavadocMethod|JavadocMethod" files=".*[\\/]src[\\/]test[\\/]java[\\/].*\.java$"/>
+  <suppress checks="MissingJavadocMethod|JavadocMethod" files=".*[\\/]src[\\/]jmh[\\/]java[\\/].*\.java$"/>
+  <suppress checks="MissingJavadocMethod|JavadocMethod" files=".*Test\.java$"/>
+  <suppress checks="MissingJavadocMethod|JavadocMethod" files=".*Perf\.java$"/>
+
+</suppressions>

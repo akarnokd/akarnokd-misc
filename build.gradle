@@ -1,4 +1,6 @@
 plugins {
+  id("java-library")
+  id("checkstyle")
   id("me.champeau.jmh") version "0.7.3"
   id "com.github.ben-manes.versions" version "0.54.0"
 }
@@ -208,4 +210,14 @@ test {
         events "started", "failed" // "skipped", "passed"
     //    showStandardStreams = true
     }
+}
+
+checkstyle {
+    configFile = project.file("config/checkstyle/checkstyle.xml")
+    configProperties = [
+            "checkstyle.suppressions.file": project.file("config/checkstyle/suppressions.xml"),
+            "checkstyle.header.file"      : project.file("config/license/HEADER_JAVA"),
+            "project_loc"                 : project.projectDir.absolutePath
+    ]
+    checkstyleMain.exclude '**/module-info.java'
 }
