@@ -2,7 +2,7 @@ plugins {
   id("java-library")
   id("checkstyle")
   id("me.champeau.jmh") version "0.7.3"
-  id "io.github.ben-manes.versions" version "0.58.0"
+  id "io.github.ben-manes.versions" version "0.59.0"
 }
 
 apply plugin: 'java-library'
