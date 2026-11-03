@@ -157,7 +157,7 @@ dependencies {
     // jmh configurations.api
     
     testImplementation "com.google.truth:truth:1.4.5"
-    implementation 'io.minio:minio:9.0.3'
+    implementation 'io.minio:minio:9.0.4'
 }
 
 processResources {
